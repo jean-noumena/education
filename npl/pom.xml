@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>npl</artifactId>
+
+    <parent>
+        <groupId>com.noumena</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../parent-pom</relativePath>
+    </parent>
+
+    <build>
+        <sourceDirectory>src/main/npl</sourceDirectory>
+        <testSourceDirectory>src/test/npl</testSourceDirectory>
+
+        <plugins>
+            <plugin>
+                <groupId>com.noumenadigital.platform</groupId>
+                <artifactId>npl-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>npl-compile-and-test</id>
+                        <goals>
+                            <goal>npl-compile</goal>
+                            <goal>npl-test</goal>
+                            <goal>npl-codegen</goal>
+                        </goals>
+                        <configuration>
+                            <tag>seed-1.0.0</tag>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.noumenadigital.platform</groupId>
+            <artifactId>engine-client</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

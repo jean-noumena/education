@@ -1,0 +1,115 @@
+version: "2.4"
+
+volumes:
+  keycloak-provisioning: { }
+
+services:
+
+  api:
+    build:
+      context: api
+    ports:
+      - "9000:9000"
+    environment:
+      HTTP_PORT: 8080
+      HTTP_ADMIN_PORT: 8000
+      BASE_URL: http://localhost:8080/
+      KEYCLOAK_URL: http://keycloak:11000/
+      ENGINE_URL: http://engine:12000/
+      READ_MODEL_URL: http://read-model:15000/
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
+    healthcheck:
+      test: "wget --no-verbose --tries=1 --spider http://api:8000/health || exit 1"
+      interval: 1s
+      retries: 100
+    depends_on:
+      - keycloak-provisioning
+      - engine
+      - upshift
+
+  upshift:
+    build:
+      context: npl
+    environment:
+      ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
+      ENGINE_DB_USER: seed
+      ENGINE_DB_PASSWORD: secret
+    depends_on:
+      - engine
+
+  engine:
+    image: registry.noumenadigital.com/noumena/platform/engine:2021.1.26
+    ports:
+      - "12000:12000"
+    environment:
+      ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
+      ENGINE_DB_USER: seed
+      ENGINE_DB_PASSWORD: secret
+      ENGINE_AUTH_SERVER_BASE_URL: http://keycloak:11000
+      POSTGRAPHILE_DB_USER: postgraphile
+      POSTGRAPHILE_DB_PASSWORD: postgraphile
+    depends_on:
+      - engine-db
+      - keycloak
+
+  read-model:
+    image: registry.noumenadigital.com/noumena/platform/postgraphile:2021.1.26
+    environment:
+      DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
+      KEYCLOAK_ENDPOINT: http://keycloak:11000/realms/noumena
+      SCHEMA: noumena
+      PORT: 15000
+      POSTGRAPHILE_DB_USER: postgraphile
+    ports:
+      - "15000:15000"
+    depends_on:
+      - engine-db
+      - keycloak
+
+  engine-db:
+    image: postgres:11.6-alpine
+    mem_limit: 256m
+    environment:
+      POSTGRES_DB: engine
+      POSTGRES_USER: seed
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+
+  keycloak-provisioning:
+    build:
+      context: keycloak-provisioning
+    volumes:
+      - keycloak-provisioning:/state
+    depends_on:
+      keycloak:
+        condition: service_healthy
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:17.0.0
+    command: start --auto-build --hostname-strict=false --hostname-strict-https=false --http-enabled=true --metrics-enabled=true --db=postgres
+    environment:
+      KC_DB_URL: jdbc:postgresql://keycloak-db/postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: testing
+      KC_HTTP_PORT: 11000
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: Seed123!
+    ports:
+      - "11000:11000"
+    healthcheck:
+      test: curl -s localhost:11000/health || exit 1
+      interval: 1s
+      retries: 60
+    depends_on:
+      - keycloak-db
+
+  keycloak-db:
+    image: postgres:11.6-alpine
+    mem_limit: 256m
+
+#  wait_for:
+#    image: rwgrim/docker-noop
+#    depends_on:
+#      api:
+#        condition: service_healthy
