@@ -3,6 +3,7 @@ version: "2.4"
 services:
 
   api:
+    platform: linux/amd64
     build:
       context: api
     ports:
@@ -22,6 +23,7 @@ services:
       - upshift
 
   upshift:
+    platform: linux/amd64
     build:
       context: npl
     environment:
@@ -32,6 +34,7 @@ services:
       - engine-db
 
   engine:
+    platform: linux/amd64
     image: registry.noumenadigital.com/noumena/platform/engine:2021.1.26
     ports:
       - "12000:12000"
@@ -47,6 +50,7 @@ services:
       - keycloak
 
   read-model:
+    platform: linux/amd64
     image: registry.noumenadigital.com/noumena/platform/postgraphile:2021.1.26
     environment:
       DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
@@ -71,6 +75,7 @@ services:
       - "5432:5432"
 
   keycloak-provisioning:
+    platform: linux/amd64
     build:
       context: keycloak-provisioning
     depends_on:
@@ -78,7 +83,8 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: quay.io/keycloak/keycloak:17.0.0
+    platform: linux/amd64
+    image: ghcr.io/marcelcoding/keycloak:17.0.0
     command: start-dev --metrics-enabled=true --db=dev-mem
     environment:
       KC_HTTP_PORT: 11000
@@ -92,6 +98,7 @@ services:
       retries: 60
 
 #  wait_for:
+#    platform: linux/amd64
 #    image: rwgrim/docker-noop
 #    depends_on:
 #      api:
