@@ -6,7 +6,7 @@ struct TimestampedAmount {
 };
 
 function total(entries: List<TimestampedAmount>) returns Number {
-    return entries.map(\(p: TimestampedAmount) returns Number -> p.amount).sum();
+    return entries.map(function(p: TimestampedAmount) returns Number -> p.amount).sum();
 };
 
 @api

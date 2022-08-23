@@ -22,12 +22,12 @@ function test_amount_owed_after_pay(test: Test) {
 function test_pay_negative_amount(test: Test) {
     var iou = Iou[ISSUER, PAYEE](100);
 
-    test.assertFails(\() returns Unit -> iou.pay[ISSUER](-10), "Paying negative amounts should fail");
+    test.assertFails(function() returns Unit -> iou.pay[ISSUER](-10), "Paying negative amounts should fail");
 };
 
 @test
 function test_overpaying(test: Test) {
     var iou = Iou[ISSUER, PAYEE](100);
 
-    test.assertFails(\() returns Unit -> iou.pay[ISSUER](101), "Overpaying should fail");
+    test.assertFails(function() returns Unit -> iou.pay[ISSUER](101), "Overpaying should fail");
 };

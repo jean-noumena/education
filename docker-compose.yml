@@ -35,7 +35,7 @@ services:
 
   engine:
     platform: linux/amd64
-    image: registry.noumenadigital.com/noumena/platform/engine:2021.1.26
+    image: registry.noumenadigital.com/noumena/platform/engine:2021.1.155
     ports:
       - "12000:12000"
     environment:
@@ -51,7 +51,7 @@ services:
 
   read-model:
     platform: linux/amd64
-    image: registry.noumenadigital.com/noumena/platform/postgraphile:2021.1.26
+    image: registry.noumenadigital.com/noumena/platform/postgraphile:2021.1.155
     environment:
       DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
       KEYCLOAK_ENDPOINT: http://keycloak:11000/realms/noumena

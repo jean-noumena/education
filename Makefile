@@ -1,5 +1,6 @@
 CI_COMMIT_SHA=HEAD
 VERSION=1.0-SNAPSHOT
+MAVEN_CLI_OPTS?=-s .m2/settings.xml
 
 .PHONY:	clean
 clean:

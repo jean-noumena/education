@@ -20,8 +20,8 @@
         <kotlin.coroutines.version>1.5.2</kotlin.coroutines.version>
         <http4k.version>4.13.0.0</http4k.version>
         <logback.version>1.2.6</logback.version>
-        <clint.version>11.68.0</clint.version>
-        <noumena.platform.version>2021.1.26</noumena.platform.version>
+        <clint.version>11.162.0</clint.version>
+        <noumena.platform.version>2021.1.155</noumena.platform.version>
     </properties>
 
     <dependencyManagement>
@@ -141,11 +141,6 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <args>
-                            <arg>-Xjvm-default=enable</arg><!-- See https://stackoverflow.com/a/49933841/245602 -->
-                            <!-- https://docs.spring.io/spring/docs/current/spring-framework-reference/languages.html#kotlin-null-safety -->
-                            <arg>-Xjsr305=strict</arg>
-                        </args>
                         <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
                     </configuration>
                 </plugin>

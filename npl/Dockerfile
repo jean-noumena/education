@@ -1,4 +1,4 @@
-FROM registry.noumenadigital.com/platform-tools/cli/clint:11.68.0
+FROM registry.noumenadigital.com/platform-tools/cli/clint:11.162.0
 
 ARG BUILD_DATE
 ARG GIT_REV
