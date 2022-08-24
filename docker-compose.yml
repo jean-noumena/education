@@ -72,11 +72,15 @@ services:
 
   keycloak:
     image: quay.io/keycloak/keycloak:18.0.2
-    command: start-dev --metrics-enabled=true --db=dev-mem
+    command: start-dev
     environment:
-      KC_HTTP_PORT: 11000
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Seed123!
+      KC_DB: dev-file
+      KC_HEALTH_ENABLED: "true"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 11000
+      KC_HOSTNAME: keycloak
     ports:
       - "11000:11000"
     healthcheck:
