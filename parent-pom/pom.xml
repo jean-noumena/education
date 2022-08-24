@@ -20,8 +20,7 @@
         <kotlin.coroutines.version>1.5.2</kotlin.coroutines.version>
         <http4k.version>4.13.0.0</http4k.version>
         <logback.version>1.2.6</logback.version>
-        <clint.version>11.162.0</clint.version>
-        <noumena.platform.version>2021.1.155</noumena.platform.version>
+        <noumena.platform.version>2021.1.175</noumena.platform.version>
     </properties>
 
     <dependencyManagement>

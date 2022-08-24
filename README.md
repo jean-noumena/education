@@ -1,5 +1,37 @@
 # Seed
 
+The seed project is an example on how to set up new NPL-based projects.
+
+## Running 
+
+### Preparations
+
+In order to run the seed project, make sure you have the following: 
+
+* access to our [GitHub Packages](https://github.com/noumenadigital/packages) repository
+* an environment variable called `MAVEN_USER_NAME` which is set to your GitHub account name
+* an environment variable called `MAVEN_USER_PASS` which is set to a GitHub Personal Access Token with at least the `read packages` permission
+* Java 17
+* Maven 
+* Docker 
+
+### Building
+
+```shell
+$ make clean install  
+```
+
+### Running 
+
+```shell
+$ make run
+```
+
+
+## Playing around
+
+When the seed project is running, you can execute the following commands to communicate with the API: 
+
 ```shell
 curl -X POST http://localhost:9000/raw/iou/100
 curl -X GET http://localhost:9000/raw/iou/amountOwed/{protocolId}

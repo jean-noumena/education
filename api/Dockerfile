@@ -1,4 +1,4 @@
-FROM adoptopenjdk/openjdk11:jdk-11.0.11_9-alpine-slim
+FROM openjdk:11-jre-slim
 
 ARG BUILD_DATE
 ARG GIT_REV
