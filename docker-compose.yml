@@ -7,19 +7,19 @@ services:
       context: api
     ports:
       - "9000:9000"
+      - "9100:9100"
     environment:
       KEYCLOAK_URL: http://keycloak:11000
       ENGINE_URL: http://engine:12000
       READ_MODEL_URL: http://read-model:15000
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
     healthcheck:
-      test: "wget --no-verbose --tries=1 --spider http://api:8000/health || exit 1"
+      test: "curl -s -f http://localhost:9100/health || exit 1"
       interval: 1s
       retries: 100
     depends_on:
       - keycloak-provisioning
       - engine
-      - upshift
 
   engine:
     build:
@@ -87,10 +87,3 @@ services:
       test: curl -s localhost:11000/health || exit 1
       interval: 1s
       retries: 60
-
-#  wait_for:
-#    platform: linux/amd64
-#    image: rwgrim/docker-noop
-#    depends_on:
-#      api:
-#        condition: service_healthy

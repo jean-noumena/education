@@ -1,4 +1,4 @@
-package seed
+package seed.app
 
 import arrow.core.getOrHandle
 import com.fasterxml.jackson.annotation.JsonInclude
@@ -18,6 +18,9 @@ import org.http4k.format.Jackson.auto
 import org.http4k.lens.Path
 import org.http4k.lens.int
 import org.http4k.lens.uuid
+import seed.config.ISSUER
+import seed.config.PAYEE
+import seed.config.authProvider
 import java.math.BigDecimal
 import java.util.UUID
 

@@ -18,6 +18,7 @@
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
         <kotlin.version>1.5.30</kotlin.version>
         <kotlin.coroutines.version>1.5.2</kotlin.coroutines.version>
+        <io-prometheus-version>0.9.0</io-prometheus-version>
         <http4k.version>4.13.0.0</http4k.version>
         <logback.version>1.2.6</logback.version>
         <noumena.platform.version>2021.1.175</noumena.platform.version>
@@ -96,6 +97,23 @@
                 <version>${noumena.platform.version}</version>
             </dependency>
 
+            <!-- Metrics -->
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${io-prometheus-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_httpserver</artifactId>
+                <version>${io-prometheus-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_hotspot</artifactId>
+                <version>${io-prometheus-version}</version>
+            </dependency>
+            
             <!-- Testing -->
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -222,5 +240,18 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/noumenadigital/packages/</url>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/noumenadigital/packages/</url>
+        </pluginRepository>
+    </pluginRepositories>
 
 </project>

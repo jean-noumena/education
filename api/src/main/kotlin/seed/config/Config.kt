@@ -1,4 +1,4 @@
-package seed
+package seed.config
 
 import com.noumenadigital.platform.engine.client.AuthConfig
 import com.noumenadigital.platform.engine.client.TokenAuthorizationProvider
@@ -9,6 +9,8 @@ const val PAYEE = "seeduser2"
 
 val engineURL: String = System.getenv("ENGINE_URL") ?: "http://localhost:12000"
 val keycloakURL: String = System.getenv("KEYCLOAK_URL") ?: "http://localhost:11000"
+val httpPort: Int = (System.getenv("HTTP_PORT") ?: "9000").toInt()
+val adminPort: Int = (System.getenv("ADMIN_PORT") ?: "9100").toInt()
 
 private val authConfig = AuthConfig(
     realm = "noumena",

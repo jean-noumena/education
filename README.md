@@ -27,6 +27,15 @@ $ make clean install
 $ make run
 ```
 
+Verify that everything is running correctly by verifying the health checks:
+
+* API: `curl -v http://localhost:9100/health` 
+* Keycloak: `curl -v http://localhost:11000/health`
+* Engine: `curl -v http://localhost:12000/actuator/health`
+
+Check the metrics on 
+
+* API: `curl http://localhost:9100/metrics`
 
 ## Playing around
 
