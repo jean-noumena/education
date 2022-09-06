@@ -3,6 +3,7 @@ version: "2.4"
 services:
 
   api:
+    image: ghcr.io/noumenadigital/seed/api:latest 
     build:
       context: api
     ports:
@@ -12,6 +13,8 @@ services:
       KEYCLOAK_URL: http://keycloak:11000
       ENGINE_URL: http://engine:12000
       READ_MODEL_URL: http://read-model:15000
+      HTTP_PORT: 9000
+      ADMIN_PORT: 9100
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
     healthcheck:
       test: "curl -s -f http://localhost:9100/health || exit 1"
@@ -22,6 +25,7 @@ services:
       - engine
 
   engine:
+    image: ghcr.io/noumenadigital/seed/engine:latest
     build:
       context: npl
     ports:
@@ -38,7 +42,7 @@ services:
       - keycloak
 
   read-model:
-    image: registry.noumenadigital.com/noumena/platform/postgraphile:2021.1.175
+    image: ghcr.io/noumenadigital/packages/postgraphile:2021.1.175
     environment:
       DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
@@ -64,8 +68,10 @@ services:
       - "5432:5432"
 
   keycloak-provisioning:
+    image: ghcr.io/noumenadigital/seed/keycloak-provisioning:latest
     build:
       context: keycloak-provisioning
+    command: /local.sh
     depends_on:
       keycloak:
         condition: service_healthy

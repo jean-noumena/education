@@ -1,0 +1,14 @@
+# Application
+datacenter: seed-dev
+domain: seed-dev.noumenadigital.com
+entrypoint: external
+LOG_LEVEL: debug
+
+## ENGINE
+PLATFORM_VERSION: "2021.1.145"
+ENGINE_DB: "platform"
+ENGINE_DB_URL:  "jdbc:postgresql://postgresql.service.consul/platform"
+ENGINE_ENDPOINT: "http://engine.service.consul:12000"
+
+## KEYCLOAK
+KEYCLOAK_URL: "http://keycloak.service.consul:11000"

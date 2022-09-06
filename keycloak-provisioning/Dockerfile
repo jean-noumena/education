@@ -6,7 +6,9 @@ ENV KEYCLOAK_USER="admin" \
 
 WORKDIR /terraform
 COPY providers.tf terraform.tf /terraform/
+COPY *.sh /
 VOLUME /state
 
 RUN terraform init
-CMD ["apply", "-auto-approve", "-state=/state/state.tf"]
+ENTRYPOINT []
+CMD ["local.sh"]
