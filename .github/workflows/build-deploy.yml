@@ -19,8 +19,8 @@ jobs:
       - uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.MAVEN_USERNAME }}
+          password: ${{ secrets.MAVEN_PASSWORD }}
       - uses: actions/setup-java@v2
         with:
           java-version: '11'

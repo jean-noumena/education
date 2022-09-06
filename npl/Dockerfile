@@ -1,4 +1,4 @@
-FROM registry.noumenadigital.com/noumena/platform/engine:2021.1.175
+FROM ghcr.io/noumenadigital/packages/engine:2021.1.175
 
 ENV ENGINE_NPL_MIGRATION_DIRECTORYPATH="/npl" \
     FEATURE_APPLY_NPL_MIGRATIONS_AT_STARTUP="true"
