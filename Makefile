@@ -29,6 +29,9 @@ images:	install
 	docker tag ghcr.io/noumenadigital/seed/engine:latest ghcr.io/noumenadigital/seed/engine:$(VERSION)
 	docker push ghcr.io/noumenadigital/seed/engine:$(VERSION)
 
+	docker tag ghcr.io/noumenadigital/seed/keycloak-provisioning:latest ghcr.io/noumenadigital/seed/keycloak-provisioning:$(VERSION)
+	docker push ghcr.io/noumenadigital/seed/keycloak-provisioning:$(VERSION)
+
 define deploy
 	docker run --rm -v $(CURDIR)/nomad:/jobs:ro --network=host \
 		hashicorp/levant:$(LEVANT_VERSION) levant deploy \

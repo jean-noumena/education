@@ -23,6 +23,22 @@ job "platform" {
       }
     }
 
+    service {
+      name = "engine"
+      port = "http"
+      tags = [
+        "version=[[ .engine ]]",
+        "prometheus=/actuator/prometheusmetrics"
+      ]
+      check {
+        name     = "Engine Health Check"
+        type     = "http"
+        path     = "/actuator/health"
+        interval = "10s"
+        timeout  = "1s"
+      }
+    }
+
     task "engine" {
       leader = true
       driver = "docker"
@@ -53,22 +69,6 @@ EOT
       }
       resources {
         memory = 2096
-      }
-
-      service {
-        name = "engine"
-        port = "http"
-        tags = [
-          "version=[[ .engine ]]",
-          "prometheus=/actuator/prometheusmetrics"
-        ]
-        check {
-          name     = "Engine Health Check"
-          type     = "http"
-          path     = "/actuator/health"
-          interval = "10s"
-          timeout  = "1s"
-        }
       }
     }
 

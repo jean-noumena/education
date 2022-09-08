@@ -15,7 +15,7 @@ job "keycloak-provisioning" {
       leader = true
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/nxtlog/keycloak-provisioning:[[ .version ]]"
+        image        = "ghcr.io/noumenadigital/seed/keycloak-provisioning:[[ .version ]]"
         command      = "/cloud.sh"
         network_mode = "host"
       }
@@ -28,7 +28,7 @@ job "keycloak-provisioning" {
         destination = "${NOMAD_SECRETS_DIR}/psql"
         env         = true
         data        = <<EOT
-{{ with secret "secret/nxtlog/keycloak-admin" }}
+{{ with secret "secret/seed/keycloak-admin" }}
 KEYCLOAK_USER = {{ .Data.username }}
 KEYCLOAK_PASSWORD = {{ .Data.password }}
 {{ end }}

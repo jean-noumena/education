@@ -28,6 +28,32 @@ job "api" {
       attempts = 2
     }
 
+    service {
+      name = "api"
+      port = "http"
+      tags = [
+        "version=[[ .version ]]",
+        "traefik.enable=true",
+        "traefik.frontend.rule=Host:api.[[ .domain ]]",
+        "traefik.frontend.entryPoints=[[ .entrypoint ]]",
+      ]
+    }
+
+    service {
+      name = "api-service-status"
+      port = "admin"
+      check {
+        type     = "http"
+        name     = "API Health Check"
+        path     = "/health"
+        interval = "10s"
+        timeout  = "2s"
+      }
+      tags = [
+        "prometheus=/metrics"
+      ]
+    }
+
     task "api" {
       leader = true
       driver = "docker"
@@ -45,32 +71,6 @@ job "api" {
 
       resources {
         memory = 1024
-      }
-
-      service {
-        name = "api"
-        port = "http"
-        tags = [
-          "version=[[ .version ]]",
-          "traefik.enable=true",
-          "traefik.frontend.rule=Host:api.[[ .domain ]]",
-          "traefik.frontend.entryPoints=[[ .entrypoint ]]",
-        ]
-      }
-
-      service {
-        name = "api-service-status"
-        port = "admin"
-        check {
-          type     = "http"
-          name     = "API Health Check"
-          path     = "/health"
-          interval = "10s"
-          timeout  = "2s"
-        }
-        tags = [
-          "prometheus=/metrics"
-        ]
       }
     }
 

@@ -46,24 +46,23 @@ job "keycloak" {
       leader = true
       driver = "docker"
       config {
-        image        = "quay.io/keycloak/keycloak:17.0.0"
+        image        = "quay.io/keycloak/keycloak:18.0.2"
         network_mode = "host"
-        args = [
+        args         = [
           "start",
           "--auto-build",
-          "--hostname-strict=false",
-          "--hostname-strict-https=false",
-          "--http-enabled=true",
-          "--metrics-enabled=true",
-          "--db=postgres",
+          "--db=postgres"
         ]
       }
 
       env {
-        KC_HTTP_HOST = "${NOMAD_IP_http}"
-        KC_HTTP_PORT = "${NOMAD_PORT_http}"
-        KC_DB_URL    = "jdbc:postgresql://postgresql.service.consul:5432/keycloak"
-        KC_PROXY     = "edge"
+        KC_HEALTH_ENABLED = "true"
+        KC_HTTP_ENABLED   = "true"
+        KC_HTTP_HOST      = "0.0.0.0"
+        KC_HTTP_PORT      = "${NOMAD_PORT_http}"
+        KC_HOSTNAME       = "keycloak.service.consul"
+        KC_DB_URL         = "jdbc:postgresql://postgresql.service.consul:5432/keycloak"
+        KC_PROXY          = "edge"
       }
 
       template {
