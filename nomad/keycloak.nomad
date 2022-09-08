@@ -56,13 +56,14 @@ job "keycloak" {
       }
 
       env {
-        KC_HEALTH_ENABLED = "true"
-        KC_HTTP_ENABLED   = "true"
-        KC_HTTP_HOST      = "0.0.0.0"
-        KC_HTTP_PORT      = "${NOMAD_PORT_http}"
-        KC_HOSTNAME       = "keycloak.service.consul"
-        KC_DB_URL         = "jdbc:postgresql://postgresql.service.consul:5432/keycloak"
-        KC_PROXY          = "edge"
+        KC_HEALTH_ENABLED  = "true"
+        KC_HTTP_ENABLED    = "true"
+        KC_HTTP_HOST       = "0.0.0.0"
+        KC_HTTP_PORT       = "${NOMAD_PORT_http}"
+        KC_HOSTNAME        = "keycloak.seed-dev.noumenadigital.com"
+        KC_HOSTNAME_STRICT = "false"
+        KC_DB_URL          = "jdbc:postgresql://postgresql.service.consul:5432/keycloak"
+        KC_PROXY           = "edge"
       }
 
       template {
