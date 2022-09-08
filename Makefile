@@ -1,6 +1,7 @@
 GITHUB_SHA=HEAD
 VERSION=1.0-SNAPSHOT
 MAVEN_CLI_OPTS?=-s .m2/settings.xml
+LEVANT_VERSION=0.3.1
 
 .PHONY:	clean
 clean:
