@@ -2,7 +2,7 @@
 datacenter: seed-dev
 domain: seed-dev.noumenadigital.com
 entrypoint: external
-LOG_LEVEL: debug
+LOG_LEVEL: info
 
 ## ENGINE
 PLATFORM_VERSION: "2021.1.145"

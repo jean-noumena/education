@@ -54,3 +54,21 @@ curl -X GET http://localhost:9000/gen/iou/amountOwed/{protocolId}
 curl -X POST http://localhost:9000/gen/iou/pay/{protocolId} -d '{"value": "1"}'
 curl -X POST http://localhost:9000/gen/iou/forgive/{protocolId}
 ```
+
+## On seed-dev
+
+When the seed project is deployed to seed-dev.noumenadigital.com, you can execute the same commands: 
+
+```shell
+curl -X POST https://api.seed-dev.noumenadigital.com/raw/iou/100
+curl -X GET https://api.seed-dev.noumenadigital.com/raw/iou/amountOwed/{protocolId}
+curl -X POST https://api.seed-dev.noumenadigital.com/raw/iou/pay/{protocolId} -d '{"value": "1"}'
+curl -X POST https://api.seed-dev.noumenadigital.com/raw/iou/forgive/{protocolId}
+
+
+
+curl -X POST https://api.seed-dev.noumenadigital.com/gen/iou/100
+curl -X GET https://api.seed-dev.noumenadigital.com/gen/iou/amountOwed/{protocolId}
+curl -X POST https://api.seed-dev.noumenadigital.com/gen/iou/pay/{protocolId} -d '{"value": "1"}'
+curl -X POST https://api.seed-dev.noumenadigital.com/gen/iou/forgive/{protocolId}
+```

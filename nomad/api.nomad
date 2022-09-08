@@ -36,11 +36,11 @@ job "api" {
         network_mode = "host"
       }
       env {
-        HTTP_PORT                 = "${NOMAD_PORT_http}"
-        HTTP_ADMIN_PORT           = "${NOMAD_PORT_admin}"
-        KEYCLOAK_URL              = "[[ .KEYCLOAK_URL ]]"
-        ENGINE_URL                = "[[ .ENGINE_ENDPOINT]]"
-        LOG_LEVEL                 = "[[ .LOG_LEVEL ]]"
+        HTTP_PORT    = "${NOMAD_PORT_http}"
+        ADMIN_PORT   = "${NOMAD_PORT_admin}"
+        KEYCLOAK_URL = "[[ .KEYCLOAK_URL ]]"
+        ENGINE_URL   = "[[ .ENGINE_ENDPOINT]]"
+        LOG_LEVEL    = "[[ .LOG_LEVEL ]]"
       }
 
       resources {

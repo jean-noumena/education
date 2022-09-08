@@ -40,12 +40,24 @@ define deploy
 			/jobs/$1.nomad
 endef
 
+define run_batch
+	# levant has issues with batch files, so we just deploy them and ignore failures
+	-docker run --rm -v $(CURDIR)/nomad:/jobs:ro --network=host \
+		hashicorp/levant:$(LEVANT_VERSION) levant deploy \
+			-address $(NOMAD_ADDR) \
+			-ignore-no-changes \
+			-force-count \
+			-var 'version=${VERSION}' \
+			-var-file /jobs/env-$(ENVIRONMENT).yml \
+			/jobs/$1.nomad
+endef
+
 .PHONY:	deploy
 deploy:
 	@if [[ "$(VERSION)" = "latest" ]] || [[ "$(VERSION)" = "" ]]; then echo "Explicit VERSION not set"; exit 1; fi
 	@if [[ "$(ENVIRONMENT)" = "" ]]; then echo "ENVIRONMENT not set"; exit 1; fi
 	$(call deploy,keycloak)
-	$(call deploy,keycloak-provisioning)
+	$(call run_batch,keycloak-provisioning)
 	$(call deploy,platform)
 	$(call deploy,api)
 
