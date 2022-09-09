@@ -21,8 +21,10 @@ services:
       interval: 1s
       retries: 100
     depends_on:
-      - keycloak-provisioning
-      - engine
+      keycloak-provisioning:
+        condition: service_started
+      engine:
+        condition: service_healthy
 
   engine:
     image: ghcr.io/noumenadigital/seed/engine:latest
@@ -37,6 +39,11 @@ services:
       ENGINE_AUTH_SERVER_BASE_URL: http://keycloak:11000
       POSTGRAPHILE_DB_USER: postgraphile
       POSTGRAPHILE_DB_PASSWORD: postgraphile
+    healthcheck:
+      # add basic port opened check since image doesn't provide any tools to do a better check
+      test: /bin/bash -c '/usr/bin/printf "GET / HTTP/1.1\n\n" > /dev/tcp/127.0.0.1/12000'
+      interval: 1s
+      retries: 60
     depends_on:
       - engine-db
       - keycloak
