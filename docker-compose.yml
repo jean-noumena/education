@@ -49,7 +49,7 @@ services:
       - keycloak
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/postgraphile:2021.1.175
+    image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.13
     environment:
       DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
