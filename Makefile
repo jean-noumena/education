@@ -68,3 +68,14 @@ deploy:
 deploy-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
 deploy-dev:	export ENVIRONMENT=dev
 deploy-dev:	deploy
+
+.PHONY: run-integration-test
+run-integration-test: export SEED_TEST_USER=system
+run-integration-test: export SEED_TEST_PASSWORD=welcome
+run-integration-test:
+	docker-compose up -d
+	mvn $(MAVEN_CLI_OPTS) -am integration-test verify -Pintegration-test -pl it-test
+	docker-compose down --volumes
+
+.PHONY: integration-test
+integration-test: clean install run-integration-test

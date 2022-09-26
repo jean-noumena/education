@@ -18,6 +18,7 @@ LABEL org.label-schema.name="api" \
       org.label-schema.vcs-ref="${GIT_REV}" \
       org.label-schema.version="${VERSION}"
 
+COPY target/classes/logback-json.xml /wp-plugin-service/
 COPY target/dependency /api/lib
 COPY target/api.jar /api/api.jar
 

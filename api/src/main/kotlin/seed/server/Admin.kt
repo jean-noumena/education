@@ -1,51 +1,34 @@
 package seed.server
 
-import io.prometheus.client.CollectorRegistry
-import io.prometheus.client.exporter.common.TextFormat
+import com.noumenadigital.platform.engine.client.EngineClientApi
 import org.http4k.client.ApacheClient
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
-import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
+import org.http4k.core.then
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import seed.config.engineURL
-import seed.config.keycloakURL
-import java.io.StringWriter
+import seed.config.Configuration
+import seed.keycloak.KeycloakClient
 
-fun admin(): HttpHandler {
+fun admin(config: Configuration): HttpHandler {
     return routes(
-        "/health" bind Method.GET to health(),
-        "/metrics" bind Method.GET to metrics(),
+        "/health" bind Method.GET to metrics.measure().then(healthHandler(config)),
+        "/metrics" bind Method.GET to metrics.measure().then(metrics.handler())
     )
 }
 
-fun health(): HttpHandler {
-    return { _ ->
+fun healthHandler(config: Configuration): HttpHandler {
+    val httpClient = ApacheClient()
+    val keycloakClient = KeycloakClient(config.keycloakURL, config.keycloakHost, httpClient)
+    val engineClient = EngineClientApi(config.engineURL)
+
+    return {
         when {
-            ! engineClient.ready() -> Response(Status.INTERNAL_SERVER_ERROR).body("cannot reach engine on $engineURL")
-            ! keycloakReady() -> Response(Status.INTERNAL_SERVER_ERROR).body("cannot reach keycloak on $keycloakURL")
+            !keycloakClient.ready() -> Response(Status.SERVICE_UNAVAILABLE).body("Waiting for Keycloak on ${config.keycloakURL}")
+            !engineClient.ready() -> Response(Status.SERVICE_UNAVAILABLE).body("Waiting for engine on ${config.engineURL}")
             else -> Response(Status.OK).body("OK")
         }
-    }
-}
-
-private fun keycloakReady(): Boolean {
-    try {
-        val healthReq = Request(Method.GET, "$keycloakURL/health")
-        val response = ApacheClient().invoke(healthReq)
-        return response.status == Status.OK
-    } catch (e: Exception) {
-        logger.error(e) { "while checking keycloak health " }
-    }
-    return false
-}
-
-fun metrics(): HttpHandler {
-    return {
-        val s = StringWriter()
-        TextFormat.write004(s, CollectorRegistry.defaultRegistry.metricFamilySamples())
-        Response(Status.OK).body(s.buffer.toString().byteInputStream())
     }
 }

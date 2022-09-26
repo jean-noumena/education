@@ -1,14 +1,7 @@
 # reference: https://registry.terraform.io/providers/mrparkers/keycloak/latest/docs/resources/openid_client
 
-locals {
-  parties = {
-    issuer = "seeduser1"
-    payee = "seeduser2"
-  }
-}
-
 resource "keycloak_realm" "realm" {
-  realm = "noumena"
+  realm = "seed"
 }
 
 resource "keycloak_role" "nm_user" {
@@ -24,41 +17,43 @@ resource "keycloak_default_roles" "default_roles" {
 
 resource "keycloak_openid_client" "client" {
   realm_id                     = keycloak_realm.realm.id
-  client_id                    = "nm-platform-service-client"
-  client_secret                = "87ff12ca-cf29-4719-bda8-c92faa78e3c4"
-  access_type                  = "CONFIDENTIAL"
-  web_origins                  = ["*"]
-  valid_redirect_uris          = ["*"]
-  standard_flow_enabled        = true
+  client_id                    = "seed"
+  access_type                  = "PUBLIC"
   direct_access_grants_enabled = true
-  service_accounts_enabled     = true
-  authorization {
-    policy_enforcement_mode          = "ENFORCING"
-    decision_strategy                = "UNANIMOUS"
-    allow_remote_resource_management = true
-  }
 }
 
-resource "keycloak_user" "user1" {
-  realm_id = keycloak_realm.realm.id
-  username = "seeduser1"
+resource "keycloak_user" "payee1" {
+  realm_id   = keycloak_realm.realm.id
+  username   = "payee1"
   attributes = {
-    "party" = jsonencode([local.parties.issuer])
+    "party" = jsonencode(["payee"])
   }
   initial_password {
-    value     = "welcome"
+    value     = "welcome1"
     temporary = false
   }
 }
 
-resource "keycloak_user" "user2" {
-  realm_id = keycloak_realm.realm.id
-  username = "seeduser2"
+resource "keycloak_user" "payee2" {
+  realm_id   = keycloak_realm.realm.id
+  username   = "payee2"
   attributes = {
-    "party" = jsonencode([local.parties.payee])
+    "party" = jsonencode(["payee"])
   }
   initial_password {
-    value     = "welcome"
+    value     = "welcome2"
+    temporary = false
+  }
+}
+
+resource "keycloak_user" "issuer1" {
+  realm_id   = keycloak_realm.realm.id
+  username   = "issuer1"
+  attributes = {
+    "party" = jsonencode(["issuer"])
+  }
+  initial_password {
+    value     = "welcome3"
     temporary = false
   }
 }

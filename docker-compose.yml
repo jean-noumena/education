@@ -1,20 +1,25 @@
 version: "2.4"
 
+volumes:
+  keycloak-db: { }
+
 services:
 
   api:
-    image: ghcr.io/noumenadigital/seed/api:latest 
+    image: ghcr.io/noumenadigital/seed/api:latest
     build:
       context: api
     ports:
-      - "9000:9000"
-      - "9100:9100"
+      - "8080:8080"
+      - "8000:8000"
+      - "8888:8888"
     environment:
       KEYCLOAK_URL: http://keycloak:11000
       ENGINE_URL: http://engine:12000
       READ_MODEL_URL: http://read-model:15000
-      HTTP_PORT: 9000
-      ADMIN_PORT: 9100
+      HTTP_PORT: 8080
+      HTTP_ADMIN_PORT: 8000
+      # JVM remote debug
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
     healthcheck:
       test: "curl -s -f http://localhost:9100/health || exit 1"
@@ -45,8 +50,10 @@ services:
       interval: 1s
       retries: 60
     depends_on:
-      - engine-db
-      - keycloak
+      engine-db:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
 
   read-model:
     image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.13
@@ -61,8 +68,10 @@ services:
     ports:
       - "15000:15000"
     depends_on:
-      - engine-db
-      - keycloak
+      engine-db:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
 
   engine-db:
     image: postgres:11.6-alpine
@@ -84,12 +93,14 @@ services:
         condition: service_healthy
 
   keycloak:
-    image: quay.io/keycloak/keycloak:18.0.2
-    command: start-dev
+    image: quay.io/keycloak/keycloak:19.0.0
+    command: start --hostname-strict=false --hostname-strict-https=false --health-enabled=true --http-enabled=true --metrics-enabled=true --db=postgres
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Seed123!
-      KC_DB: dev-file
+      KC_DB_URL: jdbc:postgresql://keycloak-db/postgres
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: testing
       KC_HEALTH_ENABLED: "true"
       KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 11000
@@ -100,3 +111,18 @@ services:
       test: curl -s localhost:11000/health || exit 1
       interval: 1s
       retries: 60
+    depends_on:
+      keycloak-db:
+        condition: service_started
+
+  keycloak-db:
+    mem_limit: 256m
+    image: postgres:11.5-alpine
+    ports:
+      - "11040:5432"
+    volumes:
+      - keycloak-db:/var/lib/postgresql/data
+    environment:
+      SERVICE_5432_NAME: keycloak-db
+      SERVICE_5432_CHECK_TCP: "true"
+      SERVICE_5432_CHECK_INTERVAL: 10s

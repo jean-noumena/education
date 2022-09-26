@@ -1,20 +1,28 @@
-<?xml version="1.0"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
-         xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>api</artifactId>
 
+    <description>
+        Provides REST API access to the Seed Project
+    </description>
+
     <parent>
-        <groupId>com.noumena</groupId>
+        <groupId>com.noumenadigital.seed</groupId>
         <artifactId>parent-pom</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../parent-pom</relativePath>
     </parent>
 
     <dependencies>
-        <!-- HTTP4K -->
+        <dependency>
+            <groupId>com.noumenadigital.seed</groupId>
+            <artifactId>npl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.http4k</groupId>
             <artifactId>http4k-core</artifactId>
@@ -50,33 +58,31 @@
             <artifactId>simpleclient_hotspot</artifactId>
         </dependency>
 
-        <!-- Logging -->
+        <!-- Platform and all Keycloak associated stuff -->
         <dependency>
-            <groupId>net.logstash.logback</groupId>
-            <artifactId>logstash-logback-encoder</artifactId>
+            <groupId>com.noumenadigital.platform</groupId>
+            <artifactId>engine-client</artifactId>
         </dependency>
 
-        <!-- NPL Client -->
         <dependency>
-            <groupId>com.noumena</groupId>
-            <artifactId>npl</artifactId>
-            <version>${project.parent.version}</version>
+            <groupId>com.noumenadigital.platform</groupId>
+            <artifactId>read-streams-client</artifactId>
         </dependency>
 
-        <!-- Logging -->
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>io.github.microutils</groupId>
-            <artifactId>kotlin-logging-jvm</artifactId>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
 
         <!-- Testing -->
         <dependency>
-            <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test-junit5</artifactId>
+            <groupId>com.atlassian.oai</groupId>
+            <artifactId>swagger-request-validator-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -86,12 +92,6 @@
         <sourceDirectory>src/main/kotlin</sourceDirectory>
         <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
-            <!-- Kotlin Compiler -->
-            <plugin>
-                <artifactId>kotlin-maven-plugin</artifactId>
-                <groupId>org.jetbrains.kotlin</groupId>
-            </plugin>
-
             <!-- KTLint -->
             <plugin>
                 <groupId>com.github.z3d1k</groupId>
