@@ -1,0 +1,28 @@
+@startuml
+
+skinparam nodesep 150
+skinparam ranksep 100
+
+actor "User" as user
+component "Identity Management\n(Active Directory etc)" as ad #Technology
+component "Protocol Mappers" as mapper #Application
+component Keycloak as kc #Technology
+component "BeeBoard API" as api #Application
+component "Noumena Runtime" as engine #Technology
+frame "Parties" as party #Application {
+    actor "Party X" as pX
+    actor "Party Y" as pY 
+    pX -[hidden]> pY 
+}
+component "NPL Protocols" as npl #Application  
+
+user --> api : " interact"
+mapper <- kc : " enrich JWT"
+kc --> ad : " authenticate"
+api --> kc : "obtain JWT"
+kc <- engine : "validate JWT"
+api --> engine : " provide JWT"
+engine --> party : " authorize access"
+party --> npl : " execute permission"
+
+@enduml 

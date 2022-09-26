@@ -1,0 +1,83 @@
+@startuml
+
+skinparam ranksep 100
+skinparam ActorBackgroundColor<<Assignment>> #pink
+skinparam ActorBorderColor<<Assignment>> #red
+skinparam ActorBackgroundColor<<ScopedRole>> #lightgreen
+skinparam ActorBorderColor<<ScopedRole>> #green
+
+actor "Project Creator" as projectCreator <<ScopedRole>>
+actor "Internal user" as projectObserver <<ScopedRole>>
+actor "Project Responsible" as projectResponsible <<Assignment>>
+actor "Phase Responsible" as phaseResponsible <<Assignment>>
+actor "Activity Responsible" as activityResponsible <<Assignment>>
+actor "Activity Approver" as activityApprover <<Assignment>>
+actor "External user" as activityObserver <<Assignment>>
+actor "Completion Criterion Responsible" as criterionResponsible <<Assignment>>
+
+package "Project Instantiation" {
+    usecase "Create project" as project_create
+    usecase "Assign project responsible" as project_assign
+}
+
+package "Project Management" {
+    usecase "View project" as project_view 
+    usecase "Assign function to user" as function_assign
+    usecase "Assign phase responsible" as phase_assign
+    usecase "Reassign function to user" as function_reassign
+    usecase "Reassign user to user" as user_reassign 
+}
+
+
+package "Phase Management" {
+    usecase "Add activity" as activity_add
+    usecase "Assign activity responsible" as activity_assign
+    usecase "Assign activity approver" as activity_assign_approver
+    usecase "Assign passive member" as activity_assign_observer
+}
+
+package "Activity Management" {
+    usecase "Add completion criterion" as criterion_add
+    usecase "Assign completion criterion responsible" as criterion_assign
+}
+
+package "Project execution" {
+    usecase "View activity" as activity_view
+    usecase "Mark activity completed" as activity_completed
+    usecase "Confirm activity completed" as activity_confirmed
+    usecase "Mark criterion completed" as criterion_completed
+}
+
+projectCreator --> project_create
+projectCreator --> project_assign
+project_assign ..> projectResponsible
+
+projectResponsible --> function_assign
+projectResponsible --> phase_assign
+projectResponsible --> function_reassign
+projectResponsible --> user_reassign
+
+phase_assign ..> phaseResponsible
+phaseResponsible --> activity_add
+phaseResponsible --> activity_assign
+phaseResponsible --> activity_assign_approver
+phaseResponsible --> activity_assign_observer
+
+activity_assign ..> activityResponsible
+activity_assign_approver ..> activityApprover
+activity_assign_observer ..> activityObserver
+
+activityResponsible --> criterion_add
+activityResponsible --> criterion_assign
+activityResponsible --> activity_completed
+
+criterion_assign ..> criterionResponsible
+criterionResponsible --> criterion_completed
+
+activityApprover --> activity_confirmed
+
+activityObserver --> activity_view
+
+projectObserver --> project_view 
+
+@enduml

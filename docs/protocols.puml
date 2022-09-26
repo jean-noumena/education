@@ -1,0 +1,65 @@
+@startuml
+
+allowMixing
+
+skinparam nodesep 100
+skinparam ranksep 100 
+
+skinparam ClassBackgroundColor<<TBD>> #lightgrey
+
+class ProjectMapTemplate {
+    templateOwner
+    templateEditor
+    projectCreator
+    ---
+    observers
+}
+
+class Project {
+    projectCreator
+    projectResponsible
+    ---
+    observers
+}
+
+class Phase {
+    projectResponsible
+    phaseResponsible
+    ---
+    observers
+}
+
+class Activity {
+    projectResponsible
+    phaseResponsible
+    activityResponsible
+    ---
+    observers
+}
+
+class Approval {
+    projectResponsible
+    phaseResponsible
+    activityResponsible
+    approver
+    ---
+    observers 
+}
+
+class CompletionCriterion {
+    projectResponsible
+    phaseResponsible
+    activityResponsible
+    completionCriterionResponsible
+    ---
+    observers
+}
+
+ProjectMapTemplate ..> Project : " creates"
+Project "1"->"1..n" Phase
+Project " 1 "-->" 1..n " Activity 
+Phase " 1 "-->" 1..n " Activity
+Activity " 1 "-->" 1..n " CompletionCriterion
+Activity " 1 "->" 1..n " Approval
+
+@enduml

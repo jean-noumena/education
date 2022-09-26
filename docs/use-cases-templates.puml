@@ -1,0 +1,53 @@
+@startuml
+
+left to right direction 
+skinparam nodesep 100
+skinparam ActorBackgroundColor<<Assignment>> #pink
+skinparam ActorBorderColor<<Assignment>> #red
+skinparam ActorBackgroundColor<<ScopedRole>> #lightgreen
+skinparam ActorBorderColor<<ScopedRole>> #green
+
+
+actor "Template Manager" as templateManager <<ScopedRole>>
+actor "Template Owner" as templateOwner <<Assignment>>
+actor "Template Editor" as templateEditor <<Assignment>>
+actor "Template Reader" as templateReader <<ScopedRole>>
+actor "Project Creator" as projectCreator <<ScopedRole>>
+
+package "Template Creation" {
+    usecase "Create template" as template_create 
+}
+
+package "Template Management" {
+    usecase "Delete template" as template_delete
+    usecase "Rename template" as template_rename
+    usecase "Assign editor(s)" as template_assign
+    usecase "Edit template" as template_edit
+    usecase "View template" as template_view
+
+    note right of template_view
+        All other use cases
+        imply the ability to
+        view the template
+    end note
+}
+
+package "Project Creation" {
+    usecase "Create project" as project_create
+}
+
+templateManager --> template_create 
+template_create ..> templateOwner : " implicit assignment to creator"
+templateOwner --> template_delete
+templateOwner --> template_rename
+templateOwner --> template_assign
+templateOwner --> template_edit
+templateEditor <.. template_assign 
+templateEditor --> template_edit
+templateReader --> template_view
+projectCreator --> template_view 
+projectCreator --> project_create
+
+
+
+@enduml
