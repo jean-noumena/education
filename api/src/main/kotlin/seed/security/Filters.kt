@@ -90,7 +90,7 @@ private val debug = Configuration().debug
 fun errorFilter(): Filter {
     fun handledByApplication(res: Response) =
         res.status == Status.OK ||
-                res.header("Content-Type")?.startsWith("application/json") == true
+            res.header("Content-Type")?.startsWith("application/json") == true
 
     return Filter { next ->
         {

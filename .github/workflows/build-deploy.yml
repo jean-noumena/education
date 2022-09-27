@@ -1,4 +1,4 @@
-name: Deploy on merge to master
+name: Build and deploy on merge to master
 on:
   push:
     branches:
@@ -44,7 +44,7 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
       - run: |
-          make -e images
+          make -e integration-test
 
   deploy:
     runs-on: "self-hosted"
