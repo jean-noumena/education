@@ -3,6 +3,10 @@ VERSION=1.0-SNAPSHOT
 MAVEN_CLI_OPTS?=-s .m2/settings.xml
 LEVANT_VERSION=0.3.1
 
+.PHONY: sonar-scan
+sonar-scan:
+	mvn $(MAVEN_CLI_OPTS) -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=NoumenaDigital_seed
+
 .PHONY:	clean
 clean:
 	docker-compose down --remove-orphans --volumes

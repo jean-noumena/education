@@ -20,5 +20,9 @@
         <module>it-test</module>
         <module>api</module>
     </modules>
-
+    
+    <properties>
+        <sonar.organization>noumenadigital</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
 </project>
