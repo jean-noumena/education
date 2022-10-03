@@ -21,7 +21,7 @@
         <io-prometheus-version>0.9.0</io-prometheus-version>
         <http4k.version>4.13.0.0</http4k.version>
         <logback.version>1.2.6</logback.version>
-        <noumena.platform.version>2022.1.13</noumena.platform.version>
+        <noumena.platform.version>2022.1.15</noumena.platform.version>
         <kotest.version>4.6.3</kotest.version>
         <mockito.version>4.0.0</mockito.version>
     </properties>
@@ -214,6 +214,9 @@
     </dependencies>
 
     <build>
+        <finalName>${project.artifactId}</finalName>
+        <sourceDirectory>src/main/kotlin</sourceDirectory>
+        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -249,18 +252,6 @@
                         </compilerArgs>
                     </configuration>
                 </plugin>
-<!--                <plugin>-->
-<!--                    <groupId>org.apache.maven.plugins</groupId>-->
-<!--                    <artifactId>maven-failsafe-plugin</artifactId>-->
-<!--                    <executions>-->
-<!--                        <execution>-->
-<!--                            <goals>-->
-<!--                                <goal>integration-test</goal>-->
-<!--                                <goal>verify</goal>-->
-<!--                            </goals>-->
-<!--                        </execution>-->
-<!--                    </executions>-->
-<!--                </plugin>-->
                 <plugin>
                     <groupId>com.github.z3d1k</groupId>
                     <artifactId>ktlint-maven-plugin</artifactId>
@@ -315,6 +306,17 @@
             <plugin>
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
+            </plugin>
+            <!-- KTLint -->
+            <plugin>
+                <groupId>com.github.z3d1k</groupId>
+                <artifactId>ktlint-maven-plugin</artifactId>
+            </plugin>
+
+            <!-- Ensure that mvn versions:set inherits all configuration defined in the parent -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

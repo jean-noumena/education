@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim
+FROM eclipse-temurin:17-jre-jammy
 
 ARG BUILD_DATE
 ARG GIT_REV
@@ -22,4 +22,4 @@ COPY target/classes/logback-json.xml /wp-plugin-service/
 COPY target/dependency /api/lib
 COPY target/api.jar /api/api.jar
 
-CMD ["java", "-cp", "/api/api.jar:/api/lib/*", "seed.server.MainKt"]
+CMD ["java", "-cp", "/api/api.jar:/api/lib/*", "main.MainKt"]

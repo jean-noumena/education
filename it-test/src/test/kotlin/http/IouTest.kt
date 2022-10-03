@@ -3,7 +3,6 @@ package http
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import mu.KotlinLogging
 import org.openapitools.client.apis.IOUApi
 import org.openapitools.client.infrastructure.ApiClient
 import org.openapitools.client.infrastructure.ClientException
@@ -11,7 +10,6 @@ import org.openapitools.client.models.IouIou
 import java.util.UUID
 
 class IouTest : FunSpec({
-    val logger = KotlinLogging.logger { }
     val iouApi = IOUApi(basePath)
     context("Create IOU") {
         test(" raw") {

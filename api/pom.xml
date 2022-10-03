@@ -24,86 +24,22 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.http4k</groupId>
-            <artifactId>http4k-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.http4k</groupId>
-            <artifactId>http4k-client-apache</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.http4k</groupId>
-            <artifactId>http4k-server-ktorcio</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.http4k</groupId>
-            <artifactId>http4k-format-jackson</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
-
-        <!-- Metrics -->
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_httpserver</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.prometheus</groupId>
-            <artifactId>simpleclient_hotspot</artifactId>
-        </dependency>
-
-        <!-- Platform and all Keycloak associated stuff -->
-        <dependency>
-            <groupId>com.noumenadigital.platform</groupId>
-            <artifactId>engine-client</artifactId>
+            <groupId>com.noumenadigital.seed</groupId>
+            <artifactId>base</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
-            <groupId>com.noumenadigital.platform</groupId>
-            <artifactId>read-streams-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-        </dependency>
-
-        <!-- Testing -->
-        <dependency>
-            <groupId>com.atlassian.oai</groupId>
-            <artifactId>swagger-request-validator-core</artifactId>
+            <groupId>com.noumenadigital.seed</groupId>
+            <artifactId>base</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>
 
     <build>
-        <finalName>${project.artifactId}</finalName>
-        <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
-            <!-- KTLint -->
-            <plugin>
-                <groupId>com.github.z3d1k</groupId>
-                <artifactId>ktlint-maven-plugin</artifactId>
-            </plugin>
-
-            <!-- Ensure that mvn versions:set inherits all configuration defined in the parent -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>versions-maven-plugin</artifactId>
-            </plugin>
-
             <!-- Copy all dependencies to target/dependencies for later inclusion in Dockerfile -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
