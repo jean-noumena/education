@@ -1,6 +1,6 @@
-# BeeBoard Authorization: Proposal
+# Seed Authorization: Proposal
 
-This document is a design proposal on how to implement authorization on templates and projects in the BeeBoard project. 
+This document is a design proposal on how to implement authorization on templates and projects in the Seed project. 
 
 ## References
 
@@ -27,8 +27,8 @@ The blue parts are part of our application; the green parts are provided technol
 ![Components involved](authorization-components.png)
                                                   
 The primary components are: 
-* BeeBoard API – Primary entrypoint for interacting with the system
-* NPL Protocols – Business logic for managing the BeeBoard templates and projects through permissions
+* API – Primary entrypoint for interacting with the system
+* NPL Protocols – Business logic for managing the templates and projects through permissions
 * Parties – Logical entities that call permissions
 
 All of this is supported by: 
