@@ -44,7 +44,7 @@ jobs:
           distribution: 'adopt'
           cache: 'maven'
       - run: |
-          make -e integration-test
+          make -e images
 
   deploy:
     runs-on: "self-hosted"
@@ -52,4 +52,5 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - run: |
-          make -e deploy-dev 
+          make -e clean-dev
+          make -e deploy-dev

@@ -1,5 +1,7 @@
 name: Build on PR
 on: [pull_request]
+#on:
+#  workflow_call:
 
 env:
   MAVEN_REPO_USER: ${{ secrets.MAVEN_USERNAME }}

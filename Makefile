@@ -73,6 +73,20 @@ deploy-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
 deploy-dev:	export ENVIRONMENT=dev
 deploy-dev:	deploy
 
+.PHONY: clean-nomad
+clean-nomad:
+	@if [[ "$(ENVIRONMENT)" = "" ]]; then echo "ENVIRONMENT not set"; exit 1; fi
+	-nomad stop -yes -purge platform
+	-nomad stop -yes -purge keycloak
+	-nomad stop -yes -purge keycloak-provisioning
+	-nomad stop -yes -purge api
+	$(call deploy,cleanup)
+
+.PHONY: clean-dev
+clean-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
+clean-dev:	export ENVIRONMENT=dev
+clean-dev: clean-nomad
+
 .PHONY: run-integration-test
 run-integration-test: export SEED_TEST_USER=system
 run-integration-test: export SEED_TEST_PASSWORD=welcome
