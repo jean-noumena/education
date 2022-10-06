@@ -12,7 +12,8 @@ WORKDIR /api
 
 USER nobody
 
-LABEL org.label-schema.name="api" \
+LABEL org.opencontainers.image.source = "https://github.com/noumenadigital/seed" \ 
+      org.label-schema.name="api" \
       org.label-schema.vendor="SEED" \
       org.label-schema.build-date="${BUILD_DATE}" \
       org.label-schema.vcs-ref="${GIT_REV}" \
