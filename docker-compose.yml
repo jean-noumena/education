@@ -74,7 +74,7 @@ services:
         condition: service_healthy
 
   engine-db:
-    image: postgres:11.6-alpine
+    image: postgres:14.4-alpine
     mem_limit: 256m
     environment:
       POSTGRES_DB: engine
@@ -116,13 +116,11 @@ services:
         condition: service_started
 
   keycloak-db:
-    image: postgres:11.5-alpine
+    image: postgres:14.4-alpine
     mem_limit: 256m
     ports:
       - "11040:5432"
     volumes:
       - keycloak-db:/var/lib/postgresql/data
     environment:
-      SERVICE_5432_NAME: keycloak-db
-      SERVICE_5432_CHECK_TCP: "true"
-      SERVICE_5432_CHECK_INTERVAL: 10s
+      POSTGRES_PASSWORD: testing

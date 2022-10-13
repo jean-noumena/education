@@ -61,7 +61,7 @@ job "platform" {
         env         = true
         destination = ".env"
         data        = <<EOT
-{{ with secret "secret/postgres/platform" }}
+{{ with secret "secret/postgres-v2/platform" }}
 ENGINE_DB_USER = {{ .Data.username }}
 ENGINE_DB_PASSWORD = {{ .Data.password }}
 {{ end }}

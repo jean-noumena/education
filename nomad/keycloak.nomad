@@ -62,7 +62,7 @@ job "keycloak" {
         KC_HTTP_PORT       = "${NOMAD_PORT_http}"
         KC_HOSTNAME        = "keycloak.seed-dev.noumenadigital.com"
         KC_HOSTNAME_STRICT = "false"
-        KC_DB_URL          = "jdbc:postgresql://postgresql.service.consul:5432/keycloak"
+        KC_DB_URL          = "jdbc:postgresql://postgres-v2.service.consul:5432/keycloak"
         KC_PROXY           = "edge"
       }
 
@@ -70,7 +70,7 @@ job "keycloak" {
         destination = "${NOMAD_SECRETS_DIR}/psql"
         env         = true
         data        = <<EOT
-{{ with secret "secret/postgres/keycloak" }}
+{{ with secret "secret/postgres-v2/keycloak" }}
 KC_DB_USERNAME = {{ .Data.username }}
 KC_DB_PASSWORD = {{ .Data.password }}
 {{ end }}
