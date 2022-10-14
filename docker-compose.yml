@@ -22,7 +22,7 @@ services:
       # JVM remote debug
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
     healthcheck:
-      test: "curl -s -f http://localhost:9100/health || exit 1"
+      test: "curl -s -f http://localhost:8000/health || exit 1"
       interval: 1s
       retries: 100
     depends_on:
