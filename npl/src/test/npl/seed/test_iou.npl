@@ -32,3 +32,83 @@ function test_overpaying(test: Test) -> {
 
     test.assertFails(function() returns Unit -> iou.pay[ISSUER](101), "Overpaying should fail");
 };
+
+struct ErrorCase {
+    code: Number,
+    msg: Text
+}
+
+struct IouTestCase {
+    initialAmount: Number,
+    amountToPay: Number,
+    expectedRemaining: Number,
+    wantError: Optional<ErrorCase>
+}
+
+@test
+function table_test_iou(test: Test) -> {
+    var tests = mapOf<Text, IouTestCase>(
+        Pair(
+            "Should fail if paid amoount is negative",
+            IouTestCase(
+                initialAmount = 100,
+                amountToPay = -10,
+                expectedRemaining = 100,
+                wantError = optionalOf(ErrorCase(
+                    code = 14,
+                    msg = "Amount must be strictly positive"
+                ))
+            )
+        ),
+        Pair(
+            "Should fail if paid amoount is larger than amount owed",
+            IouTestCase(
+                initialAmount = 100,
+                amountToPay = 101,
+                expectedRemaining = 100,
+                wantError = optionalOf(ErrorCase(
+                    code = 14,
+                    msg = "Amount may not exceed amount owed"
+                ))
+            )
+        ),
+        Pair(
+            "Should succeed if all conditions are met",
+            IouTestCase(
+                initialAmount = 100,
+                amountToPay = 50,
+                expectedRemaining = 50,
+                wantError = optionalOf<ErrorCase>()
+            )
+        )
+    );
+
+    for (t in tests) {
+        var name = t.first;
+        var case = t.second;
+
+        var iou = Iou[ISSUER, PAYEE](case.initialAmount);
+        test.assertEquals(case.initialAmount, iou.getAmountOwed[ISSUER](), "Amount owed should equal initial value");
+
+        if (case.wantError.isPresent()) {
+            // test failure
+            var err = case.wantError.getOrFail();
+            var msg = test.assertFailsWith(
+                function() -> iou.pay[ISSUER](case.amountToPay),
+                err.code,
+                name.plus(": ").plus("unexpected error code")
+            );
+            test.assertEquals(
+                "R14: Assertion '".plus(err.msg).plus("' failed ('/seed/Iou/pay/").plus(err.msg).plus("')"),
+                msg,
+                name.plus(": ").plus("unexpected error message")
+            );
+        } else {
+            //test success
+            var remaining = iou.pay[ISSUER](case.amountToPay);
+            test.assertEquals(case.expectedRemaining, iou.getAmountOwed[ISSUER](), "Amount owed should reflect payment");
+            test.assertEquals(case.expectedRemaining, remaining, "Amount owed should reflect payment");
+        };
+    }
+
+}
