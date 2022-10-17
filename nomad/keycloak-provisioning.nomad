@@ -43,7 +43,7 @@ EOT
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "registry.noumenadigital.com/infra/filebeat:1.0.36314"
+        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
         network_mode = "host"
         args         = [
           "keycloak-provisioning",

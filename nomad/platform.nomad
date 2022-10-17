@@ -75,7 +75,7 @@ EOT
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "noumenadigital/filebeat:1.0.57796"
+        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
         network_mode = "host"
         args         = [
           "platform-engine",

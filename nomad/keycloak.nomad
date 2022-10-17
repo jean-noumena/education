@@ -46,7 +46,7 @@ job "keycloak" {
       leader = true
       driver = "docker"
       config {
-        image        = "quay.io/keycloak/keycloak:18.0.2"
+        image        = "quay.io/keycloak/keycloak:19.0.0"
         network_mode = "host"
         args         = [
           "start",
@@ -89,7 +89,7 @@ EOT
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "registry.noumenadigital.com/infra/filebeat:1.0.36314"
+        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
         network_mode = "host"
         args         = [
           "keycloak",
