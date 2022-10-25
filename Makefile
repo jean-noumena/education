@@ -97,3 +97,7 @@ run-integration-test:
 
 .PHONY: integration-test
 integration-test: clean install run-integration-test
+
+.PHONY: login
+login:
+	echo $(MAVEN_REPO_PASS) | docker login ghcr.io -u $(MAVEN_REPO_USER) --password-stdin

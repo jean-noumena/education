@@ -18,6 +18,10 @@ In order to run the seed project, make sure you have the following:
 ### Building
 
 ```shell
+$ make login  
+```
+
+```shell
 $ make clean install  
 ```
 
