@@ -82,7 +82,7 @@ EOT
       }
 
       resources {
-        memory = 1200
+        memory = 250
       }
     }
 
