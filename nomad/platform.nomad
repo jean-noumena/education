@@ -68,7 +68,7 @@ ENGINE_DB_PASSWORD = {{ .Data.password }}
 EOT
       }
       resources {
-        memory = 2096
+        memory = 1024
       }
     }
 
