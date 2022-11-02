@@ -70,7 +70,7 @@ job "api" {
       }
 
       resources {
-        memory = 1024
+        memory = 256
       }
     }
 
@@ -85,7 +85,7 @@ job "api" {
         ]
       }
       resources {
-        memory = 250
+        memory = 50
       }
     }
   }
