@@ -1,4 +1,4 @@
-FROM ghcr.io/noumenadigital/packages/engine:2022.1.15
+FROM ghcr.io/noumenadigital/packages/engine:2022.1.39
 
 LABEL org.opencontainers.image.source = "https://github.com/noumenadigital/seed"
 
