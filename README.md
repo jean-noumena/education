@@ -2,6 +2,16 @@
 
 The seed project is an example on how to set up new NPL-based projects.
 
+## Documentation 
+
+Project Managers must periodically review the data protection and operation document to make sure that the information is up-to-date.
+
+### Data protection
+DATA_PROTECTION.md contain a checklist which must be updated before production. It contains a list of data protection / GDPR issues which must be considered if the product is going to production.
+
+### Operations
+OPERATIONS.md contains information which are needed to support the application in production or production-like environment.
+
 ## Running 
 
 ### Preparations
