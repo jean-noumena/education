@@ -1,5 +1,7 @@
 package seed.security
 
+import com.noumenadigital.platform.engine.values.ClientException
+import com.noumenadigital.platform.engine.values.ClientIdType
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.Request
@@ -64,6 +66,9 @@ internal class ErrorTest {
             },
             "/500" bind Method.GET to {
                 throw Exception("oops")
+            },
+            "/NoSuchItemException" bind Method.GET to {
+                throw ClientException.NoSuchItemException(idType = ClientIdType.PrototypeId, id = "Id")
             }
         )
     )
@@ -121,9 +126,16 @@ internal class ErrorTest {
     }
 
     @Test
-    fun `test 500 on unknown errors`() {
+    fun `return 500 on unknown errors`() {
         val req = Request(Method.GET, "/500")
         val res = app(req)
         assertError(res, 500, ErrorCode.InternalServerError)
+    }
+
+    @Test
+    fun `return 404 on NoSuchItemException errors`() {
+        val req = Request(Method.GET, "/NoSuchItemException")
+        val res = app(req)
+        assertError(res, 404, ErrorCode.ItemNotFound)
     }
 }

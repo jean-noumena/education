@@ -6,7 +6,6 @@ import mu.KotlinLogging
 import org.http4k.core.Body
 import org.http4k.core.Filter
 import org.http4k.core.Method
-import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
@@ -55,6 +54,15 @@ fun corsFilter(config: Configuration): Filter =
         )
     )
 
+fun errorFilter(debug: Boolean = false) =
+    // filtering should go from least to most specific
+    httpStatusFilter()
+        .then(catchUnhandled())
+        .then(catchLensFailure(debug))
+        .then(catchAuthorizationException())
+        .then(catchNoSuchItemException())
+        .then(catchPlatformRuntimeException())
+
 enum class ErrorCode {
     // general HTTP codes
     InternalServerError,
@@ -73,6 +81,7 @@ enum class ErrorCode {
     InvalidBearerToken,
     InvalidClaim,
     LoginRequired,
+    ItemNotFound
 }
 
 data class Error(
@@ -82,55 +91,89 @@ data class Error(
 
 private val errorLens = Body.auto<Error>().toLens()
 
-fun errorResponse(status: Status, code: ErrorCode, traceID: UUID = UUID.randomUUID()): Response =
+fun errorResponse(status: Status, code: ErrorCode, traceID: UUID = UUID.randomUUID()) =
     Response(status).with(errorLens.of(Error(code, traceID)))
 
-fun errorFilter(debug: Boolean = false): Filter {
-    fun handledByApplication(res: Response) =
-        res.status == Status.OK ||
-            res.header("Content-Type")?.startsWith("application/json") == true
-
-    return Filter { next ->
+fun catchLensFailure(debug: Boolean = false) =
+    Filter { next ->
         {
             try {
-                val res = next(it)
-                if (handledByApplication(res)) {
-                    // assume handled by application
-                    res
-                } else {
-                    when (res.status.code) {
-                        Status.OK.code -> res
-                        Status.NOT_FOUND.code -> {
-                            errorResponse(Status.NOT_FOUND, ErrorCode.RouteNotFound)
-                        }
-                        else -> Response(res.status)
-                    }
-                }
+                next(it)
             } catch (t: LensFailure) {
                 val traceID = UUID.randomUUID()
                 if (debug) {
                     logger.error(t) { "Encode/Decode failure $traceID" }
                 }
                 errorResponse(Status.BAD_REQUEST, ErrorCode.InvalidParameter, traceID)
+            }
+        }
+    }
+
+fun catchAuthorizationException() =
+    Filter { next ->
+        {
+            try {
+                next(it)
             } catch (t: ClientException.AuthorizationException) {
                 errorResponse(Status.UNAUTHORIZED, ErrorCode.LoginRequired)
+            }
+        }
+    }
+
+fun catchNoSuchItemException() =
+    Filter { next ->
+        {
+            try {
+                next(it)
+            } catch (t: ClientException.NoSuchItemException) {
+                errorResponse(Status.NOT_FOUND, ErrorCode.ItemNotFound)
+            }
+        }
+    }
+
+fun catchPlatformRuntimeException() =
+    Filter { next ->
+        {
+            try {
+                next(it)
             } catch (t: ClientException.PlatformRuntimeException) {
                 if (t.origin.code == 37) {
                     errorResponse(Status.FORBIDDEN, ErrorCode.InvalidClaim)
                 } else {
-                    unhandledException(it, t)
+                    throw t
                 }
-            } catch (t: Throwable) {
-                unhandledException(it, t)
             }
         }
     }
-}
 
-fun unhandledException(r: Request, t: Throwable): Response {
-    val traceID = UUID.randomUUID()
-    logger.error(t) {
-        "$traceID: uncaught exception when accessing ${decode(r.uri.path, Charset.defaultCharset())}"
+fun catchUnhandled() =
+    Filter { next ->
+        {
+            try {
+                next(it)
+            } catch (t: Throwable) {
+                val traceID = UUID.randomUUID()
+                logger.error(t) {
+                    "$traceID: uncaught exception when accessing ${decode(it.uri.path, Charset.defaultCharset())}"
+                }
+                errorResponse(Status.INTERNAL_SERVER_ERROR, ErrorCode.InternalServerError, traceID)
+            }
+        }
     }
-    return errorResponse(Status.INTERNAL_SERVER_ERROR, ErrorCode.InternalServerError, traceID)
-}
+
+fun httpStatusFilter() =
+    Filter { next ->
+        {
+            val res = next(it)
+
+            if (res.header("Content-Type")?.startsWith("application/json") == true) {
+                // assume handled by application
+                res
+            } else {
+                when (res.status) {
+                    Status.NOT_FOUND -> errorResponse(Status.NOT_FOUND, ErrorCode.RouteNotFound)
+                    else -> res
+                }
+            }
+        }
+    }

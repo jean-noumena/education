@@ -19,6 +19,8 @@ import seed.security.logger
 import java.io.IOException
 import java.net.URL
 
+private const val CONTENT_TYPE = "Content-Type"
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class KeycloakToken(
     val accessToken: String,
@@ -78,7 +80,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
     fun login(username: String, password: String): KeycloakToken {
         return keycloakTimer.labels("login").record {
             val req = Request(Method.POST, endpointToken)
-                .header("Content-Type", ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
+                .header(CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
                 .form("client_id", clientID)
                 .form("grant_type", "password")
                 .form("username", username)
@@ -100,7 +102,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
     fun refresh(refreshToken: String): KeycloakToken {
         return keycloakTimer.labels("refresh").record {
             val req = Request(Method.POST, endpointToken)
-                .header("Content-Type", ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
+                .header(CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
                 .form("client_id", clientID)
                 .form("grant_type", "refresh_token")
                 .form("refresh_token", refreshToken)
@@ -121,7 +123,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
     fun logout(bearerToken: String, refreshToken: String) {
         keycloakTimer.labels("logout").record {
             val req = Request(Method.POST, endpointLogout)
-                .header("Content-Type", ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
+                .header(CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
                 .form("client_id", clientID)
                 .form("refresh_token", refreshToken)
                 .header("Authorization", "Bearer $bearerToken")
@@ -140,6 +142,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
             val res = userInfoResponse(bearerToken)
             when (res.status) {
                 Status.OK -> {
+                    logger.debug { "authorized: $bearerToken" }
                 }
                 Status.UNAUTHORIZED -> throw KeycloakUnauthorizedException(ErrorCode.InvalidBearerToken)
                 else -> {
