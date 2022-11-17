@@ -32,6 +32,13 @@ resource "postgresql_database" "keycloak" {
   name = vault_generic_secret.keycloak.data["username"]
 }
 
+resource "postgresql_grant" "keycloak_database_all" {
+  database    = postgresql_database.keycloak.name
+  role        = postgresql_role.keycloak.name
+  object_type = "database"
+  privileges  = ["ALL"]
+}
+
 resource "random_password" "platform" {
   length      = 16
   min_upper   = 2
@@ -58,4 +65,11 @@ resource "postgresql_role" "platform" {
 
 resource "postgresql_database" "platform" {
   name = vault_generic_secret.platform.data["username"]
+}
+
+resource "postgresql_grant" "platform_database_all" {
+  database    = postgresql_database.platform.name
+  role        = postgresql_role.platform.name
+  object_type = "database"
+  privileges  = ["ALL"]
 }

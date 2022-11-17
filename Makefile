@@ -95,19 +95,23 @@ deploy-shared-dev: deploy-shared deploy
 .PHONY: clean-nomad
 clean-nomad:
 	@if [[ "$(ENVIRONMENT)" = "" ]]; then echo "ENVIRONMENT not set"; exit 1; fi
+	@if [[ "$(NOMAD_NAMESPACE)" = "" ]]; then echo "NOMAD_NAMESPACE not set"; exit 1; fi
 	-nomad stop -yes -purge platform
 	-nomad stop -yes -purge keycloak
 	-nomad stop -yes -purge keycloak-provisioning
 	-nomad stop -yes -purge api
+	-nomad stop -yes -purge db-provisioning
 	$(call deploy,cleanup)
 
 .PHONY: clean-dev
 clean-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
+clean-dev:	export NOMAD_NAMESPACE=default
 clean-dev:	export ENVIRONMENT=dev
 clean-dev: clean-nomad
 
 .PHONY: clean-shared-dev
 clean-shared-dev:	export NOMAD_ADDR=https://nomad.shared-dev.noumenadigital.com
+clean-shared-dev:	export NOMAD_NAMESPACE=seed
 clean-shared-dev:	export ENVIRONMENT=shared-dev
 clean-shared-dev: clean-nomad
 

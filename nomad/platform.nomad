@@ -54,7 +54,7 @@ job "platform" {
       }
       env {
         ENGINE_AUTH_SERVER_BASE_URL           = "http://[[ .keycloak_name ]].service.consul:11000"
-        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_host ]].service.consul/[[ .platform_name ]]"
+        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .platform_name ]]"
         ENGINE_DB_SCHEMA                      = "[[ .platform_name ]]"
         ENGINE_LOG_CONFIG                     = "classpath:/logback-json.xml"
         SERVER_MAX_HTTP_HEADER_SIZE           = "32KB"
