@@ -3,6 +3,8 @@ job "api" {
     "[[ .datacenter ]]",
   ]
 
+  namespace = "[[ .namespace ]]"
+
   constraint {
     attribute = "${node.class}"
     value     = "worker"
@@ -65,7 +67,7 @@ job "api" {
         HTTP_PORT       = "${NOMAD_PORT_http}"
         HTTP_ADMIN_PORT = "${NOMAD_PORT_admin}"
         KEYCLOAK_URL    = "[[ .KEYCLOAK_URL ]]"
-        ENGINE_URL      = "[[ .ENGINE_ENDPOINT]]"
+        ENGINE_URL      = "[[ .ENGINE_ENDPOINT_URL ]]"
         LOG_LEVEL       = "[[ .LOG_LEVEL ]]"
       }
 

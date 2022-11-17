@@ -1,4 +1,4 @@
-job "keycloak-provisioning" {
+job "db-provisioning" {
   datacenters = [
     "[[ .datacenter ]]",
   ]
@@ -12,33 +12,36 @@ job "keycloak-provisioning" {
 
   type = "batch"
 
-  group "keycloak-provisioning" {
-    task "keycloak-provisioning" {
+  group "db-provisioning" {
+    task "db-provisioning" {
       leader = true
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/seed/keycloak-provisioning:[[ .version ]]"
+        image        = "ghcr.io/noumenadigital/seed/db-provisioning:[[ .version ]]"
         command      = "/cloud.sh"
         network_mode = "host"
       }
 
       env {
-        KEYCLOAK_URL = "[[ .KEYCLOAK_URL ]]"
+        VAULT_ADDR = "[[ .VAULT_URL ]]"
       }
 
       template {
         destination = "${NOMAD_SECRETS_DIR}/psql"
         env         = true
         data        = <<EOT
-{{ with secret "secret/seed/keycloak-admin" }}
-KEYCLOAK_USER = {{ .Data.username }}
-KEYCLOAK_PASSWORD = {{ .Data.password }}
+{{ with secret "secret/vault/shared/dev" }}
+VAULT_TOKEN = {{ .Data.root_token }}
+{{ end }}
+{{ with secret "secret/postgres-v2/admin" }}
+TF_VAR_postgres_username = {{ .Data.username }}
+TF_VAR_postgres_password = {{ .Data.password }}
 {{ end }}
 EOT
       }
 
       resources {
-        memory = 768
+        memory = 256
       }
     }
 
@@ -48,7 +51,7 @@ EOT
         image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
         network_mode = "host"
         args         = [
-          "keycloak-provisioning",
+          "platform-db-provisioning",
           "wildfly",
         ]
       }

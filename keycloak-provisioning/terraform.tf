@@ -23,8 +23,8 @@ resource "keycloak_openid_client" "client" {
 }
 
 resource "keycloak_user" "payee1" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "payee1"
+  realm_id = keycloak_realm.realm.id
+  username = "payee1"
   attributes = {
     "party" = jsonencode(["payee"])
   }
@@ -35,8 +35,8 @@ resource "keycloak_user" "payee1" {
 }
 
 resource "keycloak_user" "payee2" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "payee2"
+  realm_id = keycloak_realm.realm.id
+  username = "payee2"
   attributes = {
     "party" = jsonencode(["payee"])
   }
@@ -47,8 +47,8 @@ resource "keycloak_user" "payee2" {
 }
 
 resource "keycloak_user" "issuer1" {
-  realm_id   = keycloak_realm.realm.id
-  username   = "issuer1"
+  realm_id = keycloak_realm.realm.id
+  username = "issuer1"
   attributes = {
     "party" = jsonencode(["issuer"])
   }

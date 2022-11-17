@@ -3,6 +3,8 @@ job "keycloak" {
     "[[ .datacenter ]]",
   ]
 
+  namespace = "[[ .namespace ]]"
+
   constraint {
     attribute = "${node.class}"
     value     = "worker"
@@ -26,7 +28,7 @@ job "keycloak" {
 
     service {
       port = "http"
-      name = "keycloak"
+      name = "keycloak-seed"
       tags = [
         "version=[[ .version ]]",
         "traefik.enable=true",
@@ -60,9 +62,9 @@ job "keycloak" {
         KC_HTTP_ENABLED    = "true"
         KC_HTTP_HOST       = "0.0.0.0"
         KC_HTTP_PORT       = "${NOMAD_PORT_http}"
-        KC_HOSTNAME        = "keycloak.seed-dev.noumenadigital.com"
+        KC_HOSTNAME        = "keycloak.[[ .domain ]]"
         KC_HOSTNAME_STRICT = "false"
-        KC_DB_URL          = "jdbc:postgresql://postgres-v2.service.consul:5432/keycloak"
+        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_host ]]/[[ .keycloak_database ]]"
         KC_PROXY           = "edge"
       }
 
@@ -70,7 +72,7 @@ job "keycloak" {
         destination = "${NOMAD_SECRETS_DIR}/psql"
         env         = true
         data        = <<EOT
-{{ with secret "secret/postgres-v2/keycloak" }}
+{{ with secret "secret/postgres-v2/[[ .keycloak_database ]]" }}
 KC_DB_USERNAME = {{ .Data.username }}
 KC_DB_PASSWORD = {{ .Data.password }}
 {{ end }}

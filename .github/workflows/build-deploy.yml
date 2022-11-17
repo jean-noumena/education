@@ -54,3 +54,12 @@ jobs:
       - run: |
           make -e clean-dev
           make -e deploy-dev
+
+  deploy-shared-dev:
+    runs-on: "self-hosted"
+    needs: "build"
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          make -e clean-shared-dev
+          make -e deploy-shared-dev

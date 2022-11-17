@@ -3,6 +3,8 @@ job "platform" {
     "[[ .datacenter ]]",
   ]
 
+  namespace = "[[ .namespace ]]"
+
   constraint {
     attribute = "${node.class}"
     value     = "worker"
@@ -24,7 +26,7 @@ job "platform" {
     }
 
     service {
-      name = "engine"
+      name = "engine-seed"
       port = "http"
       tags = [
         "version=[[ .engine ]]",
@@ -52,8 +54,8 @@ job "platform" {
       }
       env {
         ENGINE_AUTH_SERVER_BASE_URL           = "[[ .KEYCLOAK_URL ]]"
-        ENGINE_DB_URL                         = "[[ .ENGINE_DB_URL ]]"
-        ENGINE_DB_SCHEMA                      = "[[ .ENGINE_DB ]]"
+        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_host ]]/[[ .platform_database ]]"
+        ENGINE_DB_SCHEMA                      = "[[ .platform_database ]]"
         ENGINE_LOG_CONFIG                     = "classpath:/logback-json.xml"
         SERVER_MAX_HTTP_HEADER_SIZE           = "32KB"
       }
@@ -61,7 +63,7 @@ job "platform" {
         env         = true
         destination = ".env"
         data        = <<EOT
-{{ with secret "secret/postgres-v2/platform" }}
+{{ with secret "secret/postgres-v2/[[ .platform_database ]]" }}
 ENGINE_DB_USER = {{ .Data.username }}
 ENGINE_DB_PASSWORD = {{ .Data.password }}
 {{ end }}

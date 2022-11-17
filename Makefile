@@ -2,6 +2,7 @@ GITHUB_SHA=HEAD
 VERSION=1.0-SNAPSHOT
 MAVEN_CLI_OPTS?=-s .m2/settings.xml
 LEVANT_VERSION=0.3.1
+NOMAD_CLI_VERSION=1.2.3
 # test
 .PHONY: sonar-scan
 sonar-scan:
@@ -36,6 +37,13 @@ images:	install
 	docker tag ghcr.io/noumenadigital/seed/keycloak-provisioning:latest ghcr.io/noumenadigital/seed/keycloak-provisioning:$(VERSION)
 	docker push ghcr.io/noumenadigital/seed/keycloak-provisioning:$(VERSION)
 
+	docker tag ghcr.io/noumenadigital/seed/db-provisioning:latest ghcr.io/noumenadigital/seed/db-provisioning:$(VERSION)
+	docker push ghcr.io/noumenadigital/seed/db-provisioning:$(VERSION)
+
+define create_namespace
+	docker run --rm --network=host -e NOMAD_ADDR hendrikmaus/nomad-cli:$(NOMAD_CLI_VERSION) nomad namespace apply -description $2 $1
+endef
+
 define deploy
 	docker run --rm -v $(CURDIR)/nomad:/jobs:ro --network=host \
 		hashicorp/levant:$(LEVANT_VERSION) levant deploy \
@@ -68,10 +76,21 @@ deploy:
 	$(call deploy,platform)
 	$(call deploy,api)
 
+
+.PHONY:	deploy-shared
+deploy-shared:
+	$(call create_namespace,"seed","Seed DEV environment")
+	$(call run_batch,db-provisioning)
+
 .PHONY:	deploy-dev
 deploy-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
 deploy-dev:	export ENVIRONMENT=dev
 deploy-dev:	deploy
+
+.PHONY:	deploy-shared-dev
+deploy-shared-dev:	export NOMAD_ADDR=https://nomad.shared-dev.noumenadigital.com
+deploy-shared-dev:	export ENVIRONMENT=shared-dev
+deploy-shared-dev: deploy-shared deploy
 
 .PHONY: clean-nomad
 clean-nomad:
@@ -86,6 +105,11 @@ clean-nomad:
 clean-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
 clean-dev:	export ENVIRONMENT=dev
 clean-dev: clean-nomad
+
+.PHONY: clean-shared-dev
+clean-shared-dev:	export NOMAD_ADDR=https://nomad.shared-dev.noumenadigital.com
+clean-shared-dev:	export ENVIRONMENT=shared-dev
+clean-shared-dev: clean-nomad
 
 .PHONY: run-integration-test
 run-integration-test: export SEED_TEST_USER=system
