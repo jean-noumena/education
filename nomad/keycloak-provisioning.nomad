@@ -23,7 +23,7 @@ job "keycloak-provisioning" {
       }
 
       env {
-        KEYCLOAK_URL = "[[ .KEYCLOAK_URL ]]"
+        KEYCLOAK_URL = "http://[[ .keycloak_name ]].service.consul:11000"
       }
 
       template {

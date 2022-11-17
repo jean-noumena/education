@@ -23,7 +23,7 @@ job "db-provisioning" {
       }
 
       env {
-        VAULT_ADDR = "[[ .VAULT_URL ]]"
+        VAULT_ADDR = "http://vault.service.consul:8200"
       }
 
       template {

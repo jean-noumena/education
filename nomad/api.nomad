@@ -31,12 +31,12 @@ job "api" {
     }
 
     service {
-      name = "api"
+      name = "[[ .api_name ]]"
       port = "http"
       tags = [
         "version=[[ .version ]]",
         "traefik.enable=true",
-        "traefik.frontend.rule=Host:api.[[ .domain ]]",
+        "traefik.frontend.rule=Host:[[ .api_name ]].[[ .domain ]]",
         "traefik.frontend.entryPoints=[[ .entrypoint ]]",
       ]
     }
@@ -66,9 +66,9 @@ job "api" {
       env {
         HTTP_PORT       = "${NOMAD_PORT_http}"
         HTTP_ADMIN_PORT = "${NOMAD_PORT_admin}"
-        KEYCLOAK_URL    = "[[ .KEYCLOAK_URL ]]"
-        ENGINE_URL      = "[[ .ENGINE_ENDPOINT_URL ]]"
-        LOG_LEVEL       = "[[ .LOG_LEVEL ]]"
+        KEYCLOAK_URL    = "http://[[ .keycloak_name ]].service.consul:11000"
+        ENGINE_URL      = "http://[[ .engine_name ]].service.consul:12000"
+        LOG_LEVEL       = "[[ .log_level ]]"
       }
 
       resources {

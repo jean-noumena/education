@@ -26,10 +26,10 @@ job "platform" {
     }
 
     service {
-      name = "engine-seed"
+      name = "[[ .engine_name ]]"
       port = "http"
       tags = [
-        "version=[[ .engine ]]",
+        "version=[[ .version ]]",
         "prometheus=/actuator/prometheusmetrics"
       ]
       check {
@@ -53,9 +53,9 @@ job "platform" {
         ]
       }
       env {
-        ENGINE_AUTH_SERVER_BASE_URL           = "[[ .KEYCLOAK_URL ]]"
-        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_host ]]/[[ .platform_database ]]"
-        ENGINE_DB_SCHEMA                      = "[[ .platform_database ]]"
+        ENGINE_AUTH_SERVER_BASE_URL           = "http://[[ .keycloak_name ]].service.consul:11000"
+        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_host ]].service.consul/[[ .platform_name ]]"
+        ENGINE_DB_SCHEMA                      = "[[ .platform_name ]]"
         ENGINE_LOG_CONFIG                     = "classpath:/logback-json.xml"
         SERVER_MAX_HTTP_HEADER_SIZE           = "32KB"
       }
@@ -63,7 +63,7 @@ job "platform" {
         env         = true
         destination = ".env"
         data        = <<EOT
-{{ with secret "secret/postgres-v2/[[ .platform_database ]]" }}
+{{ with secret "secret/postgres-v2/[[ .platform_name ]]" }}
 ENGINE_DB_USER = {{ .Data.username }}
 ENGINE_DB_PASSWORD = {{ .Data.password }}
 {{ end }}

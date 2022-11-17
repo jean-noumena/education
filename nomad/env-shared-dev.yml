@@ -3,17 +3,9 @@ datacenter: shared-dev
 namespace: seed
 domain: shared-dev.noumenadigital.com
 entrypoint: external
-LOG_LEVEL: info
-keycloak_database: keycloak-seed
-platform_database: platform-seed
-postgres_host: postgres-v2.service.consul
-
-## ENGINE
-PLATFORM_VERSION: "2022.1.39"
-ENGINE_ENDPOINT_URL: "http://engine-seed.service.consul:12000"
-
-## KEYCLOAK
-KEYCLOAK_URL: "http://keycloak-seed.service.consul:11000"
-
-## VAULT
-VAULT_URL: "http://vault.service.consul:8200"
+log_level: info
+keycloak_name: keycloak-seed
+platform_name: platform-seed
+engine_name: engine-seed
+api_name: api-seed
+postgres_name: postgres-v2.service.consul

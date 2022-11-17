@@ -28,11 +28,11 @@ job "keycloak" {
 
     service {
       port = "http"
-      name = "keycloak-seed"
+      name = "[[ .keycloak_name ]]"
       tags = [
         "version=[[ .version ]]",
         "traefik.enable=true",
-        "traefik.frontend.rule=Host:keycloak.[[ .domain ]];PathPrefix:/",
+        "traefik.frontend.rule=Host:[[ .keycloak_name ]].[[ .domain ]];PathPrefix:/",
         "traefik.frontend.entryPoints=internal",
       ]
       check {
@@ -62,9 +62,9 @@ job "keycloak" {
         KC_HTTP_ENABLED    = "true"
         KC_HTTP_HOST       = "0.0.0.0"
         KC_HTTP_PORT       = "${NOMAD_PORT_http}"
-        KC_HOSTNAME        = "keycloak.[[ .domain ]]"
+        KC_HOSTNAME        = "[[ .keycloak_name ]].[[ .domain ]]"
         KC_HOSTNAME_STRICT = "false"
-        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_host ]]/[[ .keycloak_database ]]"
+        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_host ]].service.consul/[[ .keycloak_name ]]"
         KC_PROXY           = "edge"
       }
 
@@ -72,7 +72,7 @@ job "keycloak" {
         destination = "${NOMAD_SECRETS_DIR}/psql"
         env         = true
         data        = <<EOT
-{{ with secret "secret/postgres-v2/[[ .keycloak_database ]]" }}
+{{ with secret "secret/postgres-v2/[[ .keycloak_name ]]" }}
 KC_DB_USERNAME = {{ .Data.username }}
 KC_DB_PASSWORD = {{ .Data.password }}
 {{ end }}
