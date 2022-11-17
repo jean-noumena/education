@@ -8,4 +8,4 @@ keycloak_name: keycloak-seed
 platform_name: platform-seed
 engine_name: engine-seed
 api_name: api-seed
-postgres_name: postgres-v2.service.consul
+postgres_name: postgres-v2
