@@ -31,11 +31,11 @@ job "db-provisioning" {
         env         = true
         data        = <<EOT
 {{ with secret "secret/vault/shared/dev" }}
-VAULT_TOKEN = {{ .Data.root_token }}
+VAULT_TOKEN = "{{ .Data.root_token }}"
 {{ end }}
 {{ with secret "secret/postgres-v2/admin" }}
-TF_VAR_postgres_username = {{ .Data.username }}
-TF_VAR_postgres_password = {{ .Data.password }}
+TF_VAR_postgres_username = "{{ .Data.username }}"
+TF_VAR_postgres_password = "{{ .Data.password }}"
 {{ end }}
 EOT
       }

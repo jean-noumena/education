@@ -26,7 +26,6 @@ resource "postgresql_role" "keycloak" {
   name      = vault_generic_secret.keycloak.data["username"]
   password  = vault_generic_secret.keycloak.data["password"]
   login     = true
-  superuser = false
 }
 
 resource "postgresql_database" "keycloak" {
@@ -62,7 +61,6 @@ resource "postgresql_role" "platform" {
   name      = vault_generic_secret.platform.data["username"]
   password  = vault_generic_secret.platform.data["password"]
   login     = true
-  superuser = false
 }
 
 resource "postgresql_database" "platform" {

@@ -20,6 +20,7 @@ provider "postgresql" {
   host            = var.postgres_host
   username        = var.postgres_username
   password        = var.postgres_password
+  superuser       = false
   sslmode         = "require"
   connect_timeout = 15
 }
