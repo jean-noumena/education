@@ -47,7 +47,7 @@ jobs:
           make -e images
 
   deploy:
-    runs-on: "self-hosted"
+    runs-on: [self-hosted, seed-dev]
     needs: "build"
     steps:
       - uses: actions/checkout@v3
@@ -56,7 +56,7 @@ jobs:
           make -e deploy-dev
 
   deploy-shared-dev:
-    runs-on: "self-hosted"
+    runs-on: [self-hosted, shared-dev]
     needs: "build"
     steps:
       - uses: actions/checkout@v3
