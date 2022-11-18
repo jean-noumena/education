@@ -64,7 +64,7 @@ job "keycloak" {
         KC_HTTP_PORT       = "${NOMAD_PORT_http}"
         KC_HOSTNAME        = "[[ .keycloak_name ]].[[ .domain ]]"
         KC_HOSTNAME_STRICT = "false"
-        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .keycloak_name ]]"
+        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .keycloak_database ]]"
         KC_PROXY           = "edge"
       }
 

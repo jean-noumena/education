@@ -54,8 +54,8 @@ job "platform" {
       }
       env {
         ENGINE_AUTH_SERVER_BASE_URL           = "http://[[ .keycloak_name ]].service.consul:11000"
-        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .platform_name ]]"
-        ENGINE_DB_SCHEMA                      = "[[ .platform_name ]]"
+        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .platform_database ]]"
+        ENGINE_DB_SCHEMA                      = "[[ .platform_database ]]"
         ENGINE_LOG_CONFIG                     = "classpath:/logback-json.xml"
         SERVER_MAX_HTTP_HEADER_SIZE           = "32KB"
       }
@@ -64,8 +64,8 @@ job "platform" {
         destination = ".env"
         data        = <<EOT
 {{ with secret "secret/postgres-v2/[[ .platform_name ]]" }}
-ENGINE_DB_USER = {{ .Data.username }}
-ENGINE_DB_PASSWORD = {{ .Data.password }}
+ENGINE_DB_USER = "{{ .Data.username }}"
+ENGINE_DB_PASSWORD = "{{ .Data.password }}"
 {{ end }}
 EOT
       }

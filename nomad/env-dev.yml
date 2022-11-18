@@ -9,3 +9,5 @@ platform_name: platform
 engine_name: engine
 api_name: api
 postgres_name: postgres-v2
+keycloak_database: keycloak
+platform_database: platform

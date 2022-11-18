@@ -1,7 +1,9 @@
 locals {
-  application_name = "seed"
-  platform_name    = "platform-${local.application_name}"
-  keycloak_name    = "keycloak-${local.application_name}"
+  application_name       = "seed"
+  platform_name          = "platform-${local.application_name}"
+  keycloak_name          = "keycloak-${local.application_name}"
+  postgres_platform_name = replace(platform_name, "-", "_")
+  postgres_keycloak_name = replace(keycloak_name, "-", "_")
 }
 
 resource "random_password" "keycloak" {
@@ -16,7 +18,7 @@ resource "vault_generic_secret" "keycloak" {
   path      = "secret/postgres-v2/${local.keycloak_name}"
   data_json = <<EOT
 {
-  "username": "${local.keycloak_name}",
+  "username": "${local.postgres_keycloak_name}",
   "password": "${random_password.keycloak.result}"
 }
 EOT
@@ -51,7 +53,7 @@ resource "vault_generic_secret" "platform" {
   path      = "secret/postgres-v2/${local.platform_name}"
   data_json = <<EOT
 {
-  "username": "${local.platform_name}",
+  "username": "${local.postgres_platform_name}",
   "password": "${random_password.platform.result}"
 }
 EOT

@@ -9,3 +9,5 @@ platform_name: platform-seed
 engine_name: engine-seed
 api_name: api-seed
 postgres_name: postgres-v2
+keycloak_database: keycloak_seed
+platform_database: platform_seed
