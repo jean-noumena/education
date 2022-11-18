@@ -2,8 +2,8 @@ locals {
   application_name       = "seed"
   platform_name          = "platform-${local.application_name}"
   keycloak_name          = "keycloak-${local.application_name}"
-  postgres_platform_name = replace(platform_name, "-", "_")
-  postgres_keycloak_name = replace(keycloak_name, "-", "_")
+  postgres_platform_name = replace(local.platform_name, "-", "_")
+  postgres_keycloak_name = replace(local.keycloak_name, "-", "_")
 }
 
 resource "random_password" "keycloak" {
