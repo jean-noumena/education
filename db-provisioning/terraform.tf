@@ -36,7 +36,7 @@ resource "postgresql_grant" "keycloak_database_all" {
   database    = postgresql_database.keycloak.name
   role        = postgresql_role.keycloak.name
   object_type = "database"
-  privileges  = ["ALL"]
+  privileges  = ["CONNECT", "CREATE", "TEMPORARY"]
 }
 
 resource "random_password" "platform" {
@@ -71,5 +71,5 @@ resource "postgresql_grant" "platform_database_all" {
   database    = postgresql_database.platform.name
   role        = postgresql_role.platform.name
   object_type = "database"
-  privileges  = ["ALL"]
+  privileges  = ["CONNECT", "CREATE", "TEMPORARY"]
 }

@@ -73,12 +73,12 @@ job "keycloak" {
         env         = true
         data        = <<EOT
 {{ with secret "secret/postgres-v2/[[ .keycloak_name ]]" }}
-KC_DB_USERNAME = {{ .Data.username }}
-KC_DB_PASSWORD = {{ .Data.password }}
+KC_DB_USERNAME = "{{ .Data.username }}"
+KC_DB_PASSWORD = "{{ .Data.password }}"
 {{ end }}
 {{ with secret "secret/seed/keycloak-admin" }}
-KEYCLOAK_ADMIN = {{ .Data.username }}
-KEYCLOAK_ADMIN_PASSWORD = {{ .Data.password }}
+KEYCLOAK_ADMIN = "{{ .Data.username }}"
+KEYCLOAK_ADMIN_PASSWORD = "{{ .Data.password }}"
 {{ end }}
 EOT
       }

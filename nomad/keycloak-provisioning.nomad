@@ -31,8 +31,8 @@ job "keycloak-provisioning" {
         env         = true
         data        = <<EOT
 {{ with secret "secret/seed/keycloak-admin" }}
-KEYCLOAK_USER = {{ .Data.username }}
-KEYCLOAK_PASSWORD = {{ .Data.password }}
+KEYCLOAK_USER = "{{ .Data.username }}"
+KEYCLOAK_PASSWORD = "{{ .Data.password }}"
 {{ end }}
 EOT
       }
