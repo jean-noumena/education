@@ -67,6 +67,10 @@ job "platform" {
 ENGINE_DB_USER = "{{ .Data.username }}"
 ENGINE_DB_PASSWORD = "{{ .Data.password }}"
 {{ end }}
+{{ with secret "secret/postgres-v2/[[ .postgraphile_name ]]" }}
+POSTGRAPHILE_DB_USER = "{{ .Data.username }}"
+POSTGRAPHILE_DB_PASSWORD = "{{ .Data.password }}"
+{{ end }}
 EOT
       }
       resources {

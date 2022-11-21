@@ -8,6 +8,8 @@ keycloak_name: keycloak
 platform_name: platform
 engine_name: engine
 api_name: api
+postgraphile_name: postgraphile
 postgres_name: postgres-v2
 keycloak_database: keycloak
 platform_database: platform
+postgraphile_database: postgraphile
