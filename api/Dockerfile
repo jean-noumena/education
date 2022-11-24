@@ -1,12 +1,8 @@
-FROM eclipse-temurin:17-jre-jammy
+FROM amazoncorretto:17
 
 ARG BUILD_DATE
 ARG GIT_REV
 ARG VERSION
-
-RUN apt-get update \
-    && apt-get install -y curl \
-    && apt-get clean
 
 WORKDIR /api
 

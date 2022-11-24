@@ -1,7 +1,5 @@
 name: Build on PR
 on: [pull_request]
-#on:
-#  workflow_call:
 
 env:
   MAVEN_REPO_USER: ${{ secrets.MAVEN_USERNAME }}
@@ -26,3 +24,15 @@ jobs:
           cache: 'maven'
       - run: |
           make -e integration-test
+      - name: Scan Engine for Vulnerabilities
+        uses: anchore/scan-action@v3
+        with:
+          image: ghcr.io/noumenadigital/seed/engine:latest
+          fail-build: false
+          output-format: table
+      - name: Scan API for Vulnerabilities
+        uses: anchore/scan-action@v3
+        with:
+          image: ghcr.io/noumenadigital/seed/api:latest
+          fail-build: false
+          output-format: table
