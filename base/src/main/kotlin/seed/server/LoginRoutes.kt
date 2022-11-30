@@ -13,7 +13,7 @@ import seed.config.Configuration
 import seed.security.defaultFilter
 import seed.security.loginHandler
 import seed.security.logoutHandler
-import seed.security.metricsFilter
+import seed.security.noLogin
 import seed.security.refreshHandler
 
 fun loginRoutes(
@@ -22,10 +22,10 @@ fun loginRoutes(
     "/openapi" bind GET to static(Classpath("/"), "yml" to ContentType.TEXT_YAML),
     "/swagger" bind GET to static(Classpath("/swagger-ui-3.52.3/dist")),
 
-    "/auth/login" bind POST to metricsFilter(config).then(
+    "/auth/login" bind POST to noLogin(config).then(
         loginHandler(config)
     ),
-    "/auth/refresh" bind POST to metricsFilter(config).then(
+    "/auth/refresh" bind POST to noLogin(config).then(
         refreshHandler(config)
     ),
     "/auth/logout" bind POST to defaultFilter(config).then(

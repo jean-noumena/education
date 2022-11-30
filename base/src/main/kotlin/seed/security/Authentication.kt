@@ -15,12 +15,13 @@ import org.http4k.core.with
 import seed.config.Configuration
 import seed.config.JSON.auto
 import seed.keycloak.KeycloakClient
+import seed.keycloak.KeycloakClientImpl
 import seed.keycloak.KeycloakServerException
 import seed.keycloak.KeycloakToken
 import seed.keycloak.KeycloakUnauthorizedException
 
 fun loginRequired(config: Configuration, client: HttpHandler = ApacheClient()): Filter {
-    val keycloakClient = KeycloakClient(config, client)
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
     return Filter { next ->
         { req ->
             try {
@@ -62,7 +63,7 @@ private fun oAuthError(status: Status, error: String, description: String = ""):
     Response(status).with(oAuthErrorLens.of(OAuthError(error, description)))
 
 fun loginHandler(config: Configuration, client: HttpHandler = ApacheClient()): HttpHandler {
-    val keycloakClient = KeycloakClient(config, client)
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
 
     return { req ->
         val username = req.form("username")
@@ -73,15 +74,19 @@ fun loginHandler(config: Configuration, client: HttpHandler = ApacheClient()): H
             username == null -> {
                 oAuthError(Status.BAD_REQUEST, "invalid_request")
             }
+
             password == null -> {
                 oAuthError(Status.BAD_REQUEST, "invalid_request")
             }
+
             grantType == null -> {
                 oAuthError(Status.BAD_REQUEST, "invalid_request")
             }
+
             grantType != "password" -> {
                 oAuthError(Status.BAD_REQUEST, "unsupported_grant_type")
             }
+
             else -> try {
                 val kcToken = keycloakClient.login(username, password)
                 val responseBody = LoginResponse.fromKeycloak(kcToken)
@@ -96,7 +101,7 @@ fun loginHandler(config: Configuration, client: HttpHandler = ApacheClient()): H
 }
 
 fun refreshHandler(config: Configuration, client: HttpHandler = ApacheClient()): HttpHandler {
-    val keycloakClient = KeycloakClient(config, client)
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
 
     return { req ->
         val token = req.form("refresh_token")
@@ -106,9 +111,11 @@ fun refreshHandler(config: Configuration, client: HttpHandler = ApacheClient()):
             token == null -> {
                 oAuthError(Status.BAD_REQUEST, "invalid_request")
             }
+
             grantType != "refresh_token" -> {
                 oAuthError(Status.BAD_REQUEST, "invalid_request")
             }
+
             else -> try {
                 val kcToken = keycloakClient.refresh(token)
                 val responseBody = LoginResponse.fromKeycloak(kcToken)
@@ -123,7 +130,7 @@ fun refreshHandler(config: Configuration, client: HttpHandler = ApacheClient()):
 }
 
 fun logoutHandler(config: Configuration, client: HttpHandler = ApacheClient()): HttpHandler {
-    val keycloakClient = KeycloakClient(config, client)
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
 
     return { req ->
         val refreshToken = req.form("refresh_token") ?: ""

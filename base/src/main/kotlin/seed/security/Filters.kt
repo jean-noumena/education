@@ -6,6 +6,7 @@ import mu.KotlinLogging
 import org.http4k.core.Body
 import org.http4k.core.Filter
 import org.http4k.core.Method
+import org.http4k.core.NoOp
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
@@ -18,20 +19,26 @@ import org.http4k.filter.ServerFilters
 import org.http4k.lens.LensFailure
 import seed.config.Configuration
 import seed.config.JSON.auto
+import seed.metrics.measure
 import java.net.URLDecoder.decode
 import java.nio.charset.Charset
 import java.util.UUID
 
 internal val logger = KotlinLogging.logger {}
 
-fun metricsFilter(config: Configuration): Filter = if (config.debug) {
-    DebuggingFilters.PrintResponse().then(metrics.measure())
-} else {
-    metrics.measure()
-}
-
 fun defaultFilter(config: Configuration): Filter =
-    metricsFilter(config).then(loginRequired(config))
+    noLogin(config)
+        .then(loginRequired(config))
+
+fun noLogin(config: Configuration): Filter =
+    debugFilter(config)
+        .then(measure())
+
+fun debugFilter(config: Configuration): Filter = if (config.debug) {
+    DebuggingFilters.PrintRequestAndResponse()
+} else {
+    Filter.NoOp
+}
 
 fun corsFilter(config: Configuration): Filter =
     ServerFilters.Cors(
@@ -102,7 +109,9 @@ fun catchLensFailure(debug: Boolean = false) =
             } catch (t: LensFailure) {
                 val traceID = UUID.randomUUID()
                 if (debug) {
-                    logger.error(t) { "Encode/Decode failure $traceID" }
+                    logger.error(t) {
+                        "Encode/Decode failure $traceID, failures ${t.failures}, stacktrace ${t.stackTrace}"
+                    }
                 }
                 errorResponse(Status.BAD_REQUEST, ErrorCode.InvalidParameter, traceID)
             }
@@ -171,7 +180,11 @@ fun httpStatusFilter() =
                 res
             } else {
                 when (res.status) {
-                    Status.NOT_FOUND -> errorResponse(Status.NOT_FOUND, ErrorCode.RouteNotFound)
+                    Status.NOT_FOUND -> {
+                        logger.error { "404 Not Found: request: $it, response: $res" }
+                        errorResponse(Status.NOT_FOUND, ErrorCode.RouteNotFound)
+                    }
+
                     else -> res
                 }
             }

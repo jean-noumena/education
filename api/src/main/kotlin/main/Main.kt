@@ -15,6 +15,7 @@ import org.http4k.server.KtorCIO
 import org.http4k.server.asServer
 import seed.config.Configuration
 import seed.keycloak.KeycloakClient
+import seed.keycloak.KeycloakClientImpl
 import seed.keycloak.KeycloakForwardAuthorization
 import seed.security.corsFilter
 import seed.security.errorFilter
@@ -39,7 +40,7 @@ fun main(): Unit = runBlocking {
     val adminServer = admin(config).asServer(KtorCIO(adminPort))
     adminServer.start()
     val engineClient = EngineClientApi(config.engineURL)
-    val keycloakClient = KeycloakClient(config, ApacheClient())
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, ApacheClient())
     val forwardAuthorization = KeycloakForwardAuthorization(keycloakClient)
 
     logger.info { "Request logging is ${if (config.debug) "on" else "off"}" }

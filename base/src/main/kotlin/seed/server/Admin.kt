@@ -11,17 +11,20 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import seed.config.Configuration
 import seed.keycloak.KeycloakClient
+import seed.keycloak.KeycloakClientImpl
+import seed.metrics.handler
+import seed.metrics.measure
 
 fun admin(config: Configuration): HttpHandler {
     return routes(
-        "/health" bind Method.GET to metrics.measure().then(healthHandler(config)),
-        "/metrics" bind Method.GET to metrics.measure().then(metrics.handler())
+        "/health" bind Method.GET to measure().then(healthHandler(config)),
+        "/metrics" bind Method.GET to measure().then(handler())
     )
 }
 
 fun healthHandler(config: Configuration): HttpHandler {
     val httpClient = ApacheClient()
-    val keycloakClient = KeycloakClient(config, httpClient)
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, httpClient)
     val engineClient = EngineClientApi(config.engineURL)
 
     return {

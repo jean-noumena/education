@@ -3,7 +3,7 @@ package seed.keycloak
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.noumenadigital.platform.engine.values.ClientPartyValue
 import io.prometheus.client.Summary
-import metrics.record
+import org.http4k.client.ApacheClient
 import org.http4k.core.Body
 import org.http4k.core.ContentType
 import org.http4k.core.HttpHandler
@@ -14,6 +14,7 @@ import org.http4k.core.Status
 import org.http4k.core.body.form
 import seed.config.Configuration
 import seed.config.SnakeCaseJsonConfiguration.auto
+import seed.metrics.record
 import seed.security.ErrorCode
 import seed.security.logger
 import java.io.IOException
@@ -47,8 +48,38 @@ private fun Request.optionalHeader(name: String, value: String?): Request {
     return this.header(name, value)
 }
 
-class KeycloakClient(config: Configuration, val client: HttpHandler) {
+interface PartyProvider {
+    fun party(response: Response): ClientPartyValue
+}
 
+class SeedPartyProvider : PartyProvider {
+    override fun party(response: Response): ClientPartyValue {
+        val userInfo = keycloakUserInfoLens.extract(response)
+
+        return ClientPartyValue(
+            entity = mapOf(
+                "party" to userInfo.party.toSet(),
+                "preferred_username" to setOf(userInfo.preferredUsername)
+            ),
+            access = mapOf()
+        )
+    }
+}
+
+interface KeycloakClient {
+    fun ready(): Boolean
+    fun login(username: String, password: String): KeycloakToken
+    fun refresh(refreshToken: String): KeycloakToken
+    fun logout(bearerToken: String, refreshToken: String)
+    fun authorize(bearerToken: String)
+    fun party(bearerToken: String): ClientPartyValue
+}
+
+class KeycloakClientImpl(
+    config: Configuration,
+    val client: HttpHandler = ApacheClient(),
+    private val partyProvider: PartyProvider = SeedPartyProvider()
+) : KeycloakClient {
     private val base = config.keycloakURL
     private val host = config.keycloakHost
     private val realm = config.keycloakRealm
@@ -61,7 +92,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
     private val endpointLogout = URL(base, "/realms/$realm/protocol/openid-connect/logout").toExternalForm()
     private val endpointUserInfo = URL(base, "/realms/$realm/protocol/openid-connect/userinfo").toExternalForm()
 
-    fun ready(): Boolean {
+    override fun ready(): Boolean {
         try {
             val healthReq = Request(Method.GET, endpointHealth)
             val healthRes = client(healthReq)
@@ -77,7 +108,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
         return realmRes.status == Status.OK
     }
 
-    fun login(username: String, password: String): KeycloakToken {
+    override fun login(username: String, password: String): KeycloakToken {
         return keycloakTimer.labels("login").record {
             val req = Request(Method.POST, endpointToken)
                 .header(CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
@@ -99,7 +130,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
         }
     }
 
-    fun refresh(refreshToken: String): KeycloakToken {
+    override fun refresh(refreshToken: String): KeycloakToken {
         return keycloakTimer.labels("refresh").record {
             val req = Request(Method.POST, endpointToken)
                 .header(CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
@@ -120,7 +151,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
         }
     }
 
-    fun logout(bearerToken: String, refreshToken: String) {
+    override fun logout(bearerToken: String, refreshToken: String) {
         keycloakTimer.labels("logout").record {
             val req = Request(Method.POST, endpointLogout)
                 .header(CONTENT_TYPE, ContentType.APPLICATION_FORM_URLENCODED.toHeaderValue())
@@ -137,13 +168,14 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
         }
     }
 
-    fun authorize(bearerToken: String) {
+    override fun authorize(bearerToken: String) {
         keycloakTimer.labels("authorize").record {
             val res = userInfoResponse(bearerToken)
             when (res.status) {
                 Status.OK -> {
                     logger.debug { "authorized: $bearerToken" }
                 }
+
                 Status.UNAUTHORIZED -> throw KeycloakUnauthorizedException(ErrorCode.InvalidBearerToken)
                 else -> {
                     logger.error { "Unexpected Keycloak response: ${res.status} - ${res.bodyString()}" }
@@ -153,7 +185,7 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
         }
     }
 
-    fun userInfoResponse(bearerToken: String): Response {
+    private fun userInfoResponse(bearerToken: String): Response {
         val req = Request(Method.GET, endpointUserInfo)
             .header("Authorization", bearerToken)
         return try {
@@ -164,25 +196,13 @@ class KeycloakClient(config: Configuration, val client: HttpHandler) {
         }
     }
 
-    fun party(userInfo: UserInfo): ClientPartyValue {
-        return ClientPartyValue(
-            entity = mapOf(
-                "party" to userInfo.party.toSet(),
-                "preferred_username" to setOf(userInfo.preferredUsername)
-            ),
-            access = mapOf()
-        )
-    }
-
-    private fun userInfo(bearerToken: String): UserInfo {
+    override fun party(bearerToken: String): ClientPartyValue {
         val response = userInfoResponse(bearerToken)
         if (response.status != Status.OK) {
             throw KeycloakServerException(ErrorCode.InvalidBearerToken)
         }
-        return keycloakUserInfoLens.extract(response)
+        return partyProvider.party(response)
     }
-
-    fun party(bearerToken: String): ClientPartyValue = party(userInfo(bearerToken))
 
     companion object {
         private val keycloakTimer = Summary.build()

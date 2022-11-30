@@ -1,4 +1,4 @@
-package metrics
+package seed.metrics
 
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.Summary
