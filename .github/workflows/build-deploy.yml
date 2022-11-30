@@ -28,6 +28,9 @@ jobs:
           cache: 'maven'
       - run: |
           make -e integration-test
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
 
   images:
     runs-on: "ubuntu-latest"

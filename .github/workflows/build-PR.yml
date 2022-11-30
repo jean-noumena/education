@@ -24,6 +24,9 @@ jobs:
           cache: 'maven'
       - run: |
           make -e integration-test
+      - name: Dump docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v2
       - name: Scan Engine for Vulnerabilities
         uses: anchore/scan-action@v3
         with:
