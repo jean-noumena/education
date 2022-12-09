@@ -22,9 +22,12 @@ install:
 format:
 	mvn $(MAVEN_CLI_OPTS) ktlint:format
 
-.PHONY:	run
-run: format install
+.PHONY:	run-only
+run-only:
 	docker-compose up -d
+
+.PHONY:	run
+run: format install run-only
 
 .PHONY:	images
 images:	install
@@ -118,8 +121,7 @@ clean-shared-dev: clean-nomad
 .PHONY: run-integration-test
 run-integration-test: export SEED_TEST_USER=system
 run-integration-test: export SEED_TEST_PASSWORD=welcome
-run-integration-test:
-	docker-compose up -d
+run-integration-test: run-only
 	mvn $(MAVEN_CLI_OPTS) -am clean integration-test verify -Pintegration-test -pl it-test
 	docker-compose down --volumes
 
@@ -133,6 +135,7 @@ login:
 .PHONY: docker-scan-login
 docker-scan-login:
 	docker scan --login
+
 .PHONY: snyk-scan
 snyk-scan: 
 	docker scan ghcr.io/noumenadigital/seed/api:latest

@@ -56,7 +56,7 @@ services:
         condition: service_healthy
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.39
+    image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.63
     environment:
       DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
@@ -73,11 +73,11 @@ services:
       keycloak:
         condition: service_healthy
 
-  db-provisioning:
-    image: ghcr.io/noumenadigital/seed/db-provisioning:latest
-    build:
-      context: db-provisioning
-    command: /local.sh
+#  db-provisioning:
+#    image: ghcr.io/noumenadigital/seed/db-provisioning:latest
+#    build:
+#      context: db-provisioning
+#    command: /local.sh
 
   engine-db:
     image: postgres:14.4-alpine
@@ -130,3 +130,4 @@ services:
       - keycloak-db:/var/lib/postgresql/data
     environment:
       POSTGRES_PASSWORD: testing
+

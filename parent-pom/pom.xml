@@ -21,7 +21,7 @@
         <io-prometheus-version>0.9.0</io-prometheus-version>
         <http4k.version>4.13.0.0</http4k.version>
         <logback.version>1.2.6</logback.version>
-        <noumena.platform.version>2022.1.39</noumena.platform.version>
+        <noumena.platform.version>2022.1.63</noumena.platform.version>
         <kotest.version>4.6.3</kotest.version>
         <mockito.version>4.0.0</mockito.version>
     </properties>
@@ -96,6 +96,11 @@
                 <groupId>ch.qos.logback</groupId>
                 <artifactId>logback-classic</artifactId>
                 <version>${logback.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>2.0.5</version>
             </dependency>
             <dependency>
                 <groupId>io.github.microutils</groupId>
@@ -184,6 +189,10 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.microutils</groupId>

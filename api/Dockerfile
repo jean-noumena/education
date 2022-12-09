@@ -8,12 +8,12 @@ WORKDIR /api
 
 USER nobody
 
-LABEL org.opencontainers.image.source = "https://github.com/noumenadigital/seed" \ 
-      org.label-schema.name="api" \
+LABEL org.label-schema.name="api" \
       org.label-schema.vendor="SEED" \
       org.label-schema.build-date="${BUILD_DATE}" \
       org.label-schema.vcs-ref="${GIT_REV}" \
-      org.label-schema.version="${VERSION}"
+      org.label-schema.version="${VERSION}" \
+      org.opencontainers.image.source="https://github.com/noumenadigital/seed"
 
 COPY target/classes/logback-json.xml /wp-plugin-service/
 COPY target/dependency /api/lib

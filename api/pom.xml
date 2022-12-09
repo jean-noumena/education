@@ -23,6 +23,7 @@
             <artifactId>npl</artifactId>
             <version>${project.version}</version>
         </dependency>
+
         <dependency>
             <groupId>com.noumenadigital.seed</groupId>
             <artifactId>base</artifactId>
