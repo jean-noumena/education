@@ -12,18 +12,19 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <kotlin.compiler.jvmTarget>${java.version}</kotlin.compiler.jvmTarget>
-        <kotlin.version>1.6.21</kotlin.version>
+        <kotlin.version>1.7.10</kotlin.version>
         <kotlin.coroutines.version>1.6.4</kotlin.coroutines.version>
-        <io-prometheus-version>0.9.0</io-prometheus-version>
+        <io-prometheus-version>0.16.0</io-prometheus-version>
         <http4k.version>4.13.0.0</http4k.version>
-        <logback.version>1.2.6</logback.version>
+        <logback.version>1.2.11</logback.version>
         <noumena.platform.version>2022.1.63</noumena.platform.version>
-        <kotest.version>4.6.3</kotest.version>
-        <mockito.version>4.0.0</mockito.version>
+        <kotest.version>5.4.0</kotest.version>
+        <mockito.version>4.1.0</mockito.version>
+        <junit-platform-commons-version>1.9.1</junit-platform-commons-version>
     </properties>
 
     <dependencyManagement>
@@ -130,14 +131,7 @@
                 <artifactId>read-streams-client</artifactId>
                 <version>${noumena.platform.version}</version>
             </dependency>
-
-            <!-- Security -->
-            <dependency>
-                <groupId>io.jsonwebtoken</groupId>
-                <artifactId>jjwt</artifactId>
-                <version>0.9.1</version>
-            </dependency>
-
+            
             <!-- Testing -->
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
@@ -179,6 +173,12 @@
                 <groupId>org.mockito.kotlin</groupId>
                 <artifactId>mockito-kotlin</artifactId>
                 <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.platform</groupId>
+                <artifactId>junit-platform-commons</artifactId>
+                <version>${junit-platform-commons-version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
