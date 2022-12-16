@@ -49,7 +49,7 @@ struct IouTestCase {
 function table_test_iou(test: Test) -> {
     var tests = mapOf<Text, IouTestCase>(
         Pair(
-            "Should fail if paid amoount is negative",
+            "Should fail if paid amount is negative",
             IouTestCase(
                 initialAmount = 100,
                 amountToPay = -10,
@@ -61,7 +61,7 @@ function table_test_iou(test: Test) -> {
             )
         ),
         Pair(
-            "Should fail if paid amoount is larger than amount owed",
+            "Should fail if paid amount is larger than amount owed",
             IouTestCase(
                 initialAmount = 100,
                 amountToPay = 101,

@@ -38,10 +38,13 @@ services:
     ports:
       - "12000:12000"
     environment:
+      ENGINE_AUTH_SERVER_BASE_URL: http://keycloak:11000
       ENGINE_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
       ENGINE_DB_USER: seed
       ENGINE_DB_PASSWORD: secret
-      ENGINE_AUTH_SERVER_BASE_URL: http://keycloak:11000
+      ENGINE_DB_HISTORY_USER: history
+      ENGINE_DB_HISTORY_PASSWORD: secret
+      ENGINE_DB_HISTORY_SCHEMA: history
       POSTGRAPHILE_DB_USER: postgraphile
       POSTGRAPHILE_DB_PASSWORD: postgraphile
     healthcheck:
@@ -55,8 +58,30 @@ services:
       keycloak:
         condition: service_healthy
 
+  history:
+    image: ghcr.io/noumenadigital/packages/history:2022.1.71
+    ports:
+      - "12010:12010"
+      - "12711:12711"
+    environment:
+      HISTORY_ADMIN_HOST: 0.0.0.0
+      HISTORY_ADMIN_PORT: 12711
+      HISTORY_DB_URL: "jdbc:postgresql://engine-db:5432/engine"
+      HISTORY_DB_USER: history
+      HISTORY_DB_PASSWORD: secret
+      HISTORY_DB_SCHEMA: history
+      HISTORY_DB_ENGINE_SCHEMA: noumena
+      HISTORY_STARTUP_HEALTH_CHECK_ATTEMPTS: 10
+    depends_on:
+      engine-db:
+        condition: service_started
+      engine:
+        condition: service_healthy
+
   read-model:
-    image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.63
+    image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.71
+    ports:
+      - "15000:15000"
     environment:
       DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
@@ -65,8 +90,6 @@ services:
       ENGINE_TIMEOUT_SECONDS: 250
       SCHEMA: noumena
       PORT: 15000
-    ports:
-      - "15000:15000"
     depends_on:
       engine-db:
         condition: service_started
@@ -81,13 +104,18 @@ services:
 
   engine-db:
     image: postgres:14.4-alpine
+    command: postgres -c log_statement=all
     mem_limit: 256m
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: engine
       POSTGRES_USER: seed
       POSTGRES_PASSWORD: secret
-    ports:
-      - "5432:5432"
+      HISTORY_DB_USER: history
+      HISTORY_DB_PASSWORD: secret
+    volumes:
+      - ./db_init/db_init.sh:/docker-entrypoint-initdb.d/db_init.sh
 
   keycloak-provisioning:
     image: ghcr.io/noumenadigital/seed/keycloak-provisioning:latest
@@ -101,6 +129,8 @@ services:
   keycloak:
     image: quay.io/keycloak/keycloak:19.0.0
     command: start --hostname-strict=false --hostname-strict-https=false --health-enabled=true --http-enabled=true --metrics-enabled=true --db=postgres
+    ports:
+      - "11000:11000"
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: Seed123!
@@ -111,8 +141,6 @@ services:
       KC_HTTP_ENABLED: "true"
       KC_HTTP_PORT: 11000
       KC_HOSTNAME: keycloak
-    ports:
-      - "11000:11000"
     healthcheck:
       test: curl -s localhost:11000/health || exit 1
       interval: 1s

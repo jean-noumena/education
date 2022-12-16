@@ -26,6 +26,7 @@ job "cleanup" {
 set -e
 set -u
 {{ with secret "secret/postgres-v2/[[ .platform_name ]]" }}PGPASSWORD="{{ .Data.password }}" psql -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}
+{{ with secret "secret/postgres-v2/[[ .history_name ]]" }}PGPASSWORD="{{ .Data.password }}" psql -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}
 {{ with secret "secret/postgres-v2/[[ .keycloak_name ]]" }}PGPASSWORD="{{ .Data.password }}" psql -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .keycloak_database ]]{{ end }}
 EOT
       }

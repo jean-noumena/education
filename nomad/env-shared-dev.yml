@@ -4,12 +4,25 @@ namespace: seed
 domain: shared-dev.noumenadigital.com
 entrypoint: external
 log_level: info
+platform_version: 2022.1.71
+
+# Credentials
 keycloak_name: keycloak-seed
 platform_name: platform-seed
+history_name: history-seed
+postgraphile_name: postgraphile-seed
+
+# URL namespace / routing
+#keycloak_name: keycloak
+postgres_name: postgres-v2
 engine_name: engine-seed
 api_name: api-seed
-postgraphile_name: postgraphile-seed
-postgres_name: postgres-v2
+
+# DB names and DB schemas
 keycloak_database: keycloak_seed
 platform_database: platform_seed
+platform_db_schema: platform_seed
+history_database: platform_seed
+history_db_schema: history_seed
+# note: there's probably no need for a separate postgraphile DB either...
 postgraphile_database: postgraphile_seed
