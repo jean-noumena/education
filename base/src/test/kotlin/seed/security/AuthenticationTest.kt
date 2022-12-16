@@ -10,6 +10,7 @@ import org.http4k.core.body.form
 import org.http4k.core.then
 import org.junit.jupiter.api.Test
 import seed.config.Configuration
+import seed.config.JSON
 import seed.keycloak.ACCESS_TOKEN_INITIAL
 import seed.keycloak.EXPIRY
 import seed.keycloak.REFRESH_TOKEN
@@ -25,7 +26,9 @@ val config = Configuration(keycloakRealm = "seed", keycloakClientId = "seed")
 
 internal class LoginHandlerTest {
 
-    val bareHandler = loginHandler(config, keycloakLoginMock)
+    private val authHandler: AuthHandler = FormKeycloakAuthHandler(config, keycloakLoginMock)
+
+    val bareHandler = authHandler.login()
     val handler = OpenAPI(baseTestValidator).validate(bareHandler)
 
     @Test
@@ -40,7 +43,7 @@ internal class LoginHandlerTest {
         assertEquals(Status.OK, res.status, "non-200 response for happy path")
         assertEquals(ContentType.APPLICATION_JSON.toHeaderValue(), res.header("Content-Type"), "wrong content type")
 
-        val gotBody = seed.config.JSON.asA<LoginResponse>(res.body.stream)
+        val gotBody = JSON.asA<LoginResponse>(res.body.stream)
         val wantBody =
             LoginResponse(accessToken = ACCESS_TOKEN_INITIAL, refreshToken = REFRESH_TOKEN, expiresIn = EXPIRY)
         assertEquals(wantBody, gotBody, "wrong body")
@@ -118,7 +121,8 @@ internal class LoginHandlerTest {
 
 internal class RefreshHandlerTest {
 
-    val handler = OpenAPI(baseTestValidator).validate(refreshHandler(config, keycloakLoginMock))
+    private val authHandler: AuthHandler = FormKeycloakAuthHandler(config, keycloakLoginMock)
+    val handler = OpenAPI(baseTestValidator).validate(authHandler.refresh())
 
     @Test
     fun `happy path`() {

@@ -1,25 +1,16 @@
 package iou.http
 
 import org.http4k.core.Method
-import org.http4k.core.then
 import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
-import seed.config.Configuration
-import seed.security.defaultFilter
 
-fun rawRoutes(config: Configuration, iou: Raw): RoutingHttpHandler =
+fun iouRoutes(iou: Iou): RoutingHttpHandler =
     routes(
-        "/raw/iou/{amount}/{payee}" bind Method.POST to defaultFilter(config).then(iou.create()),
-        "/raw/iou/{iouId}/amountOwed" bind Method.GET to defaultFilter(config).then(iou.amountOwed()),
-        "/raw/iou/{iouId}/pay/{amount}" bind Method.PATCH to defaultFilter(config).then(iou.pay()),
-        "/raw/iou/{iouId}/forgive" bind Method.PUT to defaultFilter(config).then(iou.forgive()),
-    )
-
-fun genRoutes(config: Configuration, iou: Gen): RoutingHttpHandler =
-    routes(
-        "/gen/iou/{amount}/{payee}" bind Method.POST to defaultFilter(config).then(iou.create()),
-        "/gen/iou/{iouId}/amountOwed" bind Method.GET to defaultFilter(config).then(iou.amountOwed()),
-        "/gen/iou/{iouId}/pay/{amount}" bind Method.PATCH to defaultFilter(config).then(iou.pay()),
-        "/gen/iou/{iouId}/forgive" bind Method.PUT to defaultFilter(config).then(iou.forgive()),
+        "/iou" bind routes(
+            "/{amount}/{payee}" bind Method.POST to iou.create(),
+            "/{iouId}/amountOwed" bind Method.GET to iou.amountOwed(),
+            "/{iouId}/pay/{amount}" bind Method.PATCH to iou.pay(),
+            "/{iouId}/forgive" bind Method.PUT to iou.forgive(),
+        )
     )

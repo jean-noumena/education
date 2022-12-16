@@ -10,6 +10,7 @@ import java.util.Optional
 import kotlin.test.junit5.JUnit5Asserter.fail
 
 val baseTestValidator = OpenApiInteractionValidator.createFor("src/test/resources/test-openapi.yml").build()!!
+val baseAuthJsonTestValidator = OpenApiInteractionValidator.createFor("src/test/resources/test-auth-json-openapi.yml").build()!!
 
 class OpenAPI(val validator: OpenApiInteractionValidator) {
 
@@ -21,7 +22,7 @@ class OpenAPI(val validator: OpenApiInteractionValidator) {
         }
     }
 
-    fun assertValid(req: Request, res: Response) {
+    private fun assertValid(req: Request, res: Response) {
         val report = validator.validate(RequestWrapper(req), ResponseWrapper(res))
         for (err in report.messages) {
             fail(err.message)
@@ -46,6 +47,7 @@ internal class RequestWrapper(val req: Request) : com.atlassian.oai.validator.mo
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getBody(): Optional<String> {
         val bodyString = req.bodyString()
         if (bodyString.isEmpty()) {
@@ -75,6 +77,7 @@ internal class RequestWrapper(val req: Request) : com.atlassian.oai.validator.mo
 internal class ResponseWrapper(val res: Response) : com.atlassian.oai.validator.model.Response {
     override fun getStatus(): Int = res.status.code
 
+    @Deprecated("Deprecated in Java")
     override fun getBody(): Optional<String> {
         val bodyString = res.bodyString()
         if (bodyString.isEmpty()) {

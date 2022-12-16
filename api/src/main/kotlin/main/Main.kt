@@ -3,9 +3,7 @@ package main
 import com.noumenadigital.platform.engine.client.EngineClientApi
 import io.prometheus.client.hotspot.DefaultExports
 import iou.http.Gen
-import iou.http.Raw
-import iou.http.genRoutes
-import iou.http.rawRoutes
+import iou.http.iouRoutes
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.http4k.client.ApacheClient
@@ -17,8 +15,13 @@ import seed.config.Configuration
 import seed.keycloak.KeycloakClient
 import seed.keycloak.KeycloakClientImpl
 import seed.keycloak.KeycloakForwardAuthorization
+import seed.metrics.measure
+import seed.security.AuthHandler
+import seed.security.JsonKeycloakAuthHandler
 import seed.security.corsFilter
+import seed.security.debugFilter
 import seed.security.errorFilter
+import seed.security.loginRequired
 import seed.server.admin
 import seed.server.loginRoutes
 import kotlin.system.exitProcess
@@ -42,19 +45,29 @@ fun main(): Unit = runBlocking {
     val engineClient = EngineClientApi(config.engineURL)
     val keycloakClient: KeycloakClient = KeycloakClientImpl(config, ApacheClient())
     val forwardAuthorization = KeycloakForwardAuthorization(keycloakClient)
+    val authHandler: AuthHandler = JsonKeycloakAuthHandler(config)
+
+    val individuallyDecoratedRoutes =
+        routes(
+            loginRoutes(config, authHandler),
+
+            loginRequired(config)
+                .then(iouRoutes(Gen(engineClient, forwardAuthorization)))
+        )
+
+    val globallyDecoratedRoutes =
+        measure()
+            .then(debugFilter(config))
+            .then(corsFilter(config))
+            .then(errorFilter(config.debug))
+            .then(individuallyDecoratedRoutes)
+
+    val appServer = globallyDecoratedRoutes.asServer(KtorCIO(httpPort))
 
     logger.info { "Request logging is ${if (config.debug) "on" else "off"}" }
     exitProcess(
         try {
-            corsFilter(config).then(
-                errorFilter(config.debug).then(
-                    routes(
-                        loginRoutes(config),
-                        rawRoutes(config, Raw(engineClient, forwardAuthorization)),
-                        genRoutes(config, Gen(engineClient, forwardAuthorization))
-                    )
-                )
-            ).asServer(KtorCIO(httpPort)).start().block()
+            appServer.start().block()
             0
         } catch (e: Throwable) {
             logger.error(e) {}

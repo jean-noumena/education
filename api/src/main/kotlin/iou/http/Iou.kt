@@ -22,36 +22,23 @@ import org.http4k.lens.uuid
 import seed.security.ForwardAuthorization
 import java.math.BigDecimal
 
-interface Iou {
-    fun create(): HttpHandler
-    fun amountOwed(): HttpHandler
-    fun pay(): HttpHandler
-    fun forgive(): HttpHandler
-}
-
 internal val pathPayee = Path.string().of("payee")
 internal val pathAmount = Path.double().of("amount")
 internal val pathIouId = Path.uuid().of("iouId")
 
-internal data class CreateResponse(
-    val iou: IouDetails
-)
-
 internal val createResponseLens = Body.auto<CreateResponse>().toLens()
-
-internal data class AmountResponse(
-    val amount: Double
-)
-
 internal val amountResponseLens = Body.auto<AmountResponse>().toLens()
 
-private const val userNameClaim = "preferred_username"
+internal data class CreateResponse(val iou: IouDetails)
+internal data class AmountResponse(val amount: Double)
+
+private const val USER_NAME_CLAIM = "preferred_username"
 
 internal fun userParty(partyName: String, userName: String): Party {
     return Party(
         entity = mapOf(
             "party" to setOf(partyName),
-            userNameClaim to setOf(userName)
+            USER_NAME_CLAIM to setOf(userName)
         ),
         access = mapOf()
     )
@@ -61,14 +48,92 @@ internal fun partyPerson(parties: Map<String, ClientPartyValue>, partyName: Stri
     parties[partyName]?.let { party ->
         party.entity["party"]?.single()
             ?: throw IllegalArgumentException("no entity \"party\" in protocol parties $parties")
-        party.entity[userNameClaim]?.single()
+        party.entity[USER_NAME_CLAIM]?.single()
             ?: throw IllegalArgumentException("no entity \"preferred_username\" in protocol parties $parties")
     } ?: throw IllegalArgumentException("no party $partyName in protocol parties $parties")
 
-internal fun partyPerson(party: Party) = party.entity[userNameClaim]?.single()
+internal fun partyPerson(party: Party) = party.entity[USER_NAME_CLAIM]?.single()
     ?: throw IllegalStateException("userNameClaim not found in parties $party")
 
 internal fun party(clientPartyValue: ClientPartyValue): Party = Party(clientPartyValue.entity, clientPartyValue.access)
+
+interface Iou {
+    fun create(): HttpHandler
+    fun amountOwed(): HttpHandler
+    fun pay(): HttpHandler
+    fun forgive(): HttpHandler
+}
+
+class Gen(
+    val client: EngineClientApi,
+    private val authorizationProvider: ForwardAuthorization,
+) : Iou {
+
+    private val proxy = IouProxy(client)
+
+    override fun create(): HttpHandler {
+        return { req ->
+            val auth = authorizationProvider.forward(req)
+            val payeeName = pathPayee(req)
+            val result = proxy.create(
+                issuer = party(authorizationProvider.party(req)),
+                payee = userParty("payee", payeeName),
+                forAmount = BigDecimal(pathAmount(req)),
+                authorizationProvider = auth
+            )
+
+            val id = result.getOrHandle { throw it }.result
+            val iouProtocol = client.getProtocolStateById(id.id, auth).getOrHandle { throw it }
+            val iouFacade = IouFacade(iouProtocol)
+            val iouDetails = IouDetails(
+                id = iouProtocol.id,
+                payee = partyPerson(iouFacade.parties.payee),
+                issuer = partyPerson(iouFacade.parties.issuer),
+                amount = iouFacade.fields.forAmount.toDouble()
+            )
+            Response(Status.CREATED).with(createResponseLens of CreateResponse(iouDetails))
+        }
+    }
+
+    override fun amountOwed(): HttpHandler {
+        return { req ->
+            val iouProtocolId = pathIouId(req)
+
+            val result = proxy.getAmountOwed(
+                protocolId = iouProtocolId,
+                authorizationProvider = authorizationProvider.forward(req)
+            ).getOrHandle { throw it }
+            Response(Status.OK).with(amountResponseLens of AmountResponse(result.result.toDouble()))
+        }
+    }
+
+    override fun pay(): HttpHandler {
+        return { req ->
+            val amountToPay = pathAmount(req)
+            val iouProtocolId = pathIouId(req)
+
+            val result = proxy.pay(
+                protocolId = iouProtocolId,
+                amount = amountToPay.toBigDecimal(),
+                authorizationProvider = authorizationProvider.forward(req)
+            ).getOrHandle { throw it }
+            Response(Status.OK).with(amountResponseLens of AmountResponse(result.result.toDouble()))
+        }
+    }
+
+    override fun forgive(): HttpHandler {
+        return { req ->
+            val iouProtocolId = pathIouId(req)
+
+            proxy.forgive(
+                protocolId = iouProtocolId,
+                authorizationProvider = authorizationProvider.forward(req)
+            ).getOrHandle { throw it }
+
+            Response(Status.NO_CONTENT)
+        }
+    }
+}
 
 /**
  * The Raw class illustrates why you don't want to do this without generated code
@@ -141,77 +206,6 @@ class Raw(
                 protocolId = iouProtocolId,
                 action = "forgive",
                 arguments = listOf(),
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
-
-            Response(Status.NO_CONTENT)
-        }
-    }
-}
-
-class Gen(
-    val client: EngineClientApi,
-    private val authorizationProvider: ForwardAuthorization,
-) : Iou {
-
-    private val proxy = IouProxy(client)
-
-    override fun create(): HttpHandler {
-        return { req ->
-            val auth = authorizationProvider.forward(req)
-            val payeeName = pathPayee(req)
-            val result = proxy.create(
-                issuer = party(authorizationProvider.party(req)),
-                payee = userParty("payee", payeeName),
-                forAmount = BigDecimal(pathAmount(req)),
-                authorizationProvider = auth
-            )
-
-            val id = result.getOrHandle { throw it }.result
-            val iouProtocol = client.getProtocolStateById(id.id, auth).getOrHandle { throw it }
-            val iouFacade = IouFacade(iouProtocol)
-            val iouDetails = IouDetails(
-                id = iouProtocol.id,
-                payee = partyPerson(iouFacade.parties.payee),
-                issuer = partyPerson(iouFacade.parties.issuer),
-                amount = iouFacade.fields.forAmount.toDouble()
-            )
-            Response(Status.CREATED).with(createResponseLens of CreateResponse(iouDetails))
-        }
-    }
-
-    override fun amountOwed(): HttpHandler {
-        return { req ->
-            val iouProtocolId = pathIouId(req)
-
-            val result = proxy.getAmountOwed(
-                protocolId = iouProtocolId,
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
-            Response(Status.OK).with(amountResponseLens of AmountResponse(result.result.toDouble()))
-        }
-    }
-
-    override fun pay(): HttpHandler {
-        return { req ->
-            val amountToPay = pathAmount(req)
-            val iouProtocolId = pathIouId(req)
-
-            val result = proxy.pay(
-                protocolId = iouProtocolId,
-                amount = amountToPay.toBigDecimal(),
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
-            Response(Status.OK).with(amountResponseLens of AmountResponse(result.result.toDouble()))
-        }
-    }
-
-    override fun forgive(): HttpHandler {
-        return { req ->
-            val iouProtocolId = pathIouId(req)
-
-            proxy.forgive(
-                protocolId = iouProtocolId,
                 authorizationProvider = authorizationProvider.forward(req)
             ).getOrHandle { throw it }
 

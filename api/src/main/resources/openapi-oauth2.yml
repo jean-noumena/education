@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Project Seed OpenAPI Spec
   version: 0.0.1
-  description: Seed project for getting started with standardised Noumena architecture (bearer token)
+  description: Seed project for getting started with standardised Noumena architecture (OAuth2)
   license:
     name: privately licensed
     url: http://todo
@@ -17,6 +17,13 @@ components:
 
   securitySchemes:
     auth:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: /auth/login
+          refreshUrl: /auth/refresh
+          scopes: { }
+    bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
@@ -45,50 +52,6 @@ components:
       required:
         - access_token
         - expires_in
-        - refresh_token
-
-    Login:
-      description: Required login request params.
-      type: object
-      properties:
-        grant_type:
-          type: string
-          enum:
-            - password
-        username:
-          type: string
-          example: 'payee1'
-        password:
-          type: string
-          example: 'welcome1'
-      required:
-        - grant_type
-        - username
-        - password
-
-    Refresh:
-      description: Required refresh request params.
-      type: object
-      properties:
-        grant_type:
-          type: string
-          enum:
-            - refresh_token
-        refresh_token:
-          type: string
-          example: 'verylong.refresh.token'
-      required:
-        - grant_type
-        - refresh_token
-
-    Logout:
-      description: Required logout request params.
-      type: object
-      properties:
-        refresh_token:
-          type: string
-          example: 'verylong.refresh.token'
-      required:
         - refresh_token
 
     Error:
@@ -254,17 +217,32 @@ security:
 paths:
   /auth/login:
     post:
-      tags:
-        - Authentication
       summary: Log in to Seed project example service
       operationId: login
+      tags:
+        - Authentication
       security: [ ]
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Login'
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  enum:
+                    - password
+                username:
+                  type: string
+                  example: 'payee1'
+                password:
+                  type: string
+                  example: 'welcome1'
+              required:
+                - grant_type
+                - username
+                - password
       responses:
         200:
           description: Access token to use as Bearer auth in subsequent requests.
@@ -281,17 +259,28 @@ paths:
 
   /auth/refresh:
     post:
-      tags:
-        - Authentication
       summary: Obtain a new access token after expiry
       operationId: refresh
+      tags:
+        - Authentication
       security: [ ]
       requestBody:
         required: true
         content:
-          application/json:
+          application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Refresh'
+              type: object
+              properties:
+                grant_type:
+                  type: string
+                  enum:
+                    - refresh_token
+                refresh_token:
+                  type: string
+                  example: "verylong.refresh.token"
+              required:
+                - grant_type
+                - refresh_token
       responses:
         200:
           description: Access token
@@ -308,32 +297,34 @@ paths:
 
   /auth/logout:
     post:
-      tags:
-        - Authentication
       summary: Invalidate a previous login
       operationId: logout
+      tags:
+        - Authentication
+      responses:
+        200:
+          description: Log out succeeded
+        500:
+          $ref: '#/components/responses/500'
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Logout'
-      responses:
-        200:
-          description: Log out succeeded
-        400:
-          $ref: '#/components/responses/oauth400'
-        401:
-          $ref: '#/components/responses/oauth401'
-        500:
-          $ref: '#/components/responses/500'
+              type: object
+              properties:
+                refresh_token:
+                  type: string
+                  example: "verylong.refresh.token"
+              required:
+                - refresh_token
 
   /iou/{amount}/{payee}:
     post:
-      tags:
-        - IOU
       summary: create a new IOU to pay the named payee
       operationId: createIouGen
+      tags:
+        - IOU
       parameters:
         - $ref: '#/components/parameters/amount'
         - $ref: '#/components/parameters/payee'
@@ -357,10 +348,10 @@ paths:
 
   /iou/{iouId}/amountOwed:
     get:
-      tags:
-        - IOU
       summary: get the amount owed
       operationId: getAmountOwedGen
+      tags:
+        - IOU
       parameters:
         - $ref: '#/components/parameters/iouId'
       responses:
@@ -379,10 +370,10 @@ paths:
 
   /iou/{iouId}/pay/{amount}:
     patch:
-      tags:
-        - IOU
       summary: pay an amount off
       operationId: payGen
+      tags:
+        - IOU
       parameters:
         - $ref: '#/components/parameters/iouId'
         - $ref: '#/components/parameters/amount'
@@ -402,10 +393,10 @@ paths:
 
   /iou/{iouId}/forgive:
     put:
-      tags:
-        - IOU
       summary: forgive the whole debt
       operationId: forgiveGen
+      tags:
+        - IOU
       parameters:
         - $ref: '#/components/parameters/iouId'
       responses:

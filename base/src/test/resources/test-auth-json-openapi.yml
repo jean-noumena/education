@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Project Seed OpenAPI Spec
   version: 0.0.1
-  description: Seed project for getting started with standardised Noumena architecture (bearer token)
+  description: Seed project for getting started with standardised Noumena architecture
   license:
     name: privately licensed
     url: http://todo
@@ -10,7 +10,7 @@ info:
 servers:
   - url: http://localhost:8080
     description: local docker environment
-  - url: https://api.seed-dev.noumenadigital.com
+  - url: https://app.seed-dev.noumenadigital.com
     description: DEV environment
 
 components:
@@ -57,10 +57,10 @@ components:
             - password
         username:
           type: string
-          example: 'payee1'
+          example: 'alice'
         password:
           type: string
-          example: 'welcome1'
+          example: 'welcome'
       required:
         - grant_type
         - username
@@ -97,12 +97,12 @@ components:
         code:
           description: Unique error code
           type: string
-          example: "PropertyNotFound"
+          example: 'PropertyNotFound'
         trace:
           description: Unique code for tracing
           type: string
           format: uuid
-          example: "de331408-ca4c-4e3f-9846-c6015c05bab7"
+          example: 'de331408-ca4c-4e3f-9846-c6015c05bab7'
 
     OAuthError:
       description: Specific error for oAuth flows
@@ -123,31 +123,6 @@ components:
       required:
         - error
         - error_description
-
-    iou:
-      description: IOU data
-      type: object
-      properties:
-        iou:
-          type: object
-          properties:
-            id:
-              type: string
-              format: uuid
-            payee:
-              type: string
-            issuer:
-              type: string
-            amount:
-              type: number
-              format: double
-          required:
-            - id
-            - payee
-            - issuer
-            - amount
-      required:
-        - iou
 
   responses:
     oauth400:
@@ -211,53 +186,16 @@ components:
             type: string
             example: OutOfMemory
 
-    amount200:
-      description: the amount remaining to be paid off
-      content:
-        application/json:
-          schema:
-            properties:
-              amount:
-                type: number
-                format: double
-            required:
-              - amount
-
-  parameters:
-    iouId:
-      name: iouId
-      in: path
-      description: the system id of an IOU
-      required: true
-      schema:
-        type: string
-        format: uuid
-    amount:
-      name: amount
-      in: path
-      description: the amount remaining to be paid off
-      required: true
-      schema:
-        type: number
-        format: double
-    payee:
-      name: payee
-      in: path
-      description: the person the IOU is made out to
-      required: true
-      schema:
-        type: string
-
 security:
   - auth: [ ]
 
 paths:
   /auth/login:
     post:
-      tags:
-        - Authentication
       summary: Log in to Seed project example service
       operationId: login
+      tags:
+        - Authentication
       security: [ ]
       requestBody:
         required: true
@@ -281,10 +219,10 @@ paths:
 
   /auth/refresh:
     post:
-      tags:
-        - Authentication
       summary: Obtain a new access token after expiry
       operationId: refresh
+      tags:
+        - Authentication
       security: [ ]
       requestBody:
         required: true
@@ -308,10 +246,10 @@ paths:
 
   /auth/logout:
     post:
-      tags:
-        - Authentication
       summary: Invalidate a previous login
       operationId: logout
+      tags:
+        - Authentication
       requestBody:
         required: true
         content:
@@ -327,97 +265,3 @@ paths:
           $ref: '#/components/responses/oauth401'
         500:
           $ref: '#/components/responses/500'
-
-  /iou/{amount}/{payee}:
-    post:
-      tags:
-        - IOU
-      summary: create a new IOU to pay the named payee
-      operationId: createIouGen
-      parameters:
-        - $ref: '#/components/parameters/amount'
-        - $ref: '#/components/parameters/payee'
-      responses:
-        201:
-          description: The IOU is successfully created
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/iou'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        404:
-          $ref: '#/components/responses/404'
-        401:
-          $ref: '#/components/responses/oauth401'
-        500:
-          $ref: '#/components/responses/oauth500'
-
-  /iou/{iouId}/amountOwed:
-    get:
-      tags:
-        - IOU
-      summary: get the amount owed
-      operationId: getAmountOwedGen
-      parameters:
-        - $ref: '#/components/parameters/iouId'
-      responses:
-        200:
-          $ref: '#/components/responses/amount200'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        404:
-          $ref: '#/components/responses/404'
-        401:
-          $ref: '#/components/responses/oauth401'
-        500:
-          $ref: '#/components/responses/oauth500'
-
-  /iou/{iouId}/pay/{amount}:
-    patch:
-      tags:
-        - IOU
-      summary: pay an amount off
-      operationId: payGen
-      parameters:
-        - $ref: '#/components/parameters/iouId'
-        - $ref: '#/components/parameters/amount'
-      responses:
-        200:
-          $ref: '#/components/responses/amount200'
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        404:
-          $ref: '#/components/responses/404'
-        401:
-          $ref: '#/components/responses/oauth401'
-        500:
-          $ref: '#/components/responses/oauth500'
-
-  /iou/{iouId}/forgive:
-    put:
-      tags:
-        - IOU
-      summary: forgive the whole debt
-      operationId: forgiveGen
-      parameters:
-        - $ref: '#/components/parameters/iouId'
-      responses:
-        204:
-          description: debt forgiven
-        400:
-          $ref: '#/components/responses/400'
-        403:
-          $ref: '#/components/responses/403'
-        404:
-          $ref: '#/components/responses/404'
-        401:
-          $ref: '#/components/responses/oauth401'
-        500:
-          $ref: '#/components/responses/oauth500'

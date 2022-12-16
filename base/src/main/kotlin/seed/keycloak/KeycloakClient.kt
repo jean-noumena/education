@@ -161,8 +161,8 @@ class KeycloakClientImpl(
                 .optionalHeader("Host", host)
             val res = client(req)
 
-            if (res.status != Status.OK) {
-                logger.error("Unexpected Keycloak response: ${res.status} - ${res.bodyString()}")
+            if (res.status != Status.NO_CONTENT) {
+                logger.error { "Unexpected Keycloak response: ${res.status} - ${res.bodyString()}" }
                 throw KeycloakServerException(ErrorCode.InternalServerError)
             }
         }

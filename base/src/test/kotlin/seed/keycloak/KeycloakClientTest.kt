@@ -108,6 +108,11 @@ val keycloakLoginMock: HttpHandler = { req ->
             Response(Status.BAD_REQUEST)
         }
 
+        // logout happy path
+        refresh == REFRESH_TOKEN -> {
+            Response(Status.NO_CONTENT)
+        }
+
         //
         else -> {
             Response(Status.INTERNAL_SERVER_ERROR)

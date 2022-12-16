@@ -10,25 +10,17 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.routing.static
 import seed.config.Configuration
-import seed.security.defaultFilter
-import seed.security.loginHandler
-import seed.security.logoutHandler
-import seed.security.noLogin
-import seed.security.refreshHandler
+import seed.security.AuthHandler
+import seed.security.loginRequired
 
 fun loginRoutes(
     config: Configuration,
+    authHandler: AuthHandler
 ): RoutingHttpHandler = routes(
     "/openapi" bind GET to static(Classpath("/"), "yml" to ContentType.TEXT_YAML),
     "/swagger" bind GET to static(Classpath("/swagger-ui-3.52.3/dist")),
 
-    "/auth/login" bind POST to noLogin(config).then(
-        loginHandler(config)
-    ),
-    "/auth/refresh" bind POST to noLogin(config).then(
-        refreshHandler(config)
-    ),
-    "/auth/logout" bind POST to defaultFilter(config).then(
-        logoutHandler(config)
-    ),
+    "/auth/login" bind POST to authHandler.login(),
+    "/auth/refresh" bind POST to authHandler.refresh(),
+    "/auth/logout" bind POST to loginRequired(config).then(authHandler.logout())
 )

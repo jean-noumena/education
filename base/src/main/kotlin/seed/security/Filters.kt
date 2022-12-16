@@ -3,8 +3,10 @@ package seed.security
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.noumenadigital.platform.engine.values.ClientException
 import mu.KotlinLogging
+import org.http4k.client.ApacheClient
 import org.http4k.core.Body
 import org.http4k.core.Filter
+import org.http4k.core.HttpHandler
 import org.http4k.core.Method
 import org.http4k.core.NoOp
 import org.http4k.core.Response
@@ -19,20 +21,31 @@ import org.http4k.filter.ServerFilters
 import org.http4k.lens.LensFailure
 import seed.config.Configuration
 import seed.config.JSON.auto
-import seed.metrics.measure
+import seed.keycloak.KeycloakClient
+import seed.keycloak.KeycloakClientImpl
+import seed.keycloak.KeycloakUnauthorizedException
 import java.net.URLDecoder.decode
 import java.nio.charset.Charset
 import java.util.UUID
 
 internal val logger = KotlinLogging.logger {}
 
-fun defaultFilter(config: Configuration): Filter =
-    noLogin(config)
-        .then(loginRequired(config))
-
-fun noLogin(config: Configuration): Filter =
-    debugFilter(config)
-        .then(measure())
+fun loginRequired(config: Configuration, client: HttpHandler = ApacheClient()): Filter {
+    val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
+    return Filter { next ->
+        { req ->
+            try {
+                req.header("Authorization")?.let {
+                    keycloakClient.authorize(it)
+                    next(req)
+                } ?: errorResponse(Status.UNAUTHORIZED, ErrorCode.LoginRequired)
+            } catch (e: KeycloakUnauthorizedException) {
+                logger.error { "KeycloakUnauthorizedException: $e, request: $req" }
+                errorResponse(Status.UNAUTHORIZED, ErrorCode.LoginRequired)
+            }
+        }
+    }
+}
 
 fun debugFilter(config: Configuration): Filter = if (config.debug) {
     DebuggingFilters.PrintRequestAndResponse()
@@ -106,11 +119,11 @@ fun catchLensFailure(debug: Boolean = false) =
         {
             try {
                 next(it)
-            } catch (t: LensFailure) {
+            } catch (e: LensFailure) {
                 val traceID = UUID.randomUUID()
                 if (debug) {
-                    logger.error(t) {
-                        "Encode/Decode failure $traceID, failures ${t.failures}, stacktrace ${t.stackTrace}"
+                    logger.error(e) {
+                        "Encode/Decode failure $traceID, failures ${e.failures}, stacktrace ${e.stackTrace}"
                     }
                 }
                 errorResponse(Status.BAD_REQUEST, ErrorCode.InvalidParameter, traceID)
@@ -123,7 +136,8 @@ fun catchAuthorizationException() =
         {
             try {
                 next(it)
-            } catch (t: ClientException.AuthorizationException) {
+            } catch (e: ClientException.AuthorizationException) {
+                logger.error { "ClientException.AuthorizationException: $e, request: $it" }
                 errorResponse(Status.UNAUTHORIZED, ErrorCode.LoginRequired)
             }
         }
@@ -134,7 +148,8 @@ fun catchNoSuchItemException() =
         {
             try {
                 next(it)
-            } catch (t: ClientException.NoSuchItemException) {
+            } catch (e: ClientException.NoSuchItemException) {
+                logger.error { "ClientException.NoSuchItemException: $e, request: $it" }
                 errorResponse(Status.NOT_FOUND, ErrorCode.ItemNotFound)
             }
         }
@@ -145,11 +160,11 @@ fun catchPlatformRuntimeException() =
         {
             try {
                 next(it)
-            } catch (t: ClientException.PlatformRuntimeException) {
-                if (t.origin.code == 37) {
-                    errorResponse(Status.FORBIDDEN, ErrorCode.InvalidClaim)
-                } else {
-                    throw t
+            } catch (e: ClientException.PlatformRuntimeException) {
+                logger.error { "ClientException.PlatformRuntimeException: $e, request: $it" }
+                when (e.origin.code) {
+                    37 -> errorResponse(Status.FORBIDDEN, ErrorCode.InvalidClaim)
+                    else -> throw e
                 }
             }
         }
