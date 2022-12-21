@@ -16,7 +16,7 @@ clean:
 .PHONY: install
 install:
 	mvn $(MAVEN_CLI_OPTS) install
-	docker-compose build --build-arg VERSION="$(VERSION)" --build-arg GIT_REV="$(GITHUB_SHA)" --build-arg BUILD_DATE="$(shell date)"
+	docker-compose -f docker-compose.yml -f docker-compose-db.yml build --build-arg VERSION="$(VERSION)" --build-arg GIT_REV="$(GITHUB_SHA)" --build-arg BUILD_DATE="$(shell date)"
 
 .PHONY:	format
 format:

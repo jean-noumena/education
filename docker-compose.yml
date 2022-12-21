@@ -96,12 +96,6 @@ services:
       keycloak:
         condition: service_healthy
 
-#  db-provisioning:
-#    image: ghcr.io/noumenadigital/seed/db-provisioning:latest
-#    build:
-#      context: db-provisioning
-#    command: /local.sh
-
   engine-db:
     image: postgres:14.4-alpine
     command: postgres -c log_statement=all
