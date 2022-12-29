@@ -1,0 +1,11 @@
+name: Undeploy services and delete Seed data on Shared DEV
+on:
+  workflow_dispatch:
+
+jobs:
+  clean-shared-dev:
+    runs-on: [self-hosted, shared-dev]
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          make -e clean-shared-dev

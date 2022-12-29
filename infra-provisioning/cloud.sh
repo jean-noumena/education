@@ -5,7 +5,7 @@ cat > /terraform/backend.tf <<EOT
 terraform {
   backend "consul" {
     address="consul.service.consul:8500"
-    path="terraform/db"
+    path="terraform/infra-$TF_VAR_application_name"
   }
 }
 EOT

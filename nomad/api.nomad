@@ -1,16 +1,12 @@
 job "api" {
-  datacenters = [
-    "[[ .datacenter ]]",
-  ]
-
+  type = "service"
+  datacenters = ["[[ .datacenter ]]"]
   namespace = "[[ .namespace ]]"
 
   constraint {
     attribute = "${node.class}"
     value     = "worker"
   }
-
-  type = "service"
 
   update {
     min_healthy_time = "30s"
@@ -19,8 +15,6 @@ job "api" {
   }
 
   group "api" {
-    count = 1
-
     network {
       port "http" {}
       port "admin" {}
@@ -37,7 +31,7 @@ job "api" {
         "version=[[ .version ]]",
         "traefik.enable=true",
         "traefik.frontend.rule=Host:[[ .api_name ]].[[ .domain ]]",
-        "traefik.frontend.entryPoints=[[ .entrypoint ]]",
+        "traefik.frontend.entryPoints=external",
       ]
     }
 
@@ -60,15 +54,29 @@ job "api" {
       leader = true
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/seed/api:[[ .version ]]"
+        image        = "ghcr.io/noumenadigital/[[ .repo_name ]]/api:[[ .version ]]"
         network_mode = "host"
       }
       env {
-        HTTP_PORT       = "${NOMAD_PORT_http}"
-        HTTP_ADMIN_PORT = "${NOMAD_PORT_admin}"
-        KEYCLOAK_URL    = "http://[[ .keycloak_name ]].service.consul:11000"
-        ENGINE_URL      = "http://[[ .engine_name ]].service.consul:12000"
-        LOG_LEVEL       = "[[ .log_level ]]"
+        HTTP_PORT          = "${NOMAD_PORT_http}"
+        HTTP_ADMIN_PORT    = "${NOMAD_PORT_admin}"
+        LOG_LEVEL          = "[[ .log_level ]]"
+      }
+
+      template {
+        destination = ".env"
+        env         = true
+        data        = <<EOT
+{{ range service "[[ .keycloak_name ]]" }}
+KEYCLOAK_URL = "http://{{ .Address }}:{{ .Port }}"
+{{ end }}
+{{ range service "[[ .engine_name ]]" }}
+ENGINE_URL = "http://{{ .Address }}:{{ .Port }}"
+{{ end }}
+{{ range service "[[ .postgraphile_name ]]" }}
+READ_MODEL_URL = "http://{{ .Address }}:{{ .Port }}"
+{{ end }}
+EOT
       }
 
       resources {
@@ -79,12 +87,9 @@ job "api" {
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
+        image        = "ghcr.io/noumenadigital/filebeat:[[ .filebeat_version ]]"
         network_mode = "host"
-        args         = [
-          "api",
-          "java",
-        ]
+        args         = ["api", "java"]
       }
       resources {
         memory = 50
@@ -93,8 +98,6 @@ job "api" {
   }
 
   vault {
-    policies = [
-      "reader",
-    ]
+    policies = ["reader"]
   }
 }

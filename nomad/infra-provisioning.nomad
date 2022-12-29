@@ -1,8 +1,6 @@
-job "db-provisioning" {
-  datacenters = [
-    "[[ .datacenter ]]",
-  ]
-
+job "infra-provisioning" {
+  type = "batch"
+  datacenters = ["[[ .datacenter ]]"]
   namespace = "[[ .namespace ]]"
 
   constraint {
@@ -10,24 +8,23 @@ job "db-provisioning" {
     value     = "worker"
   }
 
-  type = "batch"
-
-  group "db-provisioning" {
-    task "db-provisioning" {
+  group "infra-provisioning" {
+    task "infra-provisioning" {
       leader = true
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/seed/db-provisioning:[[ .version ]]"
+        image        = "ghcr.io/noumenadigital/[[ .repo_name ]]/infra-provisioning:[[ .version ]]"
         command      = "/cloud.sh"
         network_mode = "host"
       }
 
       env {
         VAULT_ADDR = "http://vault.service.consul:8200"
+        TF_VAR_application_name = "[[ .application_name ]]"
       }
 
       template {
-        destination = "${NOMAD_SECRETS_DIR}/psql"
+        destination = "${NOMAD_SECRETS_DIR}/app"
         env         = true
         data        = <<EOT
 {{ with secret "secret/vault/shared/dev" }}
@@ -48,22 +45,17 @@ EOT
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
+        image        = "ghcr.io/noumenadigital/filebeat:[[ .filebeat_version ]]"
         network_mode = "host"
-        args         = [
-          "platform-db-provisioning",
-          "wildfly",
-        ]
+        args         = ["infra-provisioning", "wildfly"]
       }
       resources {
-        memory = 50
+        memory = 64
       }
     }
   }
 
   vault {
-    policies = [
-      "reader",
-    ]
+    policies = ["reader"]
   }
 }

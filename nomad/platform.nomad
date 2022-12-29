@@ -1,8 +1,6 @@
 job "platform" {
-  datacenters = [
-    "[[ .datacenter ]]",
-  ]
-
+  type = "service"
+  datacenters = ["[[ .datacenter ]]"]
   namespace = "[[ .namespace ]]"
 
   constraint {
@@ -10,19 +8,16 @@ job "platform" {
     value     = "worker"
   }
 
-  type = "service"
-
   update {
     min_healthy_time = "10s"
     auto_revert      = true
   }
 
   group "engine" {
-
     network {
-      port "http" {
-        static = 12000
-      }
+      port "http" {}
+      port "admin" {}
+      port "management" {}
     }
 
     service {
@@ -30,7 +25,7 @@ job "platform" {
       port = "http"
       tags = [
         "version=[[ .version ]]",
-        "prometheus=/actuator/prometheusmetrics"
+        "prometheus=/actuator/prometheusmetrics",
       ]
       check {
         name     = "Engine Health Check"
@@ -45,34 +40,44 @@ job "platform" {
       leader = true
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/seed/engine:[[ .version ]]"
+        image        = "ghcr.io/noumenadigital/[[ .repo_name ]]/engine:[[ .version ]]"
         network_mode = "host"
         entrypoint   = ["java","-Djava.security.egd=file:/dev/./urandom","-XX:MaxRAMPercentage=80", "-jar","/engine.jar"]
-        args         = [
-          "--server.port=${NOMAD_PORT_http}",
-        ]
+        args         = ["--server.port=${NOMAD_PORT_http}"]
       }
       env {
-        ENGINE_AUTH_SERVER_BASE_URL           = "http://[[ .keycloak_name ]].service.consul:11000"
-        ENGINE_DB_URL                         = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .platform_database ]]"
-        ENGINE_DB_SCHEMA                      = "[[ .platform_db_schema ]]"
-        ENGINE_DB_HISTORY_SCHEMA              = "[[ .history_db_schema ]]"
-        ENGINE_LOG_CONFIG                     = "classpath:/logback-json.xml"
-        SERVER_MAX_HTTP_HEADER_SIZE           = "32KB"
+        ADMIN_PORT                  = "${NOMAD_PORT_admin}"
+        APPLICATION_MANAGEMENT_PORT = "${NOMAD_PORT_management}"
+        ENGINE_DB_URL               = "jdbc:postgresql://[[ .postgres_fqdn ]]/[[ .platform_database ]]?ssl=true&sslmode=require"
+        ENGINE_DB_SCHEMA            = "[[ .platform_db_schema ]]"
+        ENGINE_DB_HISTORY_SCHEMA    = "[[ .history_db_schema ]]"
+        ENGINE_LOG_CONFIG           = "classpath:/logback-json.xml"
+        SERVER_MAX_HTTP_HEADER_SIZE = "32KB"
       }
+
       template {
-        env         = true
         destination = ".env"
+        env         = true
         data        = <<EOT
-{{ with secret "secret/postgres-v2/[[ .platform_name ]]" }}
+{{ range service "[[ .keycloak_name ]]" }}
+ENGINE_AUTH_SERVER_BASE_URL = "http://{{ .Address }}:{{ .Port }}"
+{{ end }}
+EOT
+      }
+
+      template {
+        destination = "${NOMAD_SECRETS_DIR}/app"
+        env         = true
+        data        = <<EOT
+{{ with secret "secret/[[ .application_name ]]/[[ .platform_name ]]" }}
 ENGINE_DB_USER = "{{ .Data.username }}"
 ENGINE_DB_PASSWORD = "{{ .Data.password }}"
 {{ end }}
-{{ with secret "secret/postgres-v2/[[ .history_name ]]" }}
+{{ with secret "secret/[[ .application_name ]]/[[ .history_name ]]" }}
 ENGINE_DB_HISTORY_USER = "{{ .Data.username }}"
 ENGINE_DB_HISTORY_PASSWORD = "{{ .Data.password }}"
 {{ end }}
-{{ with secret "secret/postgres-v2/[[ .postgraphile_name ]]" }}
+{{ with secret "secret/[[ .application_name ]]/[[ .postgraphile_name ]]" }}
 POSTGRAPHILE_DB_USER = "{{ .Data.username }}"
 POSTGRAPHILE_DB_PASSWORD = "{{ .Data.password }}"
 {{ end }}
@@ -86,100 +91,17 @@ EOT
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
+        image        = "ghcr.io/noumenadigital/filebeat:[[ .filebeat_version ]]"
         network_mode = "host"
-        args         = [
-          "platform-engine",
-          "java",
-        ]
+        args         = ["platform-engine", "java"]
       }
       resources {
-        memory = 50
-      }
-    }
-  }
-
-  group "history" {
-
-    network {
-      # healthcheck
-      port "http" {
-        static = 12010
-      }
-      # todo @amela - setup /admin endpoints (API)
-      # port "admin" {
-      #   static = 12711
-      # }
-    }
-
-    service {
-      name = "[[ .history_name ]]"
-      port = "http"
-      tags = [
-        "version=[[ .version ]]",
-        "prometheus=/actuator/prometheusmetrics"
-      ]
-      check {
-        name     = "History Health Check"
-        type     = "http"
-        path     = "/actuator/health"
-        interval = "10s"
-        timeout  = "1s"
-      }
-    }
-
-    task "history" {
-      leader = true
-      driver = "docker"
-      config {
-        image        = "ghcr.io/noumenadigital/packages/history:[[ .platform_version ]]"
-        network_mode = "host"
-        entrypoint   = ["java","-Djava.security.egd=file:/dev/./urandom","-XX:MaxRAMPercentage=80", "-jar","/history.jar"]
-        args         = [
-          "--server.port=${NOMAD_PORT_http}",
-        ]
-      }
-      env {
-        HISTORY_DB_URL                         = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .history_database ]]"
-        HISTORY_DB_SCHEMA                      = "[[ .history_db_schema ]]"
-        HISTORY_DB_ENGINE_SCHEMA               = "[[ .platform_db_schema ]]"
-        HISTORY_LOG_CONFIG                     = "classpath:/logback-json.xml"
-        HISTORY_LOG_LEVEL                      = "INFO"
-      }
-      template {
-        env         = true
-        destination = ".env"
-        data        = <<EOT
-{{ with secret "secret/postgres-v2/[[ .history_name ]]" }}
-HISTORY_DB_USER = {{ .Data.username }}
-HISTORY_DB_PASSWORD = {{ .Data.password }}
-{{ end }}
-EOT
-      }
-      resources {
-        memory = 512
-      }
-    }
-
-    task "filebeat" {
-      driver = "docker"
-      config {
-        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
-        network_mode = "host"
-        args         = [
-          "platform-history",
-          "java",
-        ]
-      }
-      resources {
-        memory = 50
+        memory = 64
       }
     }
   }
 
   vault {
-    policies = [
-      "reader",
-    ]
+    policies = ["reader"]
   }
 }

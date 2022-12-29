@@ -1,28 +1,27 @@
-# Application
-datacenter: seed-dev
+# Global deployment and application parameters
+application_name: seed
+repo_name: seed
 namespace: default
+datacenter: seed-dev
 domain: seed-dev.noumenadigital.com
-entrypoint: external
+postgres_fqdn: seed-dev-postgresql-v2.postgres.database.azure.com
 log_level: info
 platform_version: 2022.1.71
+filebeat_version: 1.0.6
+postgres_version: 11.3-alpine
+keycloak_version: 19.0.0
 
-# Credentials
+# Names used for deriving resource names, urls, secrets
 keycloak_name: keycloak
 platform_name: platform
 history_name: history
 postgraphile_name: postgraphile
-
-# URL namespace / routing
-#keycloak_name: keycloak
-postgres_name: postgres-v2
 engine_name: engine
 api_name: api
 
 # DB names and DB schemas
 keycloak_database: keycloak
 platform_database: platform
-platform_db_schema: platform
 history_database: platform
+platform_db_schema: platform
 history_db_schema: history
-# note: there's probably no need for a separate postgraphile DB either...
-postgraphile_database: postgraphile

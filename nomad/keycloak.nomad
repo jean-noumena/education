@@ -1,8 +1,6 @@
 job "keycloak" {
-  datacenters = [
-    "[[ .datacenter ]]",
-  ]
-
+  type = "service"
+  datacenters = ["[[ .datacenter ]]"]
   namespace = "[[ .namespace ]]"
 
   constraint {
@@ -10,25 +8,19 @@ job "keycloak" {
     value     = "worker"
   }
 
-  type = "service"
-
   update {
     min_healthy_time = "10s"
     auto_revert      = true
   }
 
   group "keycloak" {
-    count = 1
-
     network {
-      port "http" {
-        static = 11000
-      }
+      port "http" {}
     }
 
     service {
-      port = "http"
       name = "[[ .keycloak_name ]]"
+      port = "http"
       tags = [
         "version=[[ .version ]]",
         "traefik.enable=true",
@@ -48,7 +40,7 @@ job "keycloak" {
       leader = true
       driver = "docker"
       config {
-        image        = "quay.io/keycloak/keycloak:19.0.0"
+        image        = "quay.io/keycloak/keycloak:[[ .keycloak_version ]]"
         network_mode = "host"
         args         = [
           "start",
@@ -64,19 +56,19 @@ job "keycloak" {
         KC_HTTP_PORT       = "${NOMAD_PORT_http}"
         KC_HOSTNAME        = "[[ .keycloak_name ]].[[ .domain ]]"
         KC_HOSTNAME_STRICT = "false"
-        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_name ]].service.consul/[[ .keycloak_database ]]"
+        KC_DB_URL          = "jdbc:postgresql://[[ .postgres_fqdn ]]/[[ .keycloak_database ]]?ssl=true&sslmode=require"
         KC_PROXY           = "edge"
       }
 
       template {
-        destination = "${NOMAD_SECRETS_DIR}/psql"
+        destination = "${NOMAD_SECRETS_DIR}/app"
         env         = true
         data        = <<EOT
-{{ with secret "secret/postgres-v2/[[ .keycloak_name ]]" }}
+{{ with secret "secret/[[ .application_name ]]/[[ .keycloak_name ]]" }}
 KC_DB_USERNAME = "{{ .Data.username }}"
 KC_DB_PASSWORD = "{{ .Data.password }}"
 {{ end }}
-{{ with secret "secret/seed/keycloak-admin" }}
+{{ with secret "secret/[[ .application_name ]]/keycloak-admin" }}
 KEYCLOAK_ADMIN = "{{ .Data.username }}"
 KEYCLOAK_ADMIN_PASSWORD = "{{ .Data.password }}"
 {{ end }}
@@ -91,22 +83,17 @@ EOT
     task "filebeat" {
       driver = "docker"
       config {
-        image        = "ghcr.io/noumenadigital/filebeat:1.0.3"
+        image        = "ghcr.io/noumenadigital/filebeat:[[ .filebeat_version ]]"
         network_mode = "host"
-        args         = [
-          "keycloak",
-          "wildfly",
-        ]
+        args         = ["keycloak", "wildfly"]
       }
       resources {
-        memory = 50
+        memory = 64
       }
     }
   }
 
   vault {
-    policies = [
-      "reader",
-    ]
+    policies = ["reader"]
   }
 }

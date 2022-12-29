@@ -1,20 +1,18 @@
 job "cleanup" {
-  datacenters = [
-    "[[ .datacenter ]]",
-  ]
+  type = "batch"
+  datacenters = ["[[ .datacenter ]]"]
+  namespace = "[[ .namespace ]]"
 
   constraint {
     attribute = "${node.class}"
     value     = "worker"
   }
 
-  type = "batch"
-
   group "cleanup" {
-    task "postgres-platform" {
+    task "postgres" {
       driver = "docker"
       config {
-        image        = "postgres:11.3-alpine"
+        image        = "postgres:[[ .postgres_version ]]"
         network_mode = "host"
         command      = "/local/script.sh"
       }
@@ -23,19 +21,15 @@ job "cleanup" {
         perms       = "755"
         data        = <<EOT
 #!/bin/bash
-set -e
-set -u
-{{ with secret "secret/postgres-v2/[[ .platform_name ]]" }}PGPASSWORD="{{ .Data.password }}" psql -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}
-{{ with secret "secret/postgres-v2/[[ .history_name ]]" }}PGPASSWORD="{{ .Data.password }}" psql -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}
-{{ with secret "secret/postgres-v2/[[ .keycloak_name ]]" }}PGPASSWORD="{{ .Data.password }}" psql -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .keycloak_database ]]{{ end }}
+{{ if secrets "secret/[[ .application_name ]]" | contains "[[ .platform_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .platform_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}{{ end }}
+{{ if secrets "secret/[[ .application_name ]]" | contains "[[ .history_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .history_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .history_database ]]{{ end }}{{ end }}
+{{ if secrets "secret/[[ .application_name ]]" | contains "[[ .keycloak_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .keycloak_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .keycloak_database ]]{{ end }}{{ end }}
 EOT
       }
     }
   }
 
   vault {
-    policies = [
-      "reader",
-    ]
+    policies = ["reader"]
   }
 }

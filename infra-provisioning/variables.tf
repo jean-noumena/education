@@ -1,3 +1,8 @@
+variable "application_name" {
+  type        = string
+  description = "Application name, used to construct unique DB resource names, by using it as a suffix"
+}
+
 variable "postgres_host" {
   type        = string
   description = "Postgres host where to create databases and other users"
