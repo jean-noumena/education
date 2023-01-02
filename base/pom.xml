@@ -55,10 +55,20 @@
             <groupId>io.prometheus</groupId>
             <artifactId>simpleclient_hotspot</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+
+        <!-- Email -->
+        <dependency>
+            <groupId>com.postmarkapp</groupId>
+            <artifactId>postmark</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
         </dependency>
 
         <!-- Testing -->

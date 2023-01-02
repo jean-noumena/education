@@ -18,6 +18,17 @@ job "keycloak-provisioning" {
         network_mode = "host"
       }
 
+      env {
+        TF_VAR_root_url                        = "https://[[ .frontend_name ]].[[ .domain ]]"
+        TF_VAR_base_url                        = "https://[[ .frontend_name ]].[[ .domain ]]"
+        TF_VAR_valid_redirect_uris             = "[\"*\"]"
+        TF_VAR_valid_post_logout_redirect_uris = "[\"+\"]"
+        TF_VAR_web_origins                     = "[\"*\"]"
+        TF_VAR_realm_smtp_from                 = "[[ .smtp_email_sender ]]"
+        TF_VAR_realm_smtp_host                 = "[[ .smtp_host ]]"
+        TF_VAR_realm_smtp_port                 = "465"
+      }
+
       template {
         destination = ".env"
         env         = true
@@ -36,11 +47,15 @@ EOT
 KEYCLOAK_USER = "{{ .Data.username }}"
 KEYCLOAK_PASSWORD = "{{ .Data.password }}"
 {{ end }}
+{{ with secret "secret/[[ .application_name ]]/smtp" }}
+TF_VAR_realm_smtp_auth_username = "{{ .Data.username }}"
+TF_VAR_realm_smtp_auth_password = "{{ .Data.password }}"
+{{ end }}
 EOT
       }
 
       resources {
-        memory = 128
+        memory = 512
       }
     }
 
@@ -52,7 +67,7 @@ EOT
         args         = ["keycloak-provisioning", "wildfly"]
       }
       resources {
-        memory = 64
+        memory = 50
       }
     }
   }

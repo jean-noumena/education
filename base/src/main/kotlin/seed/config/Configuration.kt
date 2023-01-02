@@ -16,7 +16,19 @@ data class Configuration(
     val debug: Boolean = (System.getenv("DEBUG_REQUEST_RESPONSE") ?: "false").toBoolean(),
 
     // special case for development from outside docker
-    val keycloakHost: String? = if (keycloakURL.host == "localhost") "keycloak:${keycloakURL.port}" else null
+    val keycloakHost: String? = if (keycloakURL.host == "localhost") "keycloak:${keycloakURL.port}" else null,
+
+    // Postmark email service
+    val postmarkServerToken: String = System.getenv("POSTMARK_SERVER_TOKEN") ?: "POSTMARK_API_TEST",
+    val postmarkSenderEmail: String = System.getenv("POSTMARK_SENDER_EMAIL") ?: "",
+    val postmarkReceiverEmail: String = System.getenv("POSTMARK_RECEIVER_EMAIL") ?: postmarkSenderEmail,
+
+    // javax.mail service
+    val javaxEmailFrom: String = System.getenv("JAVAX_EMAIL_FROM") ?: "do_not_reply@noumenadigital.com",
+    val javaxEmailPassword: String = System.getenv("JAVAX_EMAIL_PASSWORD") ?: "unused", // Mailhog can still work with full security, it just ignores the values. Value still can't be null.
+    val javaxSmtpHost: String = System.getenv("JAVAX_SMTP_HOST") ?: "mailhog",
+    val javaxSmtpPort: Int = System.getenv("JAVAX_SMTP_PORT")?.toInt() ?: 1025,
+    val javaxRequireTls: Boolean = System.getenv("JAVAX_REQUIRE_TLS")?.toBoolean() ?: true,
 )
 
 fun <T> retry(retries: Int, retryPeriod: Duration, f: () -> T): T {

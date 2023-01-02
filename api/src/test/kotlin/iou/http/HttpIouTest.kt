@@ -1,4 +1,4 @@
-package http
+package iou.http
 
 import arrow.core.Either
 import com.noumenadigital.codegen.Party
@@ -11,12 +11,6 @@ import com.noumenadigital.platform.engine.values.ClientUnitValue
 import com.noumenadigital.platform.engine.values.ClientValueResponse
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
-import iou.http.AmountResponse
-import iou.http.CreateResponse
-import iou.http.Gen
-import iou.http.Raw
-import iou.http.partyPerson
-import iou.http.userParty
 import org.http4k.core.Body
 import org.http4k.core.Method
 import org.http4k.core.Request

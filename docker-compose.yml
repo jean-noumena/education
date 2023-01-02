@@ -49,7 +49,7 @@ services:
       POSTGRAPHILE_DB_PASSWORD: postgraphile
     healthcheck:
       # add basic port opened check since image doesn't provide any tools to do a better check
-      test: /bin/bash -c '/usr/bin/printf "GET / HTTP/1.1\n\n" > /dev/tcp/127.0.0.1/12000'
+      test: /bin/bash -c '/usr/bin/printf "GET / HTTP/1.1\r\nHost\:engine:12000\r\n\r\n" > /dev/tcp/127.0.0.1/12000'
       interval: 1s
       retries: 60
     depends_on:
@@ -153,3 +153,11 @@ services:
     environment:
       POSTGRES_PASSWORD: testing
 
+  mailhog:
+    image: mailhog/mailhog:latest
+    restart: always
+    logging:
+      driver: 'none'  # disable saving logs
+    ports:
+      - 1025:1025 # smtp server
+      - 8025:8025 # web ui

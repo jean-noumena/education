@@ -131,7 +131,19 @@
                 <artifactId>read-streams-client</artifactId>
                 <version>${noumena.platform.version}</version>
             </dependency>
-            
+
+            <!-- Email -->
+            <dependency>
+                <groupId>com.postmarkapp</groupId>
+                <artifactId>postmark</artifactId>
+                <version>1.9.11</version>
+            </dependency>
+            <dependency>
+                <groupId>com.sun.mail</groupId>
+                <artifactId>javax.mail</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+
             <!-- Testing -->
             <dependency>
                 <groupId>org.jetbrains.kotlin</groupId>
