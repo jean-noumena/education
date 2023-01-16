@@ -18,6 +18,7 @@ history_name: history-seed
 postgraphile_name: postgraphile-seed
 engine_name: engine-seed
 api_name: api-seed
+frontend_name: frontend-seed
 
 # DB names and DB schemas
 keycloak_database: keycloak_seed

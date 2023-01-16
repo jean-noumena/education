@@ -18,6 +18,7 @@ history_name: history
 postgraphile_name: postgraphile
 engine_name: engine
 api_name: api
+frontend_name: frontend
 
 # DB names and DB schemas
 keycloak_database: keycloak
