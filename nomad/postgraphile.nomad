@@ -63,10 +63,11 @@ EOT
         name = "[[ .postgraphile_name ]]"
         port = "http"
         tags = [
-          "version=[[ .version ]]",
+          "version=[[ .platform_version ]]",
           "traefik.enable=true",
-          "traefik.frontend.rule=Host:[[ .postgraphile_name ]].[[ .domain ]]",
-          "traefik.frontend.entryPoints=internal",
+          "traefik.http.routers.postgraphile.entryPoints=internal",
+          "traefik.http.routers.postgraphile.rule=Host(`[[ .postgraphile_name ]].[[ .domain ]]`)",
+          "traefik.http.routers.postgraphile.service=[[ .postgraphile_name ]]@consulcatalog"
         ]
 
         # argument body is not supported in currently deployed nomad version 1.0.1
