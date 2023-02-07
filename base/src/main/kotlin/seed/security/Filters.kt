@@ -13,11 +13,12 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
 import org.http4k.core.with
+import org.http4k.filter.AllowAllOriginPolicy
 import org.http4k.filter.AnyOf
 import org.http4k.filter.CorsPolicy
 import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.OriginPolicy
-import org.http4k.filter.ServerFilters
+import org.http4k.lens.Header
 import org.http4k.lens.LensFailure
 import seed.config.Configuration
 import seed.config.JSON.auto
@@ -54,7 +55,11 @@ fun debugFilter(config: Configuration): Filter = if (config.debug) {
 }
 
 fun corsFilter(config: Configuration): Filter =
-    ServerFilters.Cors(
+    // We're not using org.http4k.filter.ServerFilters.Cors because it returns an "access-control-allow-origin" response
+    // header of null if the origin request header is missing or originPolicy returns false, which is not the correct
+    // behaviour. This would allow access from non-whitelisted origins and missing origins.
+    // We should return the server hostname in these cases.
+    Cors(
         CorsPolicy(
             originPolicy = OriginPolicy.AnyOf(config.allowedOrigins),
             methods = Method.values().asList(),
@@ -71,8 +76,34 @@ fun corsFilter(config: Configuration): Filter =
                 "Authorization"
             ),
             credentials = true,
-        )
+        ),
+        config.apiServerUrl
     )
+
+object Cors {
+    private fun List<String>.joined() = joinToString(", ")
+
+    operator fun invoke(policy: CorsPolicy, fallbackAllowedOrigin: String) = Filter { next ->
+        {
+            val response = if (it.method == Method.OPTIONS) Response(Status.OK) else next(it)
+
+            val origin = it.header("Origin")
+            val allowedOrigin = when {
+                policy.originPolicy is AllowAllOriginPolicy -> "*"
+                origin != null && policy.originPolicy(origin) -> origin
+                else -> fallbackAllowedOrigin
+            }
+
+            response.with(
+                Header.required("access-control-allow-origin") of allowedOrigin,
+                Header.required("access-control-allow-headers") of policy.headers.joined(),
+                Header.required("access-control-allow-methods") of policy.methods.map { method -> method.name }
+                    .joined(),
+                { res -> if (policy.credentials) res.header("access-control-allow-credentials", "true") else res }
+            )
+        }
+    }
+}
 
 fun errorFilter(debug: Boolean = false) =
     // filtering should go from least to most specific

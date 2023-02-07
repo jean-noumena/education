@@ -14,6 +14,7 @@ data class Configuration(
     val keycloakURL: URL = URL(System.getenv("KEYCLOAK_URL") ?: "http://localhost:11000"),
     val engineURL: String = System.getenv("ENGINE_URL") ?: "http://localhost:12000",
     val debug: Boolean = (System.getenv("DEBUG_REQUEST_RESPONSE") ?: "false").toBoolean(),
+    val apiServerUrl: String = System.getenv("API_SERVER_URL") ?: "http://localhost:8080",
 
     // special case for development from outside docker
     val keycloakHost: String? = if (keycloakURL.host == "localhost") "keycloak:${keycloakURL.port}" else null,

@@ -23,7 +23,12 @@ internal class CORSTest {
     fun `test CORS allowed`() {
         val baseHandler: HttpHandler = { _ -> Response(OK) }
         val config =
-            Configuration(allowedOrigins = listOf("localhost:4040"), keycloakRealm = "seed", keycloakClientId = "seed")
+            Configuration(
+                allowedOrigins = listOf("localhost:4040"),
+                keycloakRealm = "seed",
+                keycloakClientId = "seed",
+                apiServerUrl = "localhost:8080"
+            )
         val handler = corsFilter(config).then(baseHandler)
 
         fun assertResponse(origin: String, want: String) {
@@ -39,7 +44,7 @@ internal class CORSTest {
         }
 
         assertResponse(origin = "localhost:4040", want = "localhost:4040")
-        assertResponse(origin = "localhost:5050", want = "null")
+        assertResponse(origin = "localhost:5050", want = "localhost:8080")
     }
 }
 

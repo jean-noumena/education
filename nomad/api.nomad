@@ -1,7 +1,7 @@
 job "api" {
-  type = "service"
+  type        = "service"
   datacenters = ["[[ .datacenter ]]"]
-  namespace = "[[ .namespace ]]"
+  namespace   = "[[ .namespace ]]"
 
   constraint {
     attribute = "${node.class}"
@@ -59,9 +59,10 @@ job "api" {
         network_mode = "host"
       }
       env {
-        HTTP_PORT          = "${NOMAD_PORT_http}"
-        HTTP_ADMIN_PORT    = "${NOMAD_PORT_admin}"
-        LOG_LEVEL          = "[[ .log_level ]]"
+        HTTP_PORT       = "${NOMAD_PORT_http}"
+        HTTP_ADMIN_PORT = "${NOMAD_PORT_admin}"
+        LOG_LEVEL       = "[[ .log_level ]]"
+        API_SERVER_URL  = "https://[[ .api_name ]].[[ .domain ]]"
       }
 
       template {
