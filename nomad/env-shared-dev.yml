@@ -6,6 +6,7 @@ datacenter: shared-dev
 domain: shared-dev.noumenadigital.com
 postgres_fqdn: shared-dev-postgresql-v2.postgres.database.azure.com
 log_level: info
+debug_request_response: true
 platform_version: 2022.1.73
 filebeat_version: 1.0.6
 postgres_version: 11.3-alpine

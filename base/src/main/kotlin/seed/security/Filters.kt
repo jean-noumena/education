@@ -153,7 +153,7 @@ fun catchLensFailure(debug: Boolean = false) =
             } catch (e: LensFailure) {
                 val traceID = UUID.randomUUID()
                 if (debug) {
-                    logger.error(e) {
+                    logger.warn(e) {
                         "Encode/Decode failure $traceID, failures ${e.failures}, stacktrace ${e.stackTrace}"
                     }
                 }

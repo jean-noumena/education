@@ -123,7 +123,7 @@ curl http://localhost:12711/admin/history/streams/states/{protocolId}
 
 ## On seed-dev
 
-When the seed project is deployed to seed-dev.noumenadigital.com, you can execute the same commands:
+When the seed project is deployed to `seed-dev.noumenadigital.com`, you can execute the same commands:
 
 ```shell
 export ACCESS_TOKEN=$(curl -X POST https://api.seed-dev.noumenadigital.com/auth/login -H "Content-Type: application/x-www-form-urlencoded" -d "username=USERNAME&password=PASSWORD&grant_type=password" | grep -Eo '"access_token":.*?[^\\]"' | sed 's/.*:"\(.*\)"/\1/')
@@ -139,4 +139,44 @@ curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  https://api.seed-dev.no
 curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   https://api.seed-dev.noumenadigital.com/raw/iou/{protocolId}/amountOwed
 curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH https://api.seed-dev.noumenadigital.com/raw/iou/{protocolId}/pay/1
 curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   https://api.seed-dev.noumenadigital.com/raw/iou/{protocolId}/forgive
+```
+
+## Streams
+https://docs.core.noumenadigital.com/generated/api-streams.html#tag/Sse
+
+Observe the various raw stream types using the following `curl` commands:
+```shell
+# get the JWT ACCESS_TOKEN
+# - via raw keycloak:
+export ACCESS_TOKEN=$(curl -s 'http://localhost:11000/realms/seed/protocol/openid-connect/token' \
+-d 'username=issuer1' \
+-d 'password=welcome3' \
+-d 'client_id=seed' \
+-d 'grant_type=password' | jq -j .access_token)
+
+# - via api:
+export ACCESS_TOKEN=$(curl -X 'POST' \
+  'http://localhost:8080/auth/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "grant_type": "password",
+    "username": "issuer1",
+    "password": "welcome3"
+  }' | jq -j .access_token)
+
+# Start listening to SSE stream
+curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:8080/iou/sse
+
+# Listen to a stream type:
+# - all
+curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:12000/api/streams
+# - notifications
+curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:12000/api/streams/notifications?me=false
+# - prototypes
+curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:12000/api/streams/prototypes
+# - states
+curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:12000/api/streams/states?me=false
+# - commands
+curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:12000/api/streams/commands?me=false
 ```

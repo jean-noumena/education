@@ -59,10 +59,11 @@ job "api" {
         network_mode = "host"
       }
       env {
-        HTTP_PORT       = "${NOMAD_PORT_http}"
-        HTTP_ADMIN_PORT = "${NOMAD_PORT_admin}"
-        LOG_LEVEL       = "[[ .log_level ]]"
-        API_SERVER_URL  = "https://[[ .api_name ]].[[ .domain ]]"
+        HTTP_PORT              = "${NOMAD_PORT_http}"
+        HTTP_ADMIN_PORT        = "${NOMAD_PORT_admin}"
+        LOG_LEVEL              = "[[ .log_level ]]"
+        DEBUG_REQUEST_RESPONSE = "[[ .debug_request_response ]]"
+        API_SERVER_URL         = "https://[[ .api_name ]].[[ .domain ]]"
       }
 
       template {

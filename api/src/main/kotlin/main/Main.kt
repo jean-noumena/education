@@ -1,15 +1,19 @@
 package main
 
 import com.noumenadigital.platform.engine.client.EngineClientApi
+import com.noumenadigital.platform.read.streams.client.SseReaderClient
 import io.prometheus.client.hotspot.DefaultExports
 import iou.http.Gen
 import iou.http.iouRoutes
+import iou.sse.sseRoutes
 import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import org.http4k.client.ApacheClient
 import org.http4k.core.then
 import org.http4k.routing.routes
 import org.http4k.server.KtorCIO
+import org.http4k.server.PolyHandler
+import org.http4k.server.Undertow
 import org.http4k.server.asServer
 import seed.config.Configuration
 import seed.keycloak.KeycloakClient
@@ -43,6 +47,7 @@ fun main(): Unit = runBlocking {
     val adminServer = admin(config).asServer(KtorCIO(adminPort))
     adminServer.start()
     val engineClient = EngineClientApi(config.engineURL)
+    val sseClient = SseReaderClient(config.engineURL)
     val keycloakClient: KeycloakClient = KeycloakClientImpl(config, ApacheClient())
     val forwardAuthorization = KeycloakForwardAuthorization(keycloakClient)
     val authHandler: AuthHandler = JsonKeycloakAuthHandler(config)
@@ -62,7 +67,14 @@ fun main(): Unit = runBlocking {
             .then(errorFilter(config.debug))
             .then(individuallyDecoratedRoutes)
 
-    val appServer = globallyDecoratedRoutes.asServer(KtorCIO(httpPort))
+    val routingSseHandler = sseRoutes(sseClient, engineClient, forwardAuthorization)
+
+    val requestHandler = PolyHandler(
+        http = globallyDecoratedRoutes,
+        sse = routingSseHandler
+    )
+
+    val appServer = requestHandler.asServer(Undertow(httpPort))
 
     logger.info { "Request logging is ${if (config.debug) "on" else "off"}" }
     exitProcess(
