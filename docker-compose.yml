@@ -47,8 +47,8 @@ services:
       ENGINE_DB_HISTORY_USER: history
       ENGINE_DB_HISTORY_PASSWORD: secret
       ENGINE_DB_HISTORY_SCHEMA: history
-      POSTGRAPHILE_DB_USER: postgraphile
-      POSTGRAPHILE_DB_PASSWORD: postgraphile
+      ENGINE_DB_POSTGRAPHILE_USER: postgraphile
+      ENGINE_DB_POSTGRAPHILE_PASSWORD: postgraphile
     healthcheck:
       # add basic port opened check since image doesn't provide any tools to do a better check
       test: /bin/bash -c '/usr/bin/printf "GET / HTTP/1.1\r\nHost\:engine:12000\r\n\r\n" > /dev/tcp/127.0.0.1/12000'
@@ -61,7 +61,7 @@ services:
         condition: service_healthy
 
   history:
-    image: ghcr.io/noumenadigital/packages/history:2022.1.71
+    image: ghcr.io/noumenadigital/packages/history:2023.1.0
     ports:
       - "12010:12010"
       - "12711:12711"
@@ -81,17 +81,17 @@ services:
         condition: service_healthy
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/postgraphile:2022.1.71
+    image: ghcr.io/noumenadigital/packages/postgraphile:2023.1.0
     ports:
       - "15000:15000"
     environment:
-      DATABASE_URL: postgres://seed:secret@engine-db:5432/engine
+      POSTGRAPHILE_PORT: 15000
+      POSTGRAPHILE_DB_URL: postgres://seed:secret@engine-db:5432/engine
       POSTGRAPHILE_DB_USER: postgraphile
-      TRUSTED_ISSUERS: "http://keycloak:11000/**,"
-      ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
-      ENGINE_TIMEOUT_SECONDS: 250
-      SCHEMA: noumena
-      PORT: 15000
+      POSTGRAPHILE_DB_SCHEMA: noumena
+      POSTGRAPHILE_TRUSTED_ISSUERS: "http://keycloak:11000/**,"
+      POSTGRAPHILE_ENGINE_HEALTH_ENDPOINT: "http://engine:12000/actuator/health"
+      POSTGRAPHILE_ENGINE_HEALTH_TIMEOUT_SECONDS: 250
     depends_on:
       engine-db:
         condition: service_started
@@ -100,7 +100,7 @@ services:
 
   engine-db:
     image: postgres:14.4-alpine
-    command: postgres -c log_statement=all
+    #command: postgres -c log_statement=all
     mem_limit: 256m
     ports:
       - "5432:5432"

@@ -53,14 +53,14 @@ TODO: Add picture of infra
 
 List of docker containers, what they do and where are they connecting. This is important information when debugging or creating firewall rules.
 
-| Container | Purpose   | Incoming (ext traffic) |  Outgoing (ext traffic) |  Incoming (internal) |  Outgoing (internal) |
-| :---:   | :---: | :---: |  :---: |  :---: |  :---: |
-| api-service | The main API exposed to the internet   |  FrontEnd / internet  |  None  | None  |  Platform, Postgraphile  |
-| Platform | NPL Engine   |  None   |  SQL(5432)  | api-service  |  None  |
-| Postgraphile | DB query helper  |  None  |  SQL(5432)  | api-service  |  None  |
-| KeyCloak | Identity Management  |  None  |  None  | api-service, Platform  |  None  |
-| Upshift | DB migrations, run only once when migrated to another NPL version   |  None  |  SQL server?  | None  |  Platform  |
-| KeyCloak-Provisioning | Initial KeyCloak Users  |  None  |  None  | None  |  KeyCloak  |
+| Container              | Purpose                                                            | Incoming (ext traffic)  | Outgoing (ext traffic)  | Incoming (internal)    | Outgoing (internal)     |
+|:-----------------------|:-------------------------------------------------------------------|:------------------------|:------------------------|:-----------------------|:------------------------|
+| api-service            | The main API exposed to the internet                               | FrontEnd / internet     | None                    | None                   | Platform, Postgraphile  |
+| Platform               | NPL Engine                                                         | None                    | SQL(5432)               | api-service            | None                    |
+| Postgraphile           | DB query helper                                                    | None                    | SQL(5432)               | api-service            | None                    |
+| KeyCloak               | Identity Management                                                | None                    | None                    | api-service, Platform  | None                    |
+| Upshift                | DB migrations, run only once when migrated to another NPL version  | None                    | SQL server?             | None                   | Platform                |
+| KeyCloak-Provisioning  | Initial KeyCloak Users                                             | None                    | None                    | None                   | KeyCloak                |
 
 
 TODO: Add image or picture or diagram or jpeg of the application architecture where all the dockers are and which components they are supposed to talk to.

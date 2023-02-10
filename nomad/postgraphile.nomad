@@ -27,10 +27,10 @@ job "postgraphile" {
       }
 
       env {
-        SCHEMA                 = "[[ .platform_db_schema ]]"
-        PORT                   = "${NOMAD_PORT_http}"
-        ENGINE_TIMEOUT_SECONDS = 300
-        TRUSTED_ISSUERS        = "https://[[ .keycloak_name ]].[[ .domain ]]/**"
+        POSTGRAPHILE_PORT                          = "${NOMAD_PORT_http}"
+        POSTGRAPHILE_DB_SCHEMA                     = "[[ .platform_db_schema ]]"
+        POSTGRAPHILE_TRUSTED_ISSUERS               = "https://[[ .keycloak_name ]].[[ .domain ]]/**"
+        POSTGRAPHILE_ENGINE_HEALTH_TIMEOUT_SECONDS = 300
       }
 
       template {
@@ -38,7 +38,7 @@ job "postgraphile" {
         env         = true
         data        = <<EOT
 {{ range service "[[ .engine_name ]]" }}
-ENGINE_HEALTH_ENDPOINT = "http://{{ .Address }}:{{ .Port }}/actuator/health"
+POSTGRAPHILE_ENGINE_HEALTH_ENDPOINT = "http://{{ .Address }}:{{ .Port }}/actuator/health"
 {{ end }}
 EOT
       }
@@ -48,7 +48,7 @@ EOT
         env         = true
         data        = <<EOT
 {{ with secret "secret/[[ .application_name ]]/[[ .postgraphile_name ]]" }}
-DATABASE_URL = postgres://{{ .Data.username }}:{{ .Data.password }}@[[ .postgres_fqdn ]]/[[ .platform_database ]]?sslmode=required
+POSTGRAPHILE_DB_URL = postgres://{{ .Data.username }}:{{ .Data.password }}@[[ .postgres_fqdn ]]/[[ .platform_database ]]?sslmode=required
 {{ end }}
 {{ with secret "secret/[[ .application_name ]]/[[ .postgraphile_name ]]" }}
 POSTGRAPHILE_DB_USER = {{ .Data.username }}

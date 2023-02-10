@@ -8,7 +8,7 @@ import com.noumenadigital.npl.api.generated.lang.core.SomeFacade
 
 inline fun <reified T : Any?> toOptionalFacade(type: T?): OptionalFacade<T> {
     return if (null == type) {
-        OptionalFacade(NoneFacade())
+        OptionalFacade(NoneFacade.create())
     } else {
         OptionalFacade(SomeFacade.create(type))
     }

@@ -46,8 +46,8 @@ job "platform" {
         args         = ["--server.port=${NOMAD_PORT_http}"]
       }
       env {
-        ADMIN_PORT                  = "${NOMAD_PORT_admin}"
-        APPLICATION_MANAGEMENT_PORT = "${NOMAD_PORT_management}"
+        ENGINE_ADMIN_PORT           = "${NOMAD_PORT_admin}"
+        ENGINE_MANAGEMENT_PORT      = "${NOMAD_PORT_management}"
         ENGINE_DB_URL               = "jdbc:postgresql://[[ .postgres_fqdn ]]/[[ .platform_database ]]?ssl=true&sslmode=require"
         ENGINE_DB_SCHEMA            = "[[ .platform_db_schema ]]"
         ENGINE_DB_HISTORY_SCHEMA    = "[[ .history_db_schema ]]"
@@ -78,8 +78,8 @@ ENGINE_DB_HISTORY_USER = "{{ .Data.username }}"
 ENGINE_DB_HISTORY_PASSWORD = "{{ .Data.password }}"
 {{ end }}
 {{ with secret "secret/[[ .application_name ]]/[[ .postgraphile_name ]]" }}
-POSTGRAPHILE_DB_USER = "{{ .Data.username }}"
-POSTGRAPHILE_DB_PASSWORD = "{{ .Data.password }}"
+ENGINE_DB_POSTGRAPHILE_USER = "{{ .Data.username }}"
+ENGINE_DB_POSTGRAPHILE_PASSWORD = "{{ .Data.password }}"
 {{ end }}
 EOT
       }

@@ -1,8 +1,8 @@
-FROM ghcr.io/noumenadigital/packages/engine:2022.1.71
+FROM ghcr.io/noumenadigital/packages/engine:2023.1.0
 
 LABEL org.opencontainers.image.source = "https://github.com/noumenadigital/seed"
 
-ENV ENGINE_NPL_MIGRATION_DIRECTORYPATH="/npl" \
+ENV ENGINE_NPL_MIGRATION_DIRECTORY_PATH="/npl" \
     FEATURE_APPLY_NPL_MIGRATIONS_AT_STARTUP="true"
 
 COPY src/main/yaml /npl/yaml

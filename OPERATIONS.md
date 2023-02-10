@@ -3,13 +3,13 @@ This document contains information which is needed to effectively maintain the a
 
 ## Contacts
 
-| Role      | Name | Contact |
-| ----------- | ----------- | ----------- |
-| Project Manager      | Add Name       | Add email or phone
-| Client Contact(s)   | Add name         | Add email or phone
-| Tech Lead   | Add name         | Add email or phone
-| Developer(s)   | Add name         | Add email or phone
-| Other important personnel   | Add name         | Add email or phone
+| Role                      | Name        | Contact             |
+|---------------------------|-------------|---------------------|
+| Project Manager           | Add Name    | Add email or phone  |
+| Client Contact(s)         | Add name    | Add email or phone  |
+| Tech Lead                 | Add name    | Add email or phone  |
+| Developer(s)              | Add name    | Add email or phone  |
+| Other important personnel | Add name    | Add email or phone  |
 
 
 ## Architecture
