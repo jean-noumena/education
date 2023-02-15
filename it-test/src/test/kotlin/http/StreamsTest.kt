@@ -13,12 +13,13 @@ import io.restassured.http.Header
 import org.openapitools.client.apis.IOUApi
 import org.openapitools.client.infrastructure.ApiClient
 import seed.config.Configuration
+import seed.config.IConfiguration
 import seed.keycloak.KeycloakForwardProvider
 import java.time.Duration
 
 class StreamsTest : FunSpec({
     val iouApi = IOUApi(basePath)
-    val config = Configuration(
+    val config: IConfiguration = Configuration(
         keycloakRealm = System.getenv("KEYCLOAK_REALM") ?: "seed",
         keycloakClientId = System.getenv("KEYCLOAK_CLIENT_ID") ?: "seed",
     )

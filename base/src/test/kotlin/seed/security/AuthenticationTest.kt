@@ -10,7 +10,9 @@ import org.http4k.core.body.form
 import org.http4k.core.then
 import org.junit.jupiter.api.Test
 import seed.config.Configuration
+import seed.config.IConfiguration
 import seed.config.JSON
+import seed.filter.loginRequired
 import seed.keycloak.ACCESS_TOKEN_INITIAL
 import seed.keycloak.EXPIRY
 import seed.keycloak.REFRESH_TOKEN
@@ -22,7 +24,7 @@ import seed.testing.OpenAPI
 import seed.testing.baseTestValidator
 import kotlin.test.assertEquals
 
-val config = Configuration(keycloakRealm = "seed", keycloakClientId = "seed")
+val config: IConfiguration = Configuration(keycloakRealm = "seed", keycloakClientId = "seed")
 
 internal class LoginHandlerTest {
 

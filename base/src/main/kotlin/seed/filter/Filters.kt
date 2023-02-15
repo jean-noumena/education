@@ -1,4 +1,4 @@
-package seed.security
+package seed.filter
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.noumenadigital.platform.engine.values.ClientException
@@ -8,7 +8,6 @@ import org.http4k.core.Body
 import org.http4k.core.Filter
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
-import org.http4k.core.NoOp
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.then
@@ -16,11 +15,10 @@ import org.http4k.core.with
 import org.http4k.filter.AllowAllOriginPolicy
 import org.http4k.filter.AnyOf
 import org.http4k.filter.CorsPolicy
-import org.http4k.filter.DebuggingFilters
 import org.http4k.filter.OriginPolicy
 import org.http4k.lens.Header
 import org.http4k.lens.LensFailure
-import seed.config.Configuration
+import seed.config.IConfiguration
 import seed.config.JSON.auto
 import seed.keycloak.KeycloakClient
 import seed.keycloak.KeycloakClientImpl
@@ -31,7 +29,7 @@ import java.util.UUID
 
 internal val logger = KotlinLogging.logger {}
 
-fun loginRequired(config: Configuration, client: HttpHandler = ApacheClient()): Filter {
+fun loginRequired(config: IConfiguration, client: HttpHandler = ApacheClient()): Filter {
     val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
     return Filter { next ->
         { req ->
@@ -48,17 +46,13 @@ fun loginRequired(config: Configuration, client: HttpHandler = ApacheClient()): 
     }
 }
 
-fun debugFilter(config: Configuration): Filter = if (config.debug) {
-    DebuggingFilters.PrintRequestAndResponse()
-} else {
-    Filter.NoOp
-}
-
-fun corsFilter(config: Configuration): Filter =
-    // We're not using org.http4k.filter.ServerFilters.Cors because it returns an "access-control-allow-origin" response
-    // header of null if the origin request header is missing or originPolicy returns false, which is not the correct
-    // behaviour. This would allow access from non-whitelisted origins and missing origins.
-    // We should return the server hostname in these cases.
+fun corsFilter(config: IConfiguration): Filter =
+    /**
+     * We're not using org.http4k.filter.ServerFilters.Cors because it returns an "access-control-allow-origin" response
+     * header of null if the origin request header is missing or originPolicy returns false, which is not the correct
+     * behaviour. This would allow access from non-whitelisted origins and missing origins.
+     * We should return the server hostname in these cases.
+     */
     Cors(
         CorsPolicy(
             originPolicy = OriginPolicy.AnyOf(config.allowedOrigins),

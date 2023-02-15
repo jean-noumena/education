@@ -21,7 +21,7 @@ services:
       HTTP_ADMIN_PORT: 8000
       # JVM remote debug
       JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8888
-      DEBUG_REQUEST_RESPONSE: "true"
+      ACCESS_LOG_VERBOSITY: "MAX"
       API_SERVER_URL: ${API_SERVER_URL:-http://localhost:8080}
     healthcheck:
       test: "curl -s -f http://localhost:8000/health || exit 1"

@@ -4,7 +4,7 @@ import com.noumenadigital.platform.engine.client.Authorization
 import com.noumenadigital.platform.engine.client.AuthorizationProvider
 import com.noumenadigital.platform.engine.values.ClientPartyValue
 import org.http4k.core.Request
-import seed.security.ErrorCode
+import seed.filter.ErrorCode
 import seed.security.ForwardAuthorization
 
 data class KeycloakForwardProvider(

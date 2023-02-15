@@ -7,6 +7,7 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.body.form
 import seed.config.Configuration
+import seed.config.IConfiguration
 import java.util.UUID.randomUUID
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -132,7 +133,7 @@ val keycloakAuthorizeMock: HttpHandler = { req ->
 }
 
 internal class KeycloakClientTest {
-    private val config = Configuration(keycloakRealm = "seed", keycloakClientId = "seed")
+    private val config: IConfiguration = Configuration(keycloakRealm = "seed", keycloakClientId = "seed")
     private val client: KeycloakClient = KeycloakClientImpl(config, keycloakLoginMock)
 
     @Test

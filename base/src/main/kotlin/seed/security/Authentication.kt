@@ -14,8 +14,10 @@ import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.body.form
 import org.http4k.core.with
-import seed.config.Configuration
+import seed.config.IConfiguration
 import seed.config.JSON.auto
+import seed.filter.errorResponse
+import seed.filter.logger
 import seed.keycloak.KeycloakClient
 import seed.keycloak.KeycloakClientImpl
 import seed.keycloak.KeycloakServerException
@@ -53,7 +55,7 @@ private fun oAuthError(status: Status, error: String, description: String = ""):
 data class LoginRequest(
     val username: String?,
     val password: String?,
-    @JsonProperty("grant_type") val grantType: String?
+    @JsonProperty("grant_type") val grantType: String?,
 )
 
 private val loginRequestLens = Body.auto<LoginRequest>().toLens()
@@ -62,7 +64,7 @@ private val loginRequestLens = Body.auto<LoginRequest>().toLens()
 @JsonInclude(NON_NULL)
 data class RefreshRequest(
     @JsonProperty("refresh_token") val refreshToken: String?,
-    @JsonProperty("grant_type") val grantType: String?
+    @JsonProperty("grant_type") val grantType: String?,
 )
 
 private val refreshRequestLens = Body.auto<RefreshRequest>().toLens()
@@ -70,7 +72,7 @@ private val refreshRequestLens = Body.auto<RefreshRequest>().toLens()
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(NON_NULL)
 data class LogoutRequest(
-    @JsonProperty("refresh_token") val refreshToken: String?
+    @JsonProperty("refresh_token") val refreshToken: String?,
 )
 
 private val logoutRequestLens = Body.auto<LogoutRequest>().toLens()
@@ -82,11 +84,11 @@ interface AuthHandler {
 }
 
 abstract class KeycloakAuthHandler(
-    config: Configuration,
+    config: IConfiguration,
     client: HttpHandler = ApacheClient(),
     private val loginRequestConverter: (Request) -> LoginRequest,
     private val refreshRequestConverter: (Request) -> RefreshRequest,
-    private val logoutRequestConverter: (Request) -> LogoutRequest
+    private val logoutRequestConverter: (Request) -> LogoutRequest,
 ) : AuthHandler {
     private val keycloakClient: KeycloakClient = KeycloakClientImpl(config, client)
 
@@ -170,11 +172,11 @@ abstract class KeycloakAuthHandler(
 }
 
 class JsonKeycloakAuthHandler(
-    config: Configuration,
+    config: IConfiguration,
     client: HttpHandler = ApacheClient(),
     loginRequestConverter: (Request) -> LoginRequest = ::jsonLoginRequestConverter,
     refreshRequestConverter: (Request) -> RefreshRequest = ::jsonRefreshRequestConverter,
-    logoutRequestConverter: (Request) -> LogoutRequest = ::jsonLogoutRequestConverter
+    logoutRequestConverter: (Request) -> LogoutRequest = ::jsonLogoutRequestConverter,
 ) : KeycloakAuthHandler(
     config,
     client,
@@ -184,11 +186,11 @@ class JsonKeycloakAuthHandler(
 )
 
 class FormKeycloakAuthHandler(
-    config: Configuration,
+    config: IConfiguration,
     client: HttpHandler = ApacheClient(),
     loginRequestConverter: (Request) -> LoginRequest = ::formLoginRequestConverter,
     refreshRequestConverter: (Request) -> RefreshRequest = ::formRefreshRequestConverter,
-    logoutRequestConverter: (Request) -> LogoutRequest = ::formLogoutRequestConverter
+    logoutRequestConverter: (Request) -> LogoutRequest = ::formLogoutRequestConverter,
 ) : KeycloakAuthHandler(
     config,
     client,

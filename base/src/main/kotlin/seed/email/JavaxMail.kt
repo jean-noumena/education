@@ -1,7 +1,7 @@
 package seed.email
 
 import mu.KotlinLogging
-import seed.config.Configuration
+import seed.config.IJavaxEmailConfiguration
 import java.time.Clock
 import java.util.Date
 import javax.mail.Authenticator
@@ -15,8 +15,8 @@ import javax.mail.internet.MimeMessage
 private val logger = KotlinLogging.logger {}
 
 class JavaxMail(
-    val config: Configuration,
-    private val clock: Clock = Clock.systemDefaultZone()
+    val config: IJavaxEmailConfiguration,
+    private val clock: Clock = Clock.systemDefaultZone(),
 ) : Email {
     override fun send(message: String, to: String): Boolean {
         val session = Session.getInstance(properties, passwordAuthenticator)

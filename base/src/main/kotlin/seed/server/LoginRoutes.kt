@@ -9,13 +9,13 @@ import org.http4k.routing.RoutingHttpHandler
 import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.http4k.routing.static
-import seed.config.Configuration
+import seed.config.IConfiguration
+import seed.filter.loginRequired
 import seed.security.AuthHandler
-import seed.security.loginRequired
 
 fun loginRoutes(
-    config: Configuration,
-    authHandler: AuthHandler
+    config: IConfiguration,
+    authHandler: AuthHandler,
 ): RoutingHttpHandler = routes(
     "/openapi" bind GET to static(Classpath("/"), "yml" to ContentType.TEXT_YAML),
     "/swagger" bind GET to static(Classpath("/swagger-ui-3.52.3/dist")),

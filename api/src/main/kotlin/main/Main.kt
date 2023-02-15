@@ -16,16 +16,17 @@ import org.http4k.server.PolyHandler
 import org.http4k.server.Undertow
 import org.http4k.server.asServer
 import seed.config.Configuration
+import seed.config.IConfiguration
+import seed.filter.accessLogFilter
+import seed.filter.corsFilter
+import seed.filter.errorFilter
+import seed.filter.loginRequired
 import seed.keycloak.KeycloakClient
 import seed.keycloak.KeycloakClientImpl
 import seed.keycloak.KeycloakForwardAuthorization
 import seed.metrics.measure
 import seed.security.AuthHandler
 import seed.security.JsonKeycloakAuthHandler
-import seed.security.corsFilter
-import seed.security.debugFilter
-import seed.security.errorFilter
-import seed.security.loginRequired
 import seed.server.admin
 import seed.server.loginRoutes
 import kotlin.system.exitProcess
@@ -39,7 +40,7 @@ fun main(): Unit = runBlocking {
 
     val httpPort = (System.getenv("HTTP_PORT") ?: "8080").toInt()
     val adminPort = (System.getenv("HTTP_ADMIN_PORT") ?: "8000").toInt()
-    val config = Configuration(
+    val config: IConfiguration = Configuration(
         keycloakRealm = System.getenv("KEYCLOAK_REALM") ?: "seed",
         keycloakClientId = System.getenv("KEYCLOAK_CLIENT_ID") ?: "seed",
     )
@@ -62,9 +63,9 @@ fun main(): Unit = runBlocking {
 
     val globallyDecoratedRoutes =
         measure()
-            .then(debugFilter(config))
+            .then(accessLogFilter(config))
             .then(corsFilter(config))
-            .then(errorFilter(config.debug))
+            .then(errorFilter(true))
             .then(individuallyDecoratedRoutes)
 
     val routingSseHandler = sseRoutes(sseClient, engineClient, forwardAuthorization)
@@ -76,7 +77,7 @@ fun main(): Unit = runBlocking {
 
     val appServer = requestHandler.asServer(Undertow(httpPort))
 
-    logger.info { "Request logging is ${if (config.debug) "on" else "off"}" }
+    logger.info { "Request logging verbosity is ${config.accessLogVerbosity}" }
     exitProcess(
         try {
             appServer.start().block()

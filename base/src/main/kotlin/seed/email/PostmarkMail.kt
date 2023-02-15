@@ -3,11 +3,11 @@ package seed.email
 import com.postmarkapp.postmark.Postmark
 import com.postmarkapp.postmark.client.data.model.message.Message
 import mu.KotlinLogging
-import seed.config.Configuration
+import seed.config.IPostMarkEmailConfiguration
 
 private val logger = KotlinLogging.logger {}
 
-class PostmarkMail(val config: Configuration) : Email {
+class PostmarkMail(val config: IPostMarkEmailConfiguration) : Email {
 
     override fun send(message: String, to: String): Boolean {
         val email = Message()

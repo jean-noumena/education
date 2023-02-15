@@ -12,11 +12,11 @@ import org.http4k.core.Request
 import org.http4k.core.Response
 import org.http4k.core.Status
 import org.http4k.core.body.form
-import seed.config.Configuration
+import seed.config.IConfiguration
 import seed.config.SnakeCaseJsonConfiguration.auto
+import seed.filter.ErrorCode
+import seed.filter.logger
 import seed.metrics.record
-import seed.security.ErrorCode
-import seed.security.logger
 import java.io.IOException
 import java.net.URL
 
@@ -76,9 +76,9 @@ interface KeycloakClient {
 }
 
 class KeycloakClientImpl(
-    config: Configuration,
+    config: IConfiguration,
     val client: HttpHandler = ApacheClient(),
-    private val partyProvider: PartyProvider = SeedPartyProvider()
+    private val partyProvider: PartyProvider = SeedPartyProvider(),
 ) : KeycloakClient {
     private val base = config.keycloakURL
     private val host = config.keycloakHost

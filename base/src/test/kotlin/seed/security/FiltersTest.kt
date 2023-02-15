@@ -15,6 +15,12 @@ import org.http4k.routing.bind
 import org.http4k.routing.routes
 import org.junit.jupiter.api.Test
 import seed.config.Configuration
+import seed.config.IConfiguration
+import seed.filter.Error
+import seed.filter.ErrorCode
+import seed.filter.corsFilter
+import seed.filter.errorFilter
+import seed.filter.errorResponse
 import kotlin.test.assertEquals
 
 internal class CORSTest {
@@ -22,7 +28,7 @@ internal class CORSTest {
     @Test
     fun `test CORS allowed`() {
         val baseHandler: HttpHandler = { _ -> Response(OK) }
-        val config =
+        val config: IConfiguration =
             Configuration(
                 allowedOrigins = listOf("localhost:4040"),
                 keycloakRealm = "seed",
