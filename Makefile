@@ -120,7 +120,7 @@ integration-test: clean install run-integration-test
 
 .PHONY: login
 login:
-	echo $(MAVEN_REPO_PASS) | docker login ghcr.io -u $(MAVEN_REPO_USER) --password-stdin
+	echo $(GITHUB_REPO_PASS) | docker login ghcr.io -u $(GITHUB_REPO_USER) --password-stdin
 
 .PHONY: docker-scan-login
 docker-scan-login:

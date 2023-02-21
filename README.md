@@ -24,8 +24,8 @@ environment.
 In order to run the seed project, make sure you have the following:
 
 * access to our [GitHub Packages](https://github.com/noumenadigital/packages) repository
-* an environment variable called `MAVEN_REPO_USER` which is set to your GitHub account name
-* an environment variable called `MAVEN_REPO_PASS` which is set to a GitHub Personal Access Token with at least
+* an environment variable called `GITHUB_REPO_USER` which is set to your GitHub account name
+* an environment variable called `GITHUB_REPO_PASS` which is set to a GitHub Personal Access Token with at least
   the `read packages` permission
 * Java 17
 * Maven
