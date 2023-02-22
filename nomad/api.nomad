@@ -95,7 +95,7 @@ EOT
         args         = ["api", "java"]
       }
       resources {
-        memory = 50
+        memory = 64
       }
     }
   }

@@ -68,7 +68,7 @@ EOT
         args         = ["keycloak-provisioning", "wildfly"]
       }
       resources {
-        memory = 50
+        memory = 64
       }
     }
   }
