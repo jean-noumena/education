@@ -26,6 +26,9 @@ job "platform" {
       tags = [
         "version=[[ .version ]]",
         "prometheus=/actuator/prometheusmetrics",
+        "traefik.enable=true",
+        "traefik.http.routers.[[ .engine_name ]].entryPoints=internal",
+        "traefik.http.routers.[[ .engine_name ]].rule=Host(`[[ .engine_name ]].[[ .domain ]]`)",
       ]
       check {
         name     = "Engine Health Check"

@@ -65,9 +65,8 @@ EOT
         tags = [
           "version=[[ .platform_version ]]",
           "traefik.enable=true",
-          "traefik.http.routers.postgraphile.entryPoints=internal",
-          "traefik.http.routers.postgraphile.rule=Host(`[[ .postgraphile_name ]].[[ .domain ]]`)",
-          "traefik.http.routers.postgraphile.service=[[ .postgraphile_name ]]@consulcatalog"
+          "traefik.http.routers.[[ .postgraphile_name ]].entryPoints=internal",
+          "traefik.http.routers.[[ .postgraphile_name ]].rule=Host(`[[ .postgraphile_name ]].[[ .domain ]]`)",
         ]
 
         # argument body is not supported in currently deployed nomad version 1.0.1

@@ -30,9 +30,8 @@ job "api" {
       tags = [
         "version=[[ .version ]]",
         "traefik.enable=true",
-        "traefik.http.routers.api.entryPoints=external",
-        "traefik.http.routers.api.rule=Host(`[[ .api_name ]].[[ .domain ]]`)",
-        "traefik.http.routers.api.service=[[ .api_name ]]@consulcatalog"
+        "traefik.http.routers.[[ .api_name ]].entryPoints=external",
+        "traefik.http.routers.[[ .api_name ]].rule=Host(`[[ .api_name ]].[[ .domain ]]`)",
       ]
     }
 

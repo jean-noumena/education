@@ -24,9 +24,8 @@ job "keycloak" {
       tags = [
         "version=[[ .version ]]",
         "traefik.enable=true",
-        "traefik.http.routers.keycloak.entryPoints=internal",
-        "traefik.http.routers.keycloak.rule=Host(`[[ .keycloak_name ]].[[ .domain ]]`) && PathPrefix(`/`)",
-        "traefik.http.routers.keycloak.service=[[ .keycloak_name ]]@consulcatalog"
+        "traefik.http.routers.[[ .keycloak_name ]].entryPoints=internal",
+        "traefik.http.routers.[[ .keycloak_name ]].rule=Host(`[[ .keycloak_name ]].[[ .domain ]]`)",
       ]
       check {
         name     = "Keycloak HTTP interface"
