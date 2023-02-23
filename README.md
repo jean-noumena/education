@@ -80,7 +80,18 @@ After authenticating, you may issue commands to the API.
 In order to communicate with the API, you must authenticate to the API and retrieve your access token. You can
 authenticate using the following command with one of the previously specified credentials.
 
-`curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/x-www-form-urlencoded" -d "username={USERNAME}&password={PASSWORD}&grant_type=password"`
+```shell
+# - via api:
+curl -X 'POST' \
+  'http://localhost:8080/auth/login' \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "grant_type": "password",
+    "username": "issuer1",
+    "password": "welcome3"
+  }'
+````
 
 The response to this request is a JSON object.
 
@@ -97,7 +108,13 @@ The `ACCESS_TOKEN` value is needed to communicate with the API.
 The following command will authenticate to the API and extract the `ACCESS_TOKEN` value into an environment variable.
 
 ```shell
-export ACCESS_TOKEN=$(curl -X POST http://localhost:8080/auth/login -H "Content-Type: application/x-www-form-urlencoded" -d "username=USERNAME&password=PASSWORD&grant_type=password" | grep -Eo '"access_token":.*?[^\\]"' | sed 's/.*:"\(.*\)"/\1/')
+# - via raw keycloak:
+export ACCESS_TOKEN=$(curl -s 'http://localhost:11000/realms/seed/protocol/openid-connect/token' \
+ -H 'Content-Type: application/x-www-form-urlencoded' \
+ -d 'username=issuer1' \
+ -d 'password=welcome3' \
+ -d 'grant_type=password' \
+ -d 'client_id=seed' | grep -Eo '"access_token":.*?[^\\]"' | sed 's/.*:"\(.*\)"/\1/')
 ```
 
 After authenticating to the API, the following commands can be used to test out the API.
