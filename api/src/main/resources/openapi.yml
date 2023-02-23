@@ -9,9 +9,6 @@ info:
 
 servers:
   - url: http://localhost:8080
-    description: local docker environment
-  - url: https://api.seed-dev.noumenadigital.com
-    description: DEV environment
 
 components:
 
