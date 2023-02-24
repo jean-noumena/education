@@ -1,3 +1,4 @@
+# keycloak db secrets
 resource "random_password" "keycloak_admin" {
   length      = 16
   min_upper   = 2
@@ -34,6 +35,7 @@ resource "vault_generic_secret" "keycloak" {
 EOT
 }
 
+# platform db secrets
 resource "random_password" "platform" {
   length      = 16
   min_upper   = 2
@@ -52,6 +54,7 @@ resource "vault_generic_secret" "platform" {
 EOT
 }
 
+# history db secrets
 resource "random_password" "history" {
   length      = 16
   min_upper   = 2
@@ -70,6 +73,7 @@ resource "vault_generic_secret" "history" {
 EOT
 }
 
+# postgraphile db secrets
 resource "random_password" "postgraphile" {
   length      = 16
   min_upper   = 2

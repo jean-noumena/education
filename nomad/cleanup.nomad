@@ -22,7 +22,7 @@ job "cleanup" {
         data        = <<EOT
 #!/bin/bash
 {{ if secrets "secret/[[ .application_name ]]" | contains "[[ .platform_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .platform_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}{{ end }}
-{{ if secrets "secret/[[ .application_name ]]" | contains "[[ .history_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .history_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .history_database ]]{{ end }}{{ end }}
+{{ if secrets "secret/[[ .application_name ]]" | contains "[[ .history_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .history_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .platform_database ]]{{ end }}{{ end }}
 {{ if secrets "secret/[[ .application_name ]]" | contains "[[ .keycloak_name ]]" }}{{ with secret "secret/[[ .application_name ]]/[[ .keycloak_name ]]" }}PGPASSWORD='{{ .Data.password }}' psql --set=sslmode=require -h postgres-v2.service.consul -U {{ .Data.username }} -c 'drop owned by current_user cascade' [[ .keycloak_database ]]{{ end }}{{ end }}
 EOT
       }

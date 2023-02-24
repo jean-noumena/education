@@ -24,7 +24,6 @@ frontend_name: frontend
 # DB names and DB schemas
 keycloak_database: keycloak
 platform_database: platform
-history_database: platform
 platform_db_schema: platform
 history_db_schema: history
 

@@ -9,13 +9,13 @@ is up-to-date.
 
 ### Data protection
 
-DATA_PROTECTION.md contain a checklist which must be updated before production. It contains a list of data protection /
-GDPR issues which must be considered if the product is going to production.
+[Data protection](DATA_PROTECTION.md) page contain a checklist which must be updated before production. It contains a
+list of data protection / GDPR issues which must be considered if the product is going to production.
 
 ### Operations
 
-OPERATIONS.md contains information which are needed to support the application in production or production-like
-environment.
+[Operations](OPERATIONS.md) page contains information which are needed to support the application in production or
+production-like environment.
 
 ## Running
 
@@ -62,9 +62,11 @@ Check the metrics on
 
 When the seed project is running, you may communicate with the API using swagger, or through commands using curl.
 
-### Swagger
+Swagger UI for the API is available at http://localhost:8080/swagger/.
+Swagger UI for the engine is available at http://localhost:12000/swagger-ui/.
+Swagger UI for the history is available at http://localhost:12010/swagger-ui/.
 
-Swagger is available at http://localhost:8080/swagger/
+### Swagger
 
 In order to communicate with the API, you must authenticate to the API. This can be done through Swagger with the
 following sample credentials.
@@ -120,19 +122,14 @@ export ACCESS_TOKEN=$(curl -s 'http://localhost:11000/realms/seed/protocol/openi
 After authenticating to the API, the following commands can be used to test out the API.
 
 ```shell
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  http://localhost:8080/gen/iou/100/issuer1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   http://localhost:8080/gen/iou/{protocolId}/amountOwed
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH http://localhost:8080/gen/iou/{protocolId}/pay/1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   http://localhost:8080/gen/iou/{protocolId}/forgive
-
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  http://localhost:8080/raw/iou/100/issuer1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   http://localhost:8080/raw/iou/{protocolId}/amountOwed
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH http://localhost:8080/raw/iou/{protocolId}/pay/1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   http://localhost:8080/raw/iou/{protocolId}/forgive
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  http://localhost:8080/iou/100/issuer1
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   http://localhost:8080/iou/{protocolId}/amountOwed
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH http://localhost:8080/iou/{protocolId}/pay/1
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   http://localhost:8080/iou/{protocolId}/forgive
 ```
 
 After deploying the history application, the following command can be used to test out the history API. Note that only
-those data already copied to the data store will be returned.
+those data already copied to the history data store will be returned.
 
 ```shell
 curl http://localhost:12711/admin/history/streams/states/{protocolId}
@@ -147,21 +144,18 @@ export ACCESS_TOKEN=$(curl -X POST https://api.seed-dev.noumenadigital.com/auth/
 ```
 
 ```shell
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  https://api.seed-dev.noumenadigital.com/gen/iou/100/issuer1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   https://api.seed-dev.noumenadigital.com/gen/iou/{protocolId}/amountOwed
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH https://api.seed-dev.noumenadigital.com/gen/iou/{protocolId}/pay/1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   https://api.seed-dev.noumenadigital.com/gen/iou/{protocolId}/forgive
-                                                  
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  https://api.seed-dev.noumenadigital.com/raw/iou/100/issuer1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   https://api.seed-dev.noumenadigital.com/raw/iou/{protocolId}/amountOwed
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH https://api.seed-dev.noumenadigital.com/raw/iou/{protocolId}/pay/1
-curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   https://api.seed-dev.noumenadigital.com/raw/iou/{protocolId}/forgive
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X POST  https://api.seed-dev.noumenadigital.com/iou/100/issuer1
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X GET   https://api.seed-dev.noumenadigital.com/iou/{protocolId}/amountOwed
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PATCH https://api.seed-dev.noumenadigital.com/iou/{protocolId}/pay/1
+curl -H "Authorization: Bearer "$ACCESS_TOKEN"" -X PUT   https://api.seed-dev.noumenadigital.com/iou/{protocolId}/forgive                                                  
 ```
 
 ## Streams
-https://docs.core.noumenadigital.com/generated/api-streams.html#tag/Sse
+
+Refer to the official docs at https://docs.core.noumenadigital.com/docs/operating-engine/APIs/.
 
 Observe the various raw stream types using the following `curl` commands:
+
 ```shell
 # get the JWT ACCESS_TOKEN
 # - via raw keycloak:

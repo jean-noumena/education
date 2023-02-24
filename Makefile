@@ -65,6 +65,7 @@ deploy:
 	-$(call deploy,keycloak-provisioning)
 	$(call deploy,platform)
 	$(call deploy,postgraphile)
+	$(call deploy,history)
 	$(call deploy,api)
 
 
@@ -88,6 +89,7 @@ clean-nomad:
 	@if [ "$(ENVIRONMENT)" = "" ]; then echo "ENVIRONMENT not set"; exit 1; fi
 	@if [ "$(NOMAD_NAMESPACE)" = "" ]; then echo "NOMAD_NAMESPACE not set"; exit 1; fi
 	-nomad stop -namespace $(NOMAD_NAMESPACE) -yes -purge api
+	-nomad stop -namespace $(NOMAD_NAMESPACE) -yes -purge history
 	-nomad stop -namespace $(NOMAD_NAMESPACE) -yes -purge postgraphile
 	-nomad stop -namespace $(NOMAD_NAMESPACE) -yes -purge platform
 	-nomad stop -namespace $(NOMAD_NAMESPACE) -yes -purge keycloak-provisioning
@@ -97,9 +99,9 @@ clean-nomad:
 	-@if nomad namespace list | grep -q "$(NOMAD_NAMESPACE)"; then $(call deploy,cleanup); fi
 
 .PHONY: clean-dev
-clean-dev:	export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
-clean-dev:	export NOMAD_NAMESPACE=default
-clean-dev:	export ENVIRONMENT=dev
+clean-dev: export NOMAD_ADDR=https://nomad.seed-dev.noumenadigital.com
+clean-dev: export NOMAD_NAMESPACE=default
+clean-dev: export ENVIRONMENT=dev
 clean-dev: clean-nomad
 
 .PHONY: clean-shared-dev
@@ -130,4 +132,3 @@ docker-scan-login:
 snyk-scan:
 	docker scan ghcr.io/noumenadigital/seed/api:latest
 	docker scan ghcr.io/noumenadigital/seed/engine:latest
-

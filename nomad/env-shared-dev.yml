@@ -24,6 +24,5 @@ frontend_name: frontend-seed
 # DB names and DB schemas
 keycloak_database: keycloak_seed
 platform_database: platform_seed
-history_database: platform_seed
 platform_db_schema: platform_seed
 history_db_schema: history_seed

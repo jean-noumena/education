@@ -1,5 +1,4 @@
 # keycloak db provisioning
-
 resource "postgresql_role" "keycloak" {
   name      = local.postgres_keycloak_name
   password  = random_password.keycloak.result
@@ -19,8 +18,8 @@ resource "postgresql_grant" "keycloak_database_all" {
 
 # platform db provisioning
 resource "postgresql_role" "platform" {
-  name      = local.postgres_platform_name
-  password  = random_password.platform.result
+  name        = local.postgres_platform_name
+  password    = random_password.platform.result
   login       = true
   create_role = true
 }
@@ -38,8 +37,8 @@ resource "postgresql_grant" "platform_database_all" {
 
 # history db provisioning
 resource "postgresql_role" "history" {
-  name      = local.postgres_history_name
-  password  = random_password.history.result
+  name        = local.postgres_history_name
+  password    = random_password.history.result
   login       = true
   create_role = true
 }
