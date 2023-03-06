@@ -4,8 +4,8 @@ on:
     types: [ opened, synchronize, reopened ]
 
 env:
-  GITHUB_REPO_USER: ${{ secrets.GH_USERNAME }}
-  GITHUB_REPO_PASS: ${{ secrets.GH_PASSWORD }}
+  GITHUB_USER_NAME: ${{ secrets.GH_USERNAME }}
+  GITHUB_USER_PASS: ${{ secrets.GH_PASSWORD }}
   MAVEN_CLI_OPTS: -s .m2/settings.xml --batch-mode
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

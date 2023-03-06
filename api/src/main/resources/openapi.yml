@@ -57,7 +57,7 @@ components:
           example: 'payee1'
         password:
           type: string
-          example: 'welcome1'
+          example: 'welcome'
       required:
         - grant_type
         - username

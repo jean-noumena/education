@@ -111,8 +111,6 @@ clean-shared-dev: export ENVIRONMENT=shared-dev
 clean-shared-dev: clean-nomad
 
 .PHONY: run-integration-test
-run-integration-test: export SEED_TEST_USER=system
-run-integration-test: export SEED_TEST_PASSWORD=welcome
 run-integration-test: run-only
 	mvn $(MAVEN_CLI_OPTS) -am clean integration-test verify -Pintegration-test -pl it-test
 	docker-compose down --volumes
@@ -122,7 +120,7 @@ integration-test: clean install run-integration-test
 
 .PHONY: login
 login:
-	echo $(GITHUB_REPO_PASS) | docker login ghcr.io -u $(GITHUB_REPO_USER) --password-stdin
+	echo $(GITHUB_USER_PASS) | docker login ghcr.io -u $(GITHUB_USER_NAME) --password-stdin
 
 .PHONY: docker-scan-login
 docker-scan-login:

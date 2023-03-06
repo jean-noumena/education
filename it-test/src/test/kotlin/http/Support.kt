@@ -11,11 +11,11 @@ val basePath = System.getenv("BASE_PATH") ?: "http://localhost:8080"
 val authenticationApi = AuthenticationApi(basePath)
 
 val testPayee1 = System.getenv("SEED_TEST_PAYEE_1") ?: "payee1"
-val testPayee1Password = System.getenv("SEED_TEST_PAYEE_PASSWORD_1") ?: "welcome1"
+val testPayee1Password = System.getenv("SEED_TEST_USERS_PASSWORD") ?: "welcome"
 val testPayee2 = System.getenv("SEED_TEST_PAYEE_2") ?: "payee2"
-val testPayee2Password = System.getenv("SEED_TEST_PAYEE_PASSWORD_2") ?: "welcome2"
+val testPayee2Password = System.getenv("SEED_TEST_USERS_PASSWORD") ?: "welcome"
 val testIssuer = System.getenv("SEED_TEST_ISSUER") ?: "issuer1"
-val testIssuerPassword = System.getenv("SEED_TEST_ISSUER_PASSWORD") ?: "welcome3"
+val testIssuerPassword = System.getenv("SEED_TEST_USERS_PASSWORD") ?: "welcome"
 private val logger = KotlinLogging.logger { }
 
 fun <T> retry(retries: Int, retryPeriod: Duration, f: () -> T): T {
@@ -38,7 +38,7 @@ fun loginPayee1() = login(testPayee1, testPayee1Password)
 fun loginPayee2() = login(testPayee2, testPayee2Password)
 fun loginIssuer() = login(testIssuer, testIssuerPassword)
 
-private fun login(username: String, password: String = "welcome"): AccessToken = retry(10, Duration.ofSeconds(2)) {
+private fun login(username: String, password: String): AccessToken = retry(10, Duration.ofSeconds(2)) {
     try {
         val loginCargo = Login(
             grantType = Login.GrantType.password,

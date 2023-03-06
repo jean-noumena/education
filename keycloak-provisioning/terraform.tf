@@ -1,5 +1,9 @@
 # ref: https://registry.terraform.io/providers/mrparkers/keycloak/4.1.0/docs/resources/openid_client
 
+variable "default_password" {
+  type = string
+}
+
 variable "root_url" {
   type    = string
   default = "http://localhost:3000"
@@ -103,7 +107,7 @@ resource "keycloak_user" "payee1" {
     "party" = jsonencode(["payee"])
   }
   initial_password {
-    value     = "welcome1"
+    value     = var.default_password
     temporary = false
   }
 }
@@ -118,7 +122,7 @@ resource "keycloak_user" "payee2" {
     "party" = jsonencode(["payee"])
   }
   initial_password {
-    value     = "welcome2"
+    value     = var.default_password
     temporary = false
   }
 }
@@ -133,7 +137,7 @@ resource "keycloak_user" "issuer1" {
     "party" = jsonencode(["issuer"])
   }
   initial_password {
-    value     = "welcome3"
+    value     = var.default_password
     temporary = false
   }
 }

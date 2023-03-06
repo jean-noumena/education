@@ -118,6 +118,8 @@ services:
     build:
       context: keycloak-provisioning
     command: /local.sh
+    environment:
+      TF_VAR_default_password: ${SEED_TEST_USERS_PASSWORD:-welcome}
     depends_on:
       keycloak:
         condition: service_healthy

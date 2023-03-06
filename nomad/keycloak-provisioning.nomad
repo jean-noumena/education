@@ -20,6 +20,7 @@ job "keycloak-provisioning" {
 
       env {
         TF_VAR_application_name                = "[[ .application_name ]]"
+        TF_VAR_default_password                = "[[ .keycloak_users_default_password ]]"
         TF_VAR_root_url                        = "https://[[ .frontend_name ]].[[ .domain ]]"
         TF_VAR_base_url                        = "https://[[ .frontend_name ]].[[ .domain ]]"
         TF_VAR_valid_redirect_uris             = "[\"*\"]"
