@@ -1,5 +1,5 @@
 GITHUB_SHA=HEAD
-VERSION=1.0-SNAPSHOT
+VERSION?=1.0-SNAPSHOT
 MAVEN_CLI_OPTS?=-s .m2/settings.xml
 LEVANT_VERSION=0.3.2
 
@@ -130,3 +130,11 @@ docker-scan-login:
 snyk-scan:
 	docker scan ghcr.io/noumenadigital/seed/api:latest
 	docker scan ghcr.io/noumenadigital/seed/engine:latest
+
+dependency-report: dependency-report/target/site/dependencies.html
+
+dependency-report/target/site/dependencies.html:
+	@if [ "$(VERSION)" = "latest" ] || [ "$(VERSION)" = "" ]; then echo "Explicit VERSION not set"; exit 1; fi
+	mvn versions:set ${MAVEN_CLI_OPTS} -DnewVersion=$(VERSION) -DprocessAllModules
+	mvn ${MAVEN_CLI_OPTS} install -DskipTests
+	mvn ${MAVEN_CLI_OPTS} -pl dependency-report site

@@ -50,3 +50,19 @@ jobs:
           make -e clean-shared-dev
       - run: |
           make -e deploy-shared-dev
+
+  dependency-report:
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: 'maven'
+        run: make -e dependency-report
+
+      - name: Upload dependency report
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-report
+          path: dependency-report/target/site
