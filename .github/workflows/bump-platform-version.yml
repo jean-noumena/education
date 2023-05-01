@@ -1,0 +1,74 @@
+name: 'Bump platform version'
+on:
+  workflow_dispatch:
+    inputs:
+      PLATFORM_VERSION:
+        description: 'Version of platform to build the plugin with'
+        required: true
+
+env:
+  CI_PIPELINE_URL: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+  GITHUB_USER_NAME: "${{ secrets.GH_USERNAME }}"
+  GITHUB_USER_PASS: "${{ secrets.GH_PASSWORD }}"
+  GITHUB_TOKEN: "${{ secrets.GH_PASSWORD }}"
+  SLACK_URL: "${{ secrets.SLACK_URL }}"
+
+jobs:
+  build_test_verify:
+    name: "Verify compatibility with new platform release"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "GitHub Login"
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_PASSWORD }}
+
+      - name: "Set up Java"
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+          cache: 'maven'
+
+      - name: "Update platform version in project"
+        run: make -e bump-platform-version
+        env:
+          PLATFORM_VERSION: "${{ inputs.PLATFORM_VERSION }}"
+
+      - name: "Run integration tests"
+        run: make -e integration-test
+
+      - name: "Create pull request"
+        if: ${{ success() }}
+        uses: peter-evans/create-pull-request@v4
+        id: cpr
+        with:
+          title: "Update project to platform version ${{ inputs.PLATFORM_VERSION }}"
+          commit-message: "Updated project to platform version ${{ inputs.PLATFORM_VERSION }}"
+          branch: "bump-${{ inputs.PLATFORM_VERSION }}"
+          delete-branch: true
+
+      - name: "Enable pull request auto merge"
+        if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
+        uses: peter-evans/enable-pull-request-automerge@v2
+        with:
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
+
+      - name: "Approve pull request"
+        if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
+        uses: juliangruber/approve-pull-request-action@v2
+        with:
+          number: ${{ steps.cpr.outputs.pull-request-number }}
+          github-token: ${{ env.GITHUB_TOKEN }}
+
+      - name: "Report failure"
+        if: ${{ failure() }}
+        run: make -e slack
+        env:
+          MESSAGE: "The <${{ env.CI_PIPELINE_URL }}|seed repo build> failed (triggered by platform release)."

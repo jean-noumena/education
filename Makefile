@@ -138,3 +138,17 @@ dependency-report/target/site/dependencies.html:
 	mvn versions:set ${MAVEN_CLI_OPTS} -DnewVersion=$(VERSION) -DprocessAllModules
 	mvn ${MAVEN_CLI_OPTS} install -DskipTests
 	mvn ${MAVEN_CLI_OPTS} -pl dependency-report site
+
+.PHONY:	bump-platform-version
+bump-platform-version:
+	@if [ "$(PLATFORM_VERSION)" = "" ]; then echo "PLATFORM_VERSION not set"; exit 1; fi
+	sed -i '' -e 's/PLATFORM_VERSION=.*/PLATFORM_VERSION=$(PLATFORM_VERSION)/' .env
+	sed -i '' -e 's/platform_version:.*/platform_version: $(PLATFORM_VERSION)/' nomad/env*.yml
+	sed -i '' -e 's|FROM ghcr.io/noumenadigital/packages/engine:.*|FROM ghcr.io/noumenadigital/packages/engine:$(PLATFORM_VERSION)|' npl/Dockerfile
+
+
+.PHONY:	slack
+slack:
+	@if [ "$(MESSAGE)" = "" ]; then echo "MESSAGE not set"; exit 1; fi
+	@if [ "$(SLACK_URL)" = "" ]; then echo "SLACK_URL not set"; exit 1; fi
+	curl -s -H "Content-Type: application/json" $(SLACK_URL) --data '{"username": "Github", "channel": "#platform", "text": "$(MESSAGE)"}'

@@ -61,7 +61,7 @@ services:
         condition: service_healthy
 
   history:
-    image: ghcr.io/noumenadigital/packages/history:2023.1.0
+    image: ghcr.io/noumenadigital/packages/history:${PLATFORM_VERSION}
     ports:
       - "12010:12010"
       - "12711:12711"
@@ -81,7 +81,7 @@ services:
         condition: service_healthy
 
   read-model:
-    image: ghcr.io/noumenadigital/packages/postgraphile:2023.1.0
+    image: ghcr.io/noumenadigital/packages/postgraphile:${PLATFORM_VERSION}
     ports:
       - "15000:15000"
     environment:
