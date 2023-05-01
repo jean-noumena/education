@@ -1,0 +1,70 @@
+package board
+
+protocol[chairperson, board_members] Ballot(
+    topic: Text
+) {
+    guard(topic.length() > 0, "Topic should not be empty");
+
+    initial state voting;
+    state counting;
+    // state unreachable;
+    state tie;
+    final state closed;
+
+    var votes: List<VotePossibility> = listOf<VotePossibility>();
+    var acceptance: Optional<Boolean> = optionalOf<Boolean>();
+
+    permission[board_members] vote(answer: VotePossibility) | voting {
+
+        board_members; // party defined at protocol instantiation
+
+        this.votes = this.votes.with(answer);
+    };
+
+    permission[chairperson] stopVote() | voting {
+        become counting;
+    };
+
+    permission[chairperson] countVotes() | counting {
+        /* vote counting */
+        var voteYay = countVotesHelper(VotePossibility.YAY);
+        var voteNay = countVotesHelper(VotePossibility.NAY);
+        var voteBlank = countVotesHelper(VotePossibility.BLANK);
+
+        // another approach
+        var voteCounted: VoteCounter = this.votes.fold(
+            VoteCounter(0,0,0),
+            function (acc: VoteCounter, vote: VotePossibility) returns VoteCounter ->
+                match(vote) {
+                    YAY -> acc.with(yay = acc.yay + 1)
+                    NAY -> acc.with(nay = acc.nay + 1)
+                    BLANK -> acc.with(blank = acc.blank + 1)
+                }
+        );
+
+        var isATie = voteYay == voteNay;
+
+        if (isATie) {
+            become tie;
+        } else {
+            this.acceptance = optionalOf(voteYay > voteNay);
+            become closed;
+        };
+    };
+
+    function countVotesHelper(votePossibility: VotePossibility) returns Number -> {
+        return this.votes.filter(
+            function(v: VotePossibility) returns Boolean -> votePossibility == v
+        ).size();
+    };
+};
+
+struct VoteCounter {
+    yay: Number,
+    nay: Number,
+    blank: Number
+};
+
+enum VotePossibility {
+    YAY, NAY, BLANK
+};

@@ -1,0 +1,44 @@
+@startuml
+
+actor chairperson as cp
+actor board_member as bm
+actor secretary as sc
+
+entity platform as nd
+
+group setup vote
+
+sc -> nd: suggest topic
+note over nd: check topic is not blank
+note over nd: create vote/poll;\nallows board members to vote
+end group
+
+group voting
+
+bm -> nd: cast vote
+bm -> nd: cast vote
+bm -> nd: cast vote
+bm -> nd: cast vote
+
+note over nd: caveat: maybe not everyone voted
+cp -> nd: end the vote
+
+note over nd: count votes
+
+group break tie [if tie]
+
+cp -> nd: cast decise vote
+note over nd: vote is closed & counted
+
+else [if not tie]
+
+note over nd: vote is closed & counted
+
+end group
+
+end group
+
+note over cp: announces results
+
+
+@enduml
