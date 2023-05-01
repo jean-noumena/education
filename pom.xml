@@ -17,10 +17,6 @@
     <modules>
         <module>parent-pom</module>
         <module>npl</module>
-        <module>it-test</module>
-        <module>base</module>
-        <module>api</module>
-        <module>dependency-report</module>
     </modules>
     
     <properties>
