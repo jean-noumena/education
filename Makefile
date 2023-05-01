@@ -142,9 +142,9 @@ dependency-report/target/site/dependencies.html:
 .PHONY:	bump-platform-version
 bump-platform-version:
 	@if [ "$(PLATFORM_VERSION)" = "" ]; then echo "PLATFORM_VERSION not set"; exit 1; fi
-	sed -i '' -e 's/PLATFORM_VERSION=.*/PLATFORM_VERSION=$(PLATFORM_VERSION)/' .env
-	sed -i '' -e 's/platform_version:.*/platform_version: $(PLATFORM_VERSION)/' nomad/env*.yml
-	sed -i '' -e 's|FROM ghcr.io/noumenadigital/packages/engine:.*|FROM ghcr.io/noumenadigital/packages/engine:$(PLATFORM_VERSION)|' npl/Dockerfile
+	perl -p -i -e's/PLATFORM_VERSION=.*/PLATFORM_VERSION=$(PLATFORM_VERSION)/' .env
+	perl -p -i -e's/platform_version:.*/platform_version: $(PLATFORM_VERSION)/' nomad/env*.yml
+	perl -p -i -e's|FROM ghcr.io/noumenadigital/packages/engine:.*|FROM ghcr.io/noumenadigital/packages/engine:$(PLATFORM_VERSION)|' npl/Dockerfile
 
 
 .PHONY:	slack
