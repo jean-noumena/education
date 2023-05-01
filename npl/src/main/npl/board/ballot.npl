@@ -52,6 +52,13 @@ protocol[chairperson, board_members] Ballot(
         };
     };
 
+    permission[chairperson] castFinalVote(vote: VotePossibility) | tie {
+        guard(VotePossibility.BLANK != vote, "vote should not be blank");
+
+        this.acceptance = optionalOf(VotePossibility.YAY == vote);
+        become closed;
+    };
+
     function countVotesHelper(votePossibility: VotePossibility) returns Number -> {
         return this.votes.filter(
             function(v: VotePossibility) returns Boolean -> votePossibility == v

@@ -1,0 +1,27 @@
+package board
+
+const chairperson = 'chairperson';
+const board_members = 'board_members';
+
+@test
+function createBoardProtocol(test: Test) -> {
+
+    var ballot = Ballot[chairperson, board_members]("Should we have better coffee");
+
+    test.assertEquals(ballot.states.voting, ballot.currentState,
+        "On creation ballots should be in state voting");
+
+};
+
+@test
+function emptyTopicFails(test: Test) -> {
+
+    var messge = test.assertFailsWith(
+        function() returns Ballot -> Ballot[chairperson, board_members](""),
+        14,
+        "Topic should not bla bla be empty"
+    );
+    test.comment("Failed with " + messge);
+
+    test.assertEquals("R14: Assertion 'Topic should not be empty' failed ('/board/Ballot<creation>/Topic should not be empty')", messge);
+};
