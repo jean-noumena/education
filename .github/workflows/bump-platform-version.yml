@@ -53,13 +53,6 @@ jobs:
           branch: "bump-${{ inputs.PLATFORM_VERSION }}"
           delete-branch: true
 
-      - name: "Enable pull request auto merge"
-        if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
-        uses: peter-evans/enable-pull-request-automerge@v2
-        with:
-          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
-          merge-method: squash
-
       - name: "Approve pull request"
         if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
         uses: juliangruber/approve-pull-request-action@v2
@@ -67,8 +60,14 @@ jobs:
           number: ${{ steps.cpr.outputs.pull-request-number }}
           github-token: ${{ env.GITHUB_TOKEN }}
 
+      - name: "Report PR result"
+        if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
+        run: make -e slack
+        env:
+          MESSAGE: "Merge <${{ steps.cpr.outputs.pull-request-url }}|#${{ steps.cpr.outputs.pull-request-number }}> to bump the seed project to platform version ${{ inputs.PLATFORM_VERSION }}."
+
       - name: "Report failure"
         if: ${{ failure() }}
         run: make -e slack
         env:
-          MESSAGE: "The <${{ env.CI_PIPELINE_URL }}|seed repo build> failed (triggered by platform release)."
+          MESSAGE: "The <${{ env.CI_PIPELINE_URL }}|seed platform update build> failed for platform release ${{ inputs.PLATFORM_VERSION }}."
