@@ -44,8 +44,7 @@ jobs:
         run: make -e integration-test
 
       - name: "Create pull request"
-        if: ${{ success() }}
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         id: cpr
         with:
           title: "Update project to platform version ${{ inputs.PLATFORM_VERSION }}"
@@ -54,14 +53,14 @@ jobs:
           delete-branch: true
 
       - name: "Approve pull request"
-        if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
+        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' }}
         uses: juliangruber/approve-pull-request-action@v2
         with:
           number: ${{ steps.cpr.outputs.pull-request-number }}
           github-token: ${{ env.GITHUB_TOKEN }}
 
       - name: "Report PR result"
-        if: ${{ success() }} && steps.cpr.outputs.pull-request-operation == 'created'
+        if: ${{ steps.cpr.outputs.pull-request-operation == 'created' }}
         run: make -e slack
         env:
           MESSAGE: "Merge <${{ steps.cpr.outputs.pull-request-url }}|#${{ steps.cpr.outputs.pull-request-number }}> to bump the seed project to platform version ${{ inputs.PLATFORM_VERSION }}."
