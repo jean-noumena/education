@@ -1,0 +1,13 @@
+systemUnderAudit: seed
+
+changesets:
+  - name: 1.0.0
+    changes:
+      - npl-load:
+        dir-list: npl
+
+  - name: 1.0.1
+    changes:
+      - migrate:
+        dir-list: npl
+        scripts: 1.0.1.kts

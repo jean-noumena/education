@@ -1,0 +1,87 @@
+package seed
+
+struct TimestampedAmount {
+    amount: Number,
+    timestamp: DateTime
+};
+
+function total(entries: List<TimestampedAmount>) returns Number -> {
+    return entries.map(function(p: TimestampedAmount) returns Number -> p.amount).sum();
+};
+
+enum EventType { IouComplete, Payment };
+struct Event {
+    type: EventType,
+    amount: Number,
+    remaining: Number
+}
+
+notification IouComplete(iou: Iou) returns Unit;
+notification Payment(iou: Iou, amount: Number, remaining: Number) returns Unit;
+
+@api
+protocol[issuer, payee] Iou(var forAmount: Number) {
+    guard(forAmount > 0, "Initial amount must be strictly positive");
+
+    initial state unpaid;
+    final state paid;
+    final state forgiven;
+
+    // NB, This is not recommended, it's simply to maintain a side effect of notifications for testing purposes
+    private var events: List<Event> = listOf<Event>();
+
+    private var payments: List<TimestampedAmount> = listOf<TimestampedAmount>();
+
+    function amountOwed() returns Number -> {
+        return forAmount - total(payments);
+    };
+
+    @api
+    permission[issuer] pay(amount: Number) returns Number | unpaid {
+        guard(amount > 0, "Amount must be strictly positive");
+        guard(amount <= amountOwed(), "Amount may not exceed amount owed");
+
+        var p: TimestampedAmount = TimestampedAmount(
+            amount = amount,
+            timestamp = now()
+        );
+
+        payments = payments.with(p);
+        var remaining = amountOwed();
+
+        notify Payment(this, amount, remaining);
+
+        if (remaining == 0) {
+            notify IouComplete(this);
+            become paid;
+        };
+        return remaining;
+    };
+
+    @api
+    permission[payee] forgive() | unpaid {
+        notify IouComplete(this);
+        become forgiven;
+    };
+
+    @api
+    permission[issuer | payee] getAmountOwed() returns Number {
+        if (currentState == forgiven) {
+            return 0;
+        } else {
+            return amountOwed();
+        };
+    };
+
+    // NB, This is not recommended, it's simply to maintain a side effect of notifications for testing purposes
+    @api
+    permission[issuer | payee] registerEvent(event: Event) {
+        events = events.with(event);
+    };
+
+    // Nb, This is not recommended, it's simply to maintain a side effect of notifications for testing purposes
+    @api
+    permission[issuer | payee] getEvents() returns List<Event> {
+        return events;
+    };
+}

@@ -191,3 +191,15 @@ curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -
 # - commands
 curl -H "accept: text/event-stream" -H "authorization: Bearer "$ACCESS_TOKEN"" -X GET http://localhost:12000/api/streams/commands?me=false
 ```
+
+## IT tests
+#### NPL Migration Test
+
+There is an example NPL migration test here - `it-test/src/test/kotlin/engine/EngineTest.kt`.  
+It is currently disabled.
+
+Supporting files are found in `it-test/src/test/resources/engine/`.
+- `kotlin-script` is the migration script
+- `npl-1.0.0/nxtlog` is NPL at version 1.0.0
+- `npl-1.0.1/nxtlog` is NPL at version 1.0.1
+- `migration.yml` is the migration descriptor file

@@ -1,0 +1,98 @@
+package seed
+
+struct TimestampedAmount {
+    amount: Number,
+    timestamp: DateTime
+};
+
+function total(entries: List<TimestampedAmount>) returns Number -> {
+    return entries.map(function(p: TimestampedAmount) returns Number -> p.amount).sum();
+};
+
+enum EventType { IouComplete, Payment };
+struct Event {
+    type: EventType,
+    amount: Number,
+    remaining: Number
+}
+
+notification IouComplete(iou: Iou) returns Unit;
+notification Payment(iou: Iou, amount: Number, remaining: Number) returns Unit;
+
+@api
+protocol[issuer, payee] Iou(var forAmount: Number, var paymentDeadline: DateTime, var lateFee: Number) {
+    guard(forAmount > 0, "Initial amount must be strictly positive");
+    guard(paymentDeadline.isAfter(now() + months(1), false), "Payment deadline must be at least one month in the future");
+    guard(lateFee > 0, "Late fee must be strictly positive");
+
+    initial state unpaid;
+    state default;
+    final state paid;
+    final state forgiven;
+
+    // NB, This is not recommended, it's simply to maintain a side effect of notifications for testing purposes
+    private var events: List<Event> = listOf<Event>();
+
+    private var payments: List<TimestampedAmount> = listOf<TimestampedAmount>();
+
+    function amountOwed() returns Number -> {
+        return forAmount - total(payments);
+    };
+
+    @api
+    obligation[issuer] pay(amount: Number) before paymentDeadline returns Number | unpaid {
+        guard(amount > 0, "Amount must be strictly positive");
+        guard(amount <= amountOwed(), "Amount may not exceed amount owed");
+
+        var p: TimestampedAmount = TimestampedAmount(
+            amount = amount,
+            timestamp = now()
+        );
+
+        payments = payments.with(p);
+        var remaining = amountOwed();
+
+        notify Payment(this, amount, remaining);
+
+        if (remaining == 0) {
+            notify IouComplete(this);
+            become paid;
+        };
+        return remaining;
+    } otherwise become default;
+
+    @api
+    permission[payee] chargeLatePaymentFee() | default {
+        forAmount = forAmount + lateFee;
+        paymentDeadline = now() + months(1);
+
+        become unpaid;
+    };
+
+    @api
+    permission[payee] forgive() | unpaid {
+        notify IouComplete(this);
+        become forgiven;
+    };
+
+    @api
+    permission[issuer | payee] getAmountOwed() returns Number {
+        if (currentState == forgiven) {
+            return 0;
+        } else {
+            return amountOwed();
+        };
+    };
+
+    // NB, This is not recommended, it's simply to maintain a side effect of notifications for testing purposes
+    @api
+    permission[issuer | payee] registerEvent(event: Event) {
+        events = events.with(event);
+    };
+
+    // Nb, This is not recommended, it's simply to maintain a side effect of notifications for testing purposes
+    @api
+    permission[issuer | payee] getEvents() returns List<Event> {
+        return events;
+    };
+}

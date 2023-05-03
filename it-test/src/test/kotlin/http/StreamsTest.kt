@@ -65,13 +65,14 @@ class StreamsTest : FunSpec({
                 type.variant
             }
 
-            if (eventTypes.isEmpty()) {
-                throw AssertionError("eventTypes was empty")
+            if (!(eventTypes.contains("IouComplete") && eventTypes.contains("Payment"))) {
+                throw AssertionError("eventTypes did not contain both an IouComplete and a Payment event")
             }
 
             eventTypes
         }
 
+        eventTypes shouldContain "Payment"
         eventTypes shouldContain "IouComplete"
     }
 })

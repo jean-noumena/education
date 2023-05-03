@@ -12,4 +12,4 @@ fun getProtocolIdQuery(prototypeId: String) =
             }
           }
         }
-        """
+    """
