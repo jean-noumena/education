@@ -73,15 +73,9 @@ resource "keycloak_realm" "realm" {
   }
 }
 
-resource "keycloak_role" "nm_user" {
-  realm_id    = keycloak_realm.realm.id
-  name        = "NM_USER"
-  description = "Required role for accessing the platform"
-}
-
 resource "keycloak_default_roles" "default_roles" {
   realm_id      = keycloak_realm.realm.id
-  default_roles = ["offline_access", "uma_authorization", keycloak_role.nm_user.name]
+  default_roles = ["offline_access", "uma_authorization"]
 }
 
 resource "keycloak_openid_client" "client" {
