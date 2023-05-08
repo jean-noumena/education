@@ -1,0 +1,8 @@
+FROM seed-docs AS builder
+
+FROM wjdp/htmltest
+
+COPY --from=builder /docs/site /test/site
+COPY --from=builder /docs/htmltest.yml /test
+
+ENTRYPOINT ["htmltest", "-c", "/test/htmltest.yml"]
