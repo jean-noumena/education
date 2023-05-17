@@ -2,6 +2,7 @@ package board
 
 const chairperson = 'chairperson';
 const board_members = 'board_members';
+const secretary = 'secretary';
 
 @test
 function createBoardProtocol(test: Test) -> {
@@ -25,3 +26,80 @@ function emptyTopicFails(test: Test) -> {
 
     test.assertEquals("R14: Assertion 'Topic should not be empty' failed ('/board/Ballot<creation>/Topic should not be empty')", messge);
 };
+
+@test
+function test_board_creation(test: Test) returns Unit -> {
+
+    var board = Board[chairperson, board_members, secretary](5);
+
+    var topic = "Should we go to 'Cheers' for a drink?";
+
+    board.suggestTopic[secretary](topic);
+
+    var yesNoBallot = board.createYesNoBallot[chairperson](topic);
+
+    test.assertEquals(
+        topic,
+        yesNoBallot.topic,
+        "Ballot topic should match the given topic."
+    );
+};
+
+@test
+function test_fail_empty_topic(test: Test) -> {
+    var board = Board[chairperson, board_members, secretary](5);
+
+    test.assertFails(
+        function() -> board.suggestTopic[secretary](""),
+        "Empty voting topic should fail.");
+};
+
+@test
+function test_fail_missing_topic(test: Test) -> {
+    var ballot = Ballot[chairperson, board_members](5);
+
+    test.assertFails(
+        function() -> board.createYesNoBallot[secretary]("abc"),
+        "Missing voting topic should fail.");
+};
+
+@test
+function test_homework_1_full_vote_cycle(test: Test) returns Unit -> {
+
+    var ballot = createDummyData();
+
+    /* ************ Task to complete *********************** */
+    // The board has conveined and your task is to decided
+    // where it should go for lunch. A ballot has been created
+    // for that purpose.
+    //
+    // Your task is to implement the test & permissions to:
+    //  - submit 4 votes to the ballot such that it gets
+    //    accepted
+    //  - count the votes & close the ballot
+    //  - analyse the state machine and send Jean a
+    //    screenshot thereof
+    //
+    // For those of you willing to go steps further, it is
+    // encouraged to work as a team to define and augment
+    // the board features with some (but not limited to)
+    // of the following ideas:
+    //  - ballot-specific quorum number
+    //  - chairman casting the  decisive vote in case of
+    //    tie-break
+    //  - super-majority requirements for ballots labelled
+    //    as 'budget-relevant'
+    //  - any of your idea ;-)
+    //
+    // For all those features, test should also be implemented!
+
+    /* ************ Implementation starts here ************* */
+
+
+
+    /* ************ Implementation ends here ************** */
+
+    test.assertEquals(4, ballot.votes.size(), "All four members should have voted.");
+    test.assertEquals(ballot.states.COUNTED, ballot.currentState, "Ballot should be in state COUNTED at this stage.");
+    test.assertTrue(ballot.accepted.isPresent() && ballot.accepted.getOrFail(), "Vote to go for lunch should be accepted.");
+}

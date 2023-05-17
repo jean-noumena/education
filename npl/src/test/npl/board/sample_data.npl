@@ -1,0 +1,11 @@
+package board
+
+
+function createDummyData() returns YesNoBallot -> {
+
+    var board = Board[chairman, board_member, secretary](5);
+    var topic = "Should we go to 'Cheers' for a drink?";
+    board.suggestTopic[secretary](topic);
+    return board.createYesNoBallot[chairman](topic);
+
+};
