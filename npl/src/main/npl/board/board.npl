@@ -1,0 +1,32 @@
+package board
+
+@api
+protocol[system, chairperson, board_members] Board() {
+
+    var ballots: Set<Ballot> = setOf<Ballot>();
+
+    @api
+    permission[chairperson] createBallot(topic: Text) returns Ballot {
+        var ballot = Ballot[
+            chairperson = chairperson,
+            system = system
+        ](
+            topic,
+            optionalOf(now().plus(minutes(3)))
+        );
+        ballot.defineBoardMembers[chairperson](boardMembersEntity = board_members.entity(), boardMembersAccess = board_members.access());
+        this.ballots = this.ballots.with(ballot);
+        return ballot;
+    };
+
+    permission[*anyone] registerForVote(ballot: Ballot) returns Vote {
+        guard(this.ballots.contains(ballot), "Ballot is not registered");
+        guard(anyone.mayRepresent(board_members), "Only board members are entitled to vote");
+        guard(anyone.entity().getOrNone("email").isPresent(), "Email claim is not present");
+        guard(anyone.entity().getOrNone("email").getOrFail().size() == 1, "Email claim should contain only 1 value");
+
+        var email = anyone.entity().getOrNone("email").getOrFail().toList().get(0);
+
+        return ballot.addVoter[chairperson](email = email);
+    };
+};

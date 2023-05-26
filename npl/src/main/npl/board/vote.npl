@@ -1,0 +1,28 @@
+package board;
+
+enum VotingPossibility {
+    yay, nay, none
+}
+
+protocol [voter, system] Vote(
+    private var tally: Tally,
+    var ballot: Ballot
+) {
+    initial state unused
+    final state used
+    final state stale
+
+    private var vp = optionalOf<VotingPossibility>();
+
+    @api
+    permission [voter] castVote(vp: VotingPossibility) | unused {
+        // guard(this.ballot.states.handing_out_votes == this.ballot.currentState, "Vote must still me open");
+        tally.castVote[system](vp);
+        this.vp = optionalOf(vp);
+        become used;
+    }
+
+    obligation[system] decomission() before ballot.endDate {
+
+    } otherwise become stale;
+}

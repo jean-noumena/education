@@ -1,0 +1,48 @@
+package board;
+
+struct VoteOutcome {
+    yay: Number,
+    nay: Number,
+    none: Number,
+    outcome: VotingPossibility
+}
+
+protocol [system] Tally() {
+
+    initial state receiving_votes
+    final state counted
+
+    private var yay: Number = 0;
+    private var nay: Number = 0;
+    private var none: Number = 0;
+
+    var voteOutcome: Optional<VoteOutcome> = optionalOf<VoteOutcome>();
+
+    permission [system] castVote(vp: VotingPossibility) | receiving_votes {
+        if (VotingPossibility.yay == vp) {
+            this.yay = this.yay + 1;
+        } else if (VotingPossibility.nay == vp) {
+            this.nay = this.nay + 1;
+        } else if (VotingPossibility.none == vp){
+            this.none = this.none + 1;
+        };
+    }
+
+    permission[system] closeVote() returns VoteOutcome | receiving_votes {
+        var vo = VoteOutcome(
+            yay = this.yay,
+            nay = this.nay,
+            none = this.none,
+            outcome = if (this.yay > this.nay) {
+                VotingPossibility.yay;
+            } else if (this.nay > this.yay) {
+                VotingPossibility.nay;
+            } else {
+                VotingPossibility.none;
+            }
+        );
+        this.voteOutcome = optionalOf(vo);
+        become counted;
+        return vo;
+    };
+}
