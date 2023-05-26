@@ -1,0 +1,70 @@
+package board
+
+protocol [chairperson, system] Ballot(
+    var topic: Text,
+    var setEndDate: Optional<DateTime>
+) {
+    guard(topic.length().greaterThan(0), "Topic cannot be empty");
+
+    initial state define_board_members;
+    state handing_out_votes;
+    final state counted;
+
+    var endDate: DateTime = setEndDate.getOrElse(now().plus(minutes(10)));
+
+    private var tally: Tally = Tally[system]();
+    private var votes: Set<Vote> = setOf<Vote>();
+    var voteOutcome: Optional<VoteOutcome> = optionalOf<VoteOutcome>();
+
+    permission[chairperson] defineBoardMembers(
+        boardMembersEntity: Map<Text, Set<Text>>,
+        boardMembersAccess: Map<Text, Set<Text>>
+    ) | define_board_members {
+        guard(boardMembersEntity.contains("email").not() && boardMembersAccess.contains("email").not(),
+            "Claims should not contain email as it is claim key resereved for unique identification");
+        this.observers = this.observers.with("board_members", partyOf(
+            boardMembersEntity,
+            boardMembersAccess
+        )).without("job_title");
+        become handing_out_votes;
+    };
+
+    /**
+     * add voter to the observers on the ballot
+     * create Vote object for a party representing the user behind that email + system
+     */
+    @api
+    permission [chairperson] addVoter(email: Text) returns Vote | handing_out_votes {
+        guard("board_members" != email, "email must be valid");
+        guard(getVotingParty(email).mayRepresent(this.observers.getOrNone("board_members").getOrFail()),
+            "voter not representing the defined board member entity");
+        var voter = getVotingParty(email);
+
+        this.observers = this.observers.with(email, voter);
+
+        var v = Vote[voter, system](this.tally, this);
+        this.votes = this.votes.with(v);
+        return v;
+    }
+
+    @api
+    permission[chairperson] closeVote() returns VoteOutcome | handing_out_votes {
+        become counted;
+        for(v in votes) {
+            if (v.states.unused == v.currentState) {
+                v.decomission[system]();
+            };
+        }
+        var vo = this.tally.closeVote[system = system]();
+        this.voteOutcome = optionalOf(vo);
+        return vo;
+    };
+
+    function getVotingParty(email: Text) returns Party -> {
+        var bm = this.observers.getOrNone("board_members").getOrFail();
+        return partyOf(
+            bm.entity().with("email", setOf(email)),
+            bm.access()
+        );
+    };
+}

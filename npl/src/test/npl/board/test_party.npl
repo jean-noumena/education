@@ -1,0 +1,95 @@
+package board
+
+@test
+function test_createBoardParty(test: Test) -> {
+
+    var system = partyOf(
+        mapOf(
+            Pair("email", setOf("admin@noumenadigital.com")),
+            Pair("job_title", setOf("admin")),
+            Pair("organisation", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>()
+    );
+
+    // Protocol party claim definition
+    var chairperson = partyOf(
+        mapOf(
+            Pair("job_title", setOf("chairperson")),
+            Pair("organisation", setOf("Noumena"))
+            // Pair("departments", setOf("Platform", "Spidey", "BAs"))
+        ),
+        mapOf(
+            Pair("department", setOf("Platform", "Spidey", "BAs"))
+        )
+    );
+
+    var board_members = partyOf(
+        mapOf(
+            Pair("job_title", setOf("board_members")),
+            Pair("organisation", setOf("Noumena"))
+        ),
+        mapOf<Text, Set<Text>>(
+            // Pair("department", setOf("Platform", "Spidey", "BAs", "HR", "All employees"))
+        )
+    );
+
+    // Protocol instantiation
+
+    var actualChairperson = partyOf(
+        mapOf(
+            Pair("email", setOf("yigal@noumenadigital.com")),
+            Pair("job_title", setOf("chairperson")),
+            Pair("organisation", setOf("Noumena"))
+        ),
+        mapOf(
+            Pair("department", setOf("Platform"))
+        )
+    );
+
+    var board = Board[system, chairperson, board_members]();
+    var ballot = board.createBallot[actualChairperson](topic = "Is this a good party example");
+
+    // Simulation of IAM-mapped claims
+
+    /*
+     * IAM attribute-values for Victor
+     * - Name: Victro
+     * - organisation: Noumena, local gym member
+     * - ...
+     */
+    var Victor = partyOf(
+        mapOf(
+            Pair("email", setOf("victor@noumenadigital.com")),
+            Pair("Name", setOf("Victor")),
+            Pair("organisation", setOf("Noumena")),
+            Pair("job_title", setOf("board_members"))
+        ),
+        mapOf(
+            Pair("department", setOf("Spidey"))
+        )
+    );
+
+    var fakeVictor = partyOf(
+        mapOf(
+            Pair("email", setOf("fakevictor@noumenadigital.com")),
+            Pair("Name", setOf("fakeVictor")),
+            Pair("organisation", setOf("fakeNoumena")),
+            Pair("job_title", setOf("board_members"))
+        ),
+        mapOf(
+            Pair("department", setOf("Malicious Spy"))
+        )
+    );
+
+    var vote = board.registerForVote[Victor](ballot);
+    var result = test.assertFails(function() returns Unit -> vote.castVote[fakeVictor](VotingPossibility.nay),
+        "fakeVictor impersonating Victor vote");
+    var secondResult = test.assertFails(function() returns Vote -> board.registerForVote[fakeVictor](ballot),
+        "fakeVictor vote registration");
+    vote.castVote[Victor](VotingPossibility.yay);
+
+    var voteOutcome = ballot.closeVote[chairperson]();
+
+    test.assertEquals(VotingPossibility.yay, voteOutcome.outcome, "Vote should be accepted");
+};

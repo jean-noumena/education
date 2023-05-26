@@ -1,0 +1,17 @@
+package board
+
+@api
+protocol[voter] Registration() {
+
+    @api
+    permission[voter] registerForBallot(board: Board, ballot: Ballot) returns Vote {
+        return board.registerForVote[voter](ballot);
+    };
+
+    @api
+    permission[voter] registerForAllBallots(board: Board) returns List<Vote> {
+        return board.ballots
+            .filter(function(ballot: Ballot) returns Boolean -> ballot.states.handing_out_votes == ballot.currentState)
+            .map(function(ballot: Ballot) returns Vote -> board.registerForVote[voter](ballot));
+    };
+};
