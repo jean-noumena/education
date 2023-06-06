@@ -145,6 +145,7 @@ bump-platform-version:
 	perl -p -i -e's/PLATFORM_VERSION=.*/PLATFORM_VERSION=$(PLATFORM_VERSION)/' .env
 	perl -p -i -e's/platform_version:.*/platform_version: $(PLATFORM_VERSION)/' nomad/env*.yml
 	perl -p -i -e's|FROM ghcr.io/noumenadigital/packages/engine:.*|FROM ghcr.io/noumenadigital/packages/engine:$(PLATFORM_VERSION)|' npl/Dockerfile
+	mvn -pl parent-pom versions:set-property -Dproperty=noumena.platform.version -DnewVersion="$(PLATFORM_VERSION)"
 
 
 .PHONY:	slack
