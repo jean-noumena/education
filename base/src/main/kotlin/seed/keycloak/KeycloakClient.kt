@@ -59,9 +59,9 @@ class SeedPartyProvider : PartyProvider {
         return ClientPartyValue(
             entity = mapOf(
                 "party" to userInfo.party.toSet(),
-                "preferred_username" to setOf(userInfo.preferredUsername)
+                "preferred_username" to setOf(userInfo.preferredUsername),
             ),
-            access = mapOf()
+            access = mapOf(),
         )
     }
 }

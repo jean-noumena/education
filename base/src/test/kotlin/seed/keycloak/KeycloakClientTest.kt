@@ -54,7 +54,7 @@ val keycloakLoginMock: HttpHandler = { req ->
                             "issuer"
                         ]
                     }                    
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -79,7 +79,7 @@ val keycloakLoginMock: HttpHandler = { req ->
                           "token_type": "Bearer",
                           "not-before-policy": 0
                         }
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -100,7 +100,7 @@ val keycloakLoginMock: HttpHandler = { req ->
                           "token_type": "Bearer",
                           "not-before-policy": 0
                         }
-                """.trimIndent()
+                """.trimIndent(),
             )
         }
 
@@ -147,7 +147,7 @@ internal class KeycloakClientTest {
         assertFailsWith(KeycloakUnauthorizedException::class) {
             client.login(
                 "very wrong username",
-                "very wrong password"
+                "very wrong password",
             )
         }
     }
@@ -169,9 +169,9 @@ internal class KeycloakClientTest {
         val want = ClientPartyValue(
             entity = mapOf(
                 "party" to setOf("issuer"),
-                "preferred_username" to setOf("issuer1")
+                "preferred_username" to setOf("issuer1"),
             ),
-            access = mapOf()
+            access = mapOf(),
         )
         assertEquals(want, got)
     }

@@ -14,7 +14,7 @@ private const val issuerName = "broke"
 private const val payeeName = "bff"
 
 class PartyMap private constructor(
-    val delegate: Map<String, ClientPartyValue>
+    val delegate: Map<String, ClientPartyValue>,
 ) : Map<String, ClientPartyValue> by delegate {
 
     class Builder() {
@@ -25,9 +25,9 @@ class PartyMap private constructor(
                 ClientPartyValue(
                     entity = mapOf(
                         "party" to setOf("payee"),
-                        "preferred_username" to setOf(userName)
+                        "preferred_username" to setOf(userName),
                     ),
-                    access = mapOf()
+                    access = mapOf(),
                 )
             return this
         }
@@ -37,9 +37,9 @@ class PartyMap private constructor(
                 ClientPartyValue(
                     entity = mapOf(
                         "party" to setOf("issuer"),
-                        "preferred_username" to setOf(userName)
+                        "preferred_username" to setOf(userName),
                     ),
-                    access = mapOf()
+                    access = mapOf(),
                 )
             return this
         }
@@ -53,7 +53,7 @@ fun validProtocolState(
     id: UUID,
     currentState: String,
     fields: Map<String, ClientValue> = emptyMap(),
-    party: Map<String, ClientPartyValue> = PartyMap.Builder().pPayee(payeeName).pIssuer(issuerName).build()
+    party: Map<String, ClientPartyValue> = PartyMap.Builder().pPayee(payeeName).pIssuer(issuerName).build(),
 ) = ClientProtocolState(
     id = id,
     created = Instant.now(),
@@ -63,7 +63,7 @@ fun validProtocolState(
     currentState = currentState,
     version = 0L,
     fields = fields,
-    signatures = mapOf()
+    signatures = mapOf(),
 )
 
 fun setToField(name: String, set: Set<ClientProtocolReferenceValue>): Pair<String, ClientValue> =
@@ -75,8 +75,8 @@ fun mapToField(name: String, map: Map<String, ClientProtocolReferenceValue>): Pa
             map.map { (k, v) ->
                 ClientTextValue(k) to ClientProtocolReferenceValue(
                     v.value,
-                    null
+                    null,
                 )
-            }.toMap()
-        )
+            }.toMap(),
+        ),
     )

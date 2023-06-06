@@ -1,7 +1,6 @@
 package main
 
-import com.noumenadigital.platform.engine.client.EngineClientApi
-import com.noumenadigital.platform.read.streams.client.SseReaderClient
+import com.noumenadigital.platform.client.engine.ApplicationHttpClient
 import io.prometheus.client.hotspot.DefaultExports
 import iou.http.Gen
 import iou.http.iouRoutes
@@ -47,8 +46,7 @@ fun main(): Unit = runBlocking {
 
     val adminServer = admin(config).asServer(KtorCIO(adminPort))
     adminServer.start()
-    val engineClient = EngineClientApi(config.engineURL)
-    val sseClient = SseReaderClient(config.engineURL)
+    val engineClient = ApplicationHttpClient(config.engineURL)
     val keycloakClient: KeycloakClient = KeycloakClientImpl(config, ApacheClient())
     val forwardAuthorization = KeycloakForwardAuthorization(keycloakClient)
     val authHandler: AuthHandler = JsonKeycloakAuthHandler(config)
@@ -58,7 +56,7 @@ fun main(): Unit = runBlocking {
             loginRoutes(config, authHandler),
 
             loginRequired(config)
-                .then(iouRoutes(Gen(engineClient, forwardAuthorization)))
+                .then(iouRoutes(Gen(engineClient, forwardAuthorization))),
         )
 
     val globallyDecoratedRoutes =
@@ -68,11 +66,11 @@ fun main(): Unit = runBlocking {
             .then(errorFilter(true))
             .then(individuallyDecoratedRoutes)
 
-    val routingSseHandler = sseRoutes(sseClient, engineClient, forwardAuthorization)
+    val routingSseHandler = sseRoutes(engineClient, forwardAuthorization)
 
     val requestHandler = PolyHandler(
         http = globallyDecoratedRoutes,
-        sse = routingSseHandler
+        sse = routingSseHandler,
     )
 
     val appServer = requestHandler.asServer(Undertow(httpPort))
@@ -87,6 +85,8 @@ fun main(): Unit = runBlocking {
             1
         } finally {
             adminServer.stop()
-        }
+
+            engineClient.close()
+        },
     )
 }

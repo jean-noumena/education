@@ -12,5 +12,5 @@ fun iouRoutes(iou: Iou): RoutingHttpHandler =
             "/{iouId}/amountOwed" bind Method.GET to iou.amountOwed(),
             "/{iouId}/pay/{amount}" bind Method.PATCH to iou.pay(),
             "/{iouId}/forgive" bind Method.PUT to iou.forgive(),
-        )
+        ),
     )

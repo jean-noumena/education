@@ -7,7 +7,7 @@ import seed.config.PostMarkEmailConfiguration
 var testConfig: IPostMarkEmailConfiguration = PostMarkEmailConfiguration(
     baseConfig = Configuration(
         keycloakRealm = "seed",
-        keycloakClientId = "seed"
+        keycloakClientId = "seed",
     ),
-    postmarkSenderEmail = "unknown-user@noumenadigital.com"
+    postmarkSenderEmail = "unknown-user@noumenadigital.com",
 )

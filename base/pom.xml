@@ -18,13 +18,8 @@
     <dependencies>
         <dependency>
             <groupId>com.noumenadigital.platform</groupId>
-            <artifactId>engine-client</artifactId>
+            <artifactId>clients</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.noumenadigital.platform</groupId>
-            <artifactId>read-streams-client</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.http4k</groupId>
             <artifactId>http4k-core</artifactId>
@@ -73,6 +68,10 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>javax.mail</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
         </dependency>
 
         <!-- Testing -->

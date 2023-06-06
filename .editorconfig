@@ -1,0 +1,6 @@
+[*.{kt,kts}]
+
+[{npl/target/generated-sources/**,it-test/target/generated-sources/**}]
+ktlint_standard = disabled
+ktlint_experimental = disabled
+ktlint_custom-rule-set = disabled

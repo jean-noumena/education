@@ -26,7 +26,7 @@ fun loginRoutes(
 
     "/auth/login" bind POST to authHandler.login(),
     "/auth/refresh" bind POST to authHandler.refresh(),
-    "/auth/logout" bind POST to loginRequired(config).then(authHandler.logout())
+    "/auth/logout" bind POST to loginRequired(config).then(authHandler.logout()),
 )
 
 fun openApi(config: IConfiguration): HttpHandler {
@@ -36,7 +36,7 @@ fun openApi(config: IConfiguration): HttpHandler {
         val contents = openApiUrl?.readText()
         val responseBody = contents!!.replace(
             "- url: http://localhost:8080",
-            "- url: ${config.apiServerUrl}"
+            "- url: ${config.apiServerUrl}",
         )
 
         Response(Status.OK)

@@ -36,7 +36,7 @@
     <dependencies>
         <dependency>
             <groupId>com.noumenadigital.platform</groupId>
-            <artifactId>engine-client</artifactId>
+            <artifactId>clients</artifactId>
         </dependency>
     </dependencies>
 

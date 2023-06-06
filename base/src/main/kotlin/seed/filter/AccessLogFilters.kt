@@ -57,7 +57,7 @@ object MaxAccessLogFilters {
                 logger.info {
                     listOf(
                         "REQUEST: ${req.method}: ${req.uri}",
-                        req.printable(debugStream)
+                        req.printable(debugStream),
                     ).joinToString("\n")
                 }
             }
@@ -72,7 +72,7 @@ object MaxAccessLogFilters {
                             logger.info {
                                 listOf(
                                     "RESPONSE ${response.status.code} to ${it.method}: ${it.uri}",
-                                    response.printable(debugStream)
+                                    response.printable(debugStream),
                                 ).joinToString("\n")
                             }
                             response

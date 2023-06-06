@@ -182,7 +182,7 @@ class JsonKeycloakAuthHandler(
     client,
     loginRequestConverter,
     refreshRequestConverter,
-    logoutRequestConverter
+    logoutRequestConverter,
 )
 
 class FormKeycloakAuthHandler(
@@ -196,7 +196,7 @@ class FormKeycloakAuthHandler(
     client,
     loginRequestConverter,
     refreshRequestConverter,
-    logoutRequestConverter
+    logoutRequestConverter,
 )
 
 class KeycloakAuthorizationProvider(private val req: Request) : AuthorizationProvider {

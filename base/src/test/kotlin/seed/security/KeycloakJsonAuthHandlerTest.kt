@@ -30,7 +30,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
             val body = LoginRequest(
                 username = VALID_USERNAME,
                 password = VALID_PASSWORD,
-                grantType = "password"
+                grantType = "password",
             )
 
             val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -48,7 +48,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
             val wantBody = LoginResponse(
                 accessToken = ACCESS_TOKEN_INITIAL,
                 refreshToken = REFRESH_TOKEN,
-                expiresIn = EXPIRY
+                expiresIn = EXPIRY,
             )
 
             got.status shouldBe Status.OK
@@ -62,7 +62,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
                 val body = LoginRequest(
                     username = "not valid at all",
                     password = VALID_PASSWORD,
-                    grantType = "password"
+                    grantType = "password",
                 )
 
                 val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -83,7 +83,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
                 val body = LoginRequest(
                     username = null,
                     password = VALID_PASSWORD,
-                    grantType = "password"
+                    grantType = "password",
                 )
 
                 val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -106,7 +106,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
                 val body = LoginRequest(
                     username = VALID_USERNAME,
                     password = "not valid at all",
-                    grantType = "password"
+                    grantType = "password",
                 )
 
                 val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -127,7 +127,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
                 val body = LoginRequest(
                     username = VALID_USERNAME,
                     password = null,
-                    grantType = "password"
+                    grantType = "password",
                 )
 
                 val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -150,7 +150,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
                 val body = LoginRequest(
                     username = VALID_USERNAME,
                     password = VALID_PASSWORD,
-                    grantType = "implicit"
+                    grantType = "implicit",
                 )
 
                 val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -171,7 +171,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
                 val body = LoginRequest(
                     username = VALID_USERNAME,
                     password = VALID_PASSWORD,
-                    grantType = null
+                    grantType = null,
                 )
 
                 val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -197,7 +197,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
             // given
             val body = RefreshRequest(
                 refreshToken = REFRESH_TOKEN,
-                grantType = "refresh_token"
+                grantType = "refresh_token",
             )
 
             val jsonBody = JSON.mapper.writeValueAsString(body)
@@ -215,7 +215,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
             val wantBody = LoginResponse(
                 accessToken = ACCESS_TOKEN_REFRESHED,
                 refreshToken = REFRESH_TOKEN,
-                expiresIn = EXPIRY
+                expiresIn = EXPIRY,
             )
 
             got.status shouldBe Status.OK
@@ -231,7 +231,7 @@ class KeycloakJsonAuthHandlerTest : FunSpec({
         test("happy path") {
             // given
             val body = LogoutRequest(
-                refreshToken = REFRESH_TOKEN
+                refreshToken = REFRESH_TOKEN,
             )
 
             val jsonBody = JSON.mapper.writeValueAsString(body)

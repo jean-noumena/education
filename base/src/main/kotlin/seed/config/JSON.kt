@@ -18,7 +18,7 @@ private class ISO8601Formatter :
 object JSON : ConfigurableJackson(
     KotlinModule()
         .asConfigurable()
-        .done()
+        .done(),
 )
 
 object SnakeCaseJsonConfiguration : ConfigurableJackson(
@@ -31,5 +31,5 @@ object SnakeCaseJsonConfiguration : ConfigurableJackson(
         .configure(FAIL_ON_IGNORED_PROPERTIES, true)
         .configure(USE_BIG_DECIMAL_FOR_FLOATS, true)
         .configure(USE_BIG_INTEGER_FOR_INTS, true)
-        .setPropertyNamingStrategy(SNAKE_CASE)
+        .setPropertyNamingStrategy(SNAKE_CASE),
 )

@@ -67,11 +67,11 @@ fun corsFilter(config: IConfiguration): Filter =
                 "Content-Type",
                 "Content-Range",
                 "Range",
-                "Authorization"
+                "Authorization",
             ),
             credentials = true,
         ),
-        config.apiServerUrl
+        config.apiServerUrl,
     )
 
 object Cors {
@@ -93,7 +93,7 @@ object Cors {
                 Header.required("access-control-allow-headers") of policy.headers.joined(),
                 Header.required("access-control-allow-methods") of policy.methods.map { method -> method.name }
                     .joined(),
-                { res -> if (policy.credentials) res.header("access-control-allow-credentials", "true") else res }
+                { res -> if (policy.credentials) res.header("access-control-allow-credentials", "true") else res },
             )
         }
     }
@@ -126,7 +126,7 @@ enum class ErrorCode {
     InvalidBearerToken,
     InvalidClaim,
     LoginRequired,
-    ItemNotFound
+    ItemNotFound,
 }
 
 data class Error(

@@ -112,7 +112,7 @@ clean-shared-dev: clean-nomad
 
 .PHONY: run-integration-test
 run-integration-test: run-only
-	mvn $(MAVEN_CLI_OPTS) -am clean integration-test verify -Pintegration-test -pl it-test
+	mvn $(MAVEN_CLI_OPTS) clean verify
 	docker-compose down --volumes
 
 .PHONY: integration-test

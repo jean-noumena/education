@@ -1,6 +1,6 @@
 package seed.server
 
-import com.noumenadigital.platform.engine.client.EngineClientApi
+import com.noumenadigital.platform.client.engine.ApplicationHttpClient
 import org.http4k.client.ApacheClient
 import org.http4k.core.HttpHandler
 import org.http4k.core.Method
@@ -18,19 +18,19 @@ import seed.metrics.measure
 fun admin(config: IConfiguration): HttpHandler {
     return routes(
         "/health" bind Method.GET to measure().then(healthHandler(config)),
-        "/metrics" bind Method.GET to measure().then(handler())
+        "/metrics" bind Method.GET to measure().then(handler()),
     )
 }
 
 fun healthHandler(config: IConfiguration): HttpHandler {
     val httpClient = ApacheClient()
     val keycloakClient: KeycloakClient = KeycloakClientImpl(config, httpClient)
-    val engineClient = EngineClientApi(config.engineURL)
+    val engineClient = ApplicationHttpClient(config.engineURL)
 
     return {
         when {
             !keycloakClient.ready() -> Response(Status.SERVICE_UNAVAILABLE).body("Waiting for Keycloak on ${config.keycloakURL}")
-            !engineClient.ready() -> Response(Status.SERVICE_UNAVAILABLE).body("Waiting for engine on ${config.engineURL}")
+            !engineClient.ready() -> Response(Status.SERVICE_UNAVAILABLE).body("Waiting for engine API on ${config.engineURL}")
             else -> Response(Status.OK).body("OK")
         }
     }

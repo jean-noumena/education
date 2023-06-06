@@ -1,15 +1,13 @@
 package iou.sse
 
-import arrow.core.getOrHandle
 import com.noumenadigital.npl.api.generated.seed.EventFacade
 import com.noumenadigital.npl.api.generated.seed.EventTypeEnum
 import com.noumenadigital.npl.api.generated.seed.IouCompleteFacade
 import com.noumenadigital.npl.api.generated.seed.IouProxy
 import com.noumenadigital.npl.api.generated.seed.PaymentFacade
-import com.noumenadigital.platform.engine.client.EngineClientApi
+import com.noumenadigital.platform.client.engine.ApplicationClient
 import com.noumenadigital.platform.engine.values.ClientNumberValue
 import com.noumenadigital.platform.engine.values.ClientProtocolReferenceValue
-import com.noumenadigital.platform.read.streams.client.SseReaderClient
 import mu.KotlinLogging
 import org.http4k.sse.SseConsumer
 import seed.security.ForwardAuthorization
@@ -21,20 +19,19 @@ import java.util.function.Consumer
 private val logger = KotlinLogging.logger {}
 
 fun iouSseEventConsumers(
-    sseClient: SseReaderClient,
-    engineClient: EngineClientApi,
+    engineClient: ApplicationClient,
     forwardAuth: ForwardAuthorization,
 ): SseConsumer =
     EngineSseConsumer(
-        sseClient,
+        engineClient,
         forwardAuth,
         listOf(
             IouCompleteEventConsumer(engineClient),
-            PaymentEventConsumer(engineClient)
-        )
+            PaymentEventConsumer(engineClient),
+        ),
     )
 
-class IouCompleteEventConsumer(val client: EngineClientApi) : Consumer<Event> {
+class IouCompleteEventConsumer(val client: ApplicationClient) : Consumer<Event> {
 
     private val proxy = IouProxy(client)
 
@@ -49,15 +46,15 @@ class IouCompleteEventConsumer(val client: EngineClientApi) : Consumer<Event> {
             proxy.registerEvent(
                 protocolId = iouId,
                 event = EventFacade(EventTypeEnum.IouComplete, BigDecimal.ZERO, BigDecimal.ZERO),
-                authorizationProvider = event.auth
-            ).getOrHandle { throw it }
+                authorizationProvider = event.auth,
+            )
 
             // further process the event here
         }
     }
 }
 
-class PaymentEventConsumer(val client: EngineClientApi) : Consumer<Event> {
+class PaymentEventConsumer(val client: ApplicationClient) : Consumer<Event> {
 
     private val proxy = IouProxy(client)
 
@@ -79,10 +76,10 @@ class PaymentEventConsumer(val client: EngineClientApi) : Consumer<Event> {
                 event = EventFacade(
                     EventTypeEnum.Payment,
                     amount.toBigDecimal(),
-                    remaining.toBigDecimal()
+                    remaining.toBigDecimal(),
                 ),
-                authorizationProvider = event.auth
-            ).getOrHandle { throw it }
+                authorizationProvider = event.auth,
+            )
 
             // further process the event here
         }

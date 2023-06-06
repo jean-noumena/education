@@ -1,7 +1,6 @@
 package http
 
-import arrow.core.getOrHandle
-import com.noumenadigital.platform.engine.client.EngineClientApi
+import com.noumenadigital.platform.client.engine.ApplicationHttpClient
 import com.noumenadigital.platform.engine.values.ClientEnumValue
 import com.noumenadigital.platform.engine.values.ClientListValue
 import com.noumenadigital.platform.engine.values.ClientStructValue
@@ -23,7 +22,7 @@ class StreamsTest : FunSpec({
         keycloakRealm = System.getenv("KEYCLOAK_REALM") ?: "seed",
         keycloakClientId = System.getenv("KEYCLOAK_CLIENT_ID") ?: "seed",
     )
-    val engineClient = EngineClientApi(config.engineURL)
+    val engineClient = ApplicationHttpClient(config.engineURL)
 
     test("IouComplete notification") {
         ApiClient.accessToken = loginIssuer().accessToken
@@ -55,8 +54,7 @@ class StreamsTest : FunSpec({
             val iouState = engineClient.getProtocolStateById(
                 iou.iou.id,
                 KeycloakForwardProvider("Bearer ${ApiClient.accessToken}"),
-                false
-            ).getOrHandle { throw it }
+            )
 
             val events = iouState.fields.getValue("events") as ClientListValue<*>
             val eventTypes = events.value.map {

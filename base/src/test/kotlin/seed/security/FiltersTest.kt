@@ -33,7 +33,7 @@ internal class CORSTest {
                 allowedOrigins = listOf("localhost:4040"),
                 keycloakRealm = "seed",
                 keycloakClientId = "seed",
-                apiServerUrl = "localhost:8080"
+                apiServerUrl = "localhost:8080",
             )
         val handler = corsFilter(config).then(baseHandler)
 
@@ -45,7 +45,7 @@ internal class CORSTest {
             assertEquals(
                 want,
                 res.header("Access-Control-Allow-Origin"),
-                "invalid CORS response headers: ${res.headers}"
+                "invalid CORS response headers: ${res.headers}",
             )
         }
 
@@ -80,8 +80,8 @@ internal class ErrorTest {
             },
             "/NoSuchItemException" bind Method.GET to {
                 throw ClientException.NoSuchItemException(idType = ClientIdType.PrototypeId, id = "Id")
-            }
-        )
+            },
+        ),
     )
 
     private fun assertError(res: Response, status: Int, code: ErrorCode) {

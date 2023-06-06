@@ -1,9 +1,8 @@
 package iou.http
 
-import arrow.core.Either
 import com.noumenadigital.codegen.Party
 import com.noumenadigital.npl.api.generated.seed.IouFacade
-import com.noumenadigital.platform.engine.client.EngineClientApi
+import com.noumenadigital.platform.client.engine.ApplicationClient
 import com.noumenadigital.platform.engine.values.ClientNumberValue
 import com.noumenadigital.platform.engine.values.ClientPartyValue
 import com.noumenadigital.platform.engine.values.ClientProtocolReferenceValue
@@ -38,7 +37,7 @@ class HttpIouTest : FunSpec({
         val username = "payee1"
         val want = Party(
             entity = mapOf("party" to setOf("payee"), "preferred_username" to setOf(username)),
-            access = mapOf()
+            access = mapOf(),
         )
         val got = userParty("payee", username)
         got shouldBe want
@@ -47,11 +46,11 @@ class HttpIouTest : FunSpec({
     context("party person from protocol parties") {
         val payee = ClientPartyValue(
             entity = mapOf("party" to setOf("payee"), "preferred_username" to setOf("payee1")),
-            access = mapOf()
+            access = mapOf(),
         )
         val issuer = ClientPartyValue(
             entity = mapOf("party" to setOf("issuer"), "preferred_username" to setOf("issuer1")),
-            access = mapOf()
+            access = mapOf(),
         )
         val parties = mapOf("payee" to payee, "issuer" to issuer)
         mapOf("payee" to "payee1", "issuer" to "issuer1").forEach { (party, person) ->
@@ -64,7 +63,7 @@ class HttpIouTest : FunSpec({
     context("npl operations") {
         val keycloakForwardProviderMock = mock<KeycloakForwardProvider>()
         val forwardAuthorizationMock = mock<ForwardAuthorization>()
-        val engineClient = mock<EngineClientApi>()
+        val engineClient = mock<ApplicationClient>()
 
         afterTest {
             // in Kotest, mocks declared outside of a single test() {} block need to be reset after each test
@@ -90,14 +89,14 @@ class HttpIouTest : FunSpec({
             prototypeId = IouFacade.prototypeId,
             currentState = IouFacade.StatesEnum.unpaid.name,
             party = mapOf("issuer" to issuerClientParty, "payee" to payeeClientParty),
-            fields = mapOf("forAmount" to ClientNumberValue(amount.toBigDecimal()))
+            fields = mapOf("forAmount" to ClientNumberValue(amount.toBigDecimal())),
         )
         val iouFacade = IouFacade(iouState)
 
         context("creation of iou") {
             val party = ClientPartyValue(
                 entity = mapOf("party" to setOf("issuer"), "preferred_username" to setOf("issuer1")),
-                access = mapOf()
+                access = mapOf(),
             )
 
             mapOf(
@@ -110,22 +109,20 @@ class HttpIouTest : FunSpec({
                     whenever(keycloakForwardProviderMock.bearerToken()).thenReturn("anIssuer")
                     whenever(engineClient.createProtocol(eq(IouFacade.prototypeId), any(), any(), any(), any()))
                         .thenReturn(
-                            Either.Right(
-                                ClientValueResponse(
-                                    ClientProtocolReferenceValue(
-                                        protocolId,
-                                        IouFacade.prototypeId,
-                                    ),
-                                    randomUUID(),
-                                    listOf()
-                                )
-                            )
+                            ClientValueResponse(
+                                ClientProtocolReferenceValue(
+                                    protocolId,
+                                    IouFacade.prototypeId,
+                                ),
+                                randomUUID(),
+                                listOf(),
+                            ),
                         )
-                    whenever(engineClient.getProtocolStateById(eq(iouFacade.id.id), any(), any()))
-                        .thenReturn(Either.Right(iouState))
+                    whenever(engineClient.getProtocolStateById(eq(iouFacade.id.id), any()))
+                        .thenReturn(iouState)
                     val request = Request(Method.POST, "http://somewhere/$name/iou/$payee/$amount")
                     val handler = routes(
-                        "/$name/iou/{payee}/{amount}" bind Method.POST to iouNpl.create()
+                        "/$name/iou/{payee}/{amount}" bind Method.POST to iouNpl.create(),
                     )
                     val response = handler(request)
                     response.status shouldBe Status.CREATED
@@ -134,9 +131,13 @@ class HttpIouTest : FunSpec({
                     got.iou.payee shouldBe payee
                     got.iou.issuer shouldBe issuer
                     verify(engineClient, times(1)).createProtocol(
-                        eq(IouFacade.prototypeId), any(), any(), any(), any()
+                        eq(IouFacade.prototypeId),
+                        any(),
+                        any(),
+                        any(),
+                        any(),
                     )
-                    verify(engineClient, times(1)).getProtocolStateById(protocolId, keycloakForwardProviderMock, true)
+                    verify(engineClient, times(1)).getProtocolStateById(protocolId, keycloakForwardProviderMock)
                     verifyNoMoreInteractions(keycloakForwardProviderMock)
                     verifyNoMoreInteractions(engineClient)
                 }
@@ -158,21 +159,19 @@ class HttpIouTest : FunSpec({
                             action = anyString(),
                             arguments = any(),
                             authorizationProvider = any(),
-                            caller = eq(null)
-                        )
+                            caller = eq(null),
+                        ),
                     )
                         .thenReturn(
-                            Either.Right(
-                                ClientValueResponse(
-                                    ClientNumberValue(amount.toBigDecimal()),
-                                    randomUUID(),
-                                    listOf()
-                                )
-                            )
+                            ClientValueResponse(
+                                ClientNumberValue(amount.toBigDecimal()),
+                                randomUUID(),
+                                listOf(),
+                            ),
                         )
                     val request = Request(Method.GET, "http://somewhere/$name/iou/$protocolId/amountOwed")
                     val handler = routes(
-                        "/$name/iou/{iouId}/amountOwed" bind Method.GET to iouNpl.amountOwed()
+                        "/$name/iou/{iouId}/amountOwed" bind Method.GET to iouNpl.amountOwed(),
                     )
                     val response = handler(request)
                     response.status shouldBe Status.OK
@@ -183,7 +182,7 @@ class HttpIouTest : FunSpec({
                         action = eq("getAmountOwed"),
                         arguments = eq(listOf()),
                         authorizationProvider = eq(keycloakForwardProviderMock),
-                        caller = eq(null)
+                        caller = eq(null),
                     )
                     verifyNoMoreInteractions(keycloakForwardProviderMock)
                     verifyNoMoreInteractions(engineClient)
@@ -206,21 +205,19 @@ class HttpIouTest : FunSpec({
                             action = anyString(),
                             arguments = any(),
                             authorizationProvider = any(),
-                            caller = eq(null)
-                        )
+                            caller = eq(null),
+                        ),
                     )
                         .thenReturn(
-                            Either.Right(
-                                ClientValueResponse(
-                                    ClientNumberValue(amount.toBigDecimal()),
-                                    randomUUID(),
-                                    listOf()
-                                )
-                            )
+                            ClientValueResponse(
+                                ClientNumberValue(amount.toBigDecimal()),
+                                randomUUID(),
+                                listOf(),
+                            ),
                         )
                     val request = Request(Method.PATCH, "http://somewhere/$name/iou/$protocolId/pay/$amount")
                     val handler = routes(
-                        "/$name/iou/{iouId}/pay/{amount}" bind Method.PATCH to iouNpl.pay()
+                        "/$name/iou/{iouId}/pay/{amount}" bind Method.PATCH to iouNpl.pay(),
                     )
                     val response = handler(request)
                     response.status shouldBe Status.OK
@@ -231,7 +228,7 @@ class HttpIouTest : FunSpec({
                         action = eq("pay"),
                         arguments = eq(listOf(ClientNumberValue(amount.toBigDecimal()))),
                         authorizationProvider = eq(keycloakForwardProviderMock),
-                        caller = eq(null)
+                        caller = eq(null),
                     )
                     verifyNoMoreInteractions(keycloakForwardProviderMock)
                     verifyNoMoreInteractions(engineClient)
@@ -254,21 +251,19 @@ class HttpIouTest : FunSpec({
                             action = anyString(),
                             arguments = any(),
                             authorizationProvider = any(),
-                            caller = eq(null)
-                        )
+                            caller = eq(null),
+                        ),
                     )
                         .thenReturn(
-                            Either.Right(
-                                ClientValueResponse(
-                                    ClientUnitValue,
-                                    randomUUID(),
-                                    listOf()
-                                )
-                            )
+                            ClientValueResponse(
+                                ClientUnitValue,
+                                randomUUID(),
+                                listOf(),
+                            ),
                         )
                     val request = Request(Method.PUT, "http://somewhere/$name/iou/$protocolId/forgive")
                     val handler = routes(
-                        "/$name/iou/{iouId}/forgive" bind Method.PUT to iouNpl.forgive()
+                        "/$name/iou/{iouId}/forgive" bind Method.PUT to iouNpl.forgive(),
                     )
                     val response = handler(request)
                     response.status shouldBe Status.NO_CONTENT
@@ -277,7 +272,7 @@ class HttpIouTest : FunSpec({
                         action = eq("forgive"),
                         arguments = eq(listOf()),
                         authorizationProvider = eq(keycloakForwardProviderMock),
-                        caller = eq(null)
+                        caller = eq(null),
                     )
                     verifyNoMoreInteractions(keycloakForwardProviderMock)
                 }

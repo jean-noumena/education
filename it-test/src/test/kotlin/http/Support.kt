@@ -43,7 +43,7 @@ private fun login(username: String, password: String): AccessToken = retry(10, D
         val loginCargo = Login(
             grantType = Login.GrantType.password,
             username = username,
-            password = password
+            password = password,
         )
         authenticationApi.login(loginCargo)
     } catch (e: Throwable) {

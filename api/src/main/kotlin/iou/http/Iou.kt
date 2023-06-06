@@ -1,10 +1,9 @@
 package iou.http
 
-import arrow.core.getOrHandle
 import com.noumenadigital.codegen.Party
 import com.noumenadigital.npl.api.generated.seed.IouFacade
 import com.noumenadigital.npl.api.generated.seed.IouProxy
-import com.noumenadigital.platform.engine.client.EngineClientApi
+import com.noumenadigital.platform.client.engine.ApplicationClient
 import com.noumenadigital.platform.engine.values.ClientNumberValue
 import com.noumenadigital.platform.engine.values.ClientPartyValue
 import com.noumenadigital.platform.engine.values.ClientProtocolReferenceValue
@@ -38,9 +37,9 @@ internal fun userParty(partyName: String, userName: String): Party {
     return Party(
         entity = mapOf(
             "party" to setOf(partyName),
-            USER_NAME_CLAIM to setOf(userName)
+            USER_NAME_CLAIM to setOf(userName),
         ),
-        access = mapOf()
+        access = mapOf(),
     )
 }
 
@@ -52,8 +51,8 @@ internal fun partyPerson(parties: Map<String, ClientPartyValue>, partyName: Stri
             ?: throw IllegalArgumentException("no entity \"preferred_username\" in protocol parties $parties")
     } ?: throw IllegalArgumentException("no party $partyName in protocol parties $parties")
 
-internal fun partyPerson(party: Party) = party.entity[USER_NAME_CLAIM]?.single()
-    ?: throw IllegalStateException("userNameClaim not found in parties $party")
+internal fun partyPerson(party: Party) =
+    party.entity[USER_NAME_CLAIM]?.single() ?: throw IllegalStateException("userNameClaim not found in parties $party")
 
 internal fun party(clientPartyValue: ClientPartyValue): Party = Party(clientPartyValue.entity, clientPartyValue.access)
 
@@ -65,7 +64,7 @@ interface Iou {
 }
 
 class Gen(
-    val client: EngineClientApi,
+    val client: ApplicationClient,
     private val authorizationProvider: ForwardAuthorization,
 ) : Iou {
 
@@ -79,17 +78,17 @@ class Gen(
                 issuer = party(authorizationProvider.party(req)),
                 payee = userParty("payee", payeeName),
                 forAmount = BigDecimal(pathAmount(req)),
-                authorizationProvider = auth
+                authorizationProvider = auth,
             )
 
-            val id = result.getOrHandle { throw it }.result
-            val iouProtocol = client.getProtocolStateById(id.id, auth).getOrHandle { throw it }
+            val id = result.result
+            val iouProtocol = client.getProtocolStateById(id.id, auth)
             val iouFacade = IouFacade(iouProtocol)
             val iouDetails = IouDetails(
                 id = iouProtocol.id,
                 payee = partyPerson(iouFacade.parties.payee),
                 issuer = partyPerson(iouFacade.parties.issuer),
-                amount = iouFacade.fields.forAmount.toDouble()
+                amount = iouFacade.fields.forAmount.toDouble(),
             )
             Response(Status.CREATED).with(createResponseLens of CreateResponse(iouDetails))
         }
@@ -101,8 +100,8 @@ class Gen(
 
             val result = proxy.getAmountOwed(
                 protocolId = iouProtocolId,
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
+                authorizationProvider = authorizationProvider.forward(req),
+            )
             Response(Status.OK).with(amountResponseLens of AmountResponse(result.result.toDouble()))
         }
     }
@@ -115,8 +114,8 @@ class Gen(
             val result = proxy.pay(
                 protocolId = iouProtocolId,
                 amount = amountToPay.toBigDecimal(),
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
+                authorizationProvider = authorizationProvider.forward(req),
+            )
             Response(Status.OK).with(amountResponseLens of AmountResponse(result.result.toDouble()))
         }
     }
@@ -127,8 +126,8 @@ class Gen(
 
             proxy.forgive(
                 protocolId = iouProtocolId,
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
+                authorizationProvider = authorizationProvider.forward(req),
+            )
 
             Response(Status.NO_CONTENT)
         }
@@ -139,7 +138,7 @@ class Gen(
  * The Raw class illustrates why you don't want to do this without generated code
  */
 class Raw(
-    private val client: EngineClientApi,
+    private val client: ApplicationClient,
     private val authorizationProvider: ForwardAuthorization,
 ) : Iou {
 
@@ -153,18 +152,19 @@ class Raw(
             val result = client.createProtocol(
                 prototypeId = IouFacade.prototypeId,
                 parties = listOf(
-                    ClientPartyValue(issuer.entity, issuer.access), ClientPartyValue(payee.entity, payee.access)
+                    ClientPartyValue(issuer.entity, issuer.access),
+                    ClientPartyValue(payee.entity, payee.access),
                 ),
                 arguments = listOf(ClientNumberValue(amount)),
-                authorizationProvider = auth
+                authorizationProvider = auth,
             )
-            val id = result.getOrHandle { throw it }.result as ClientProtocolReferenceValue
-            val iouProtocol = client.getProtocolStateById(id.value, auth).getOrHandle { throw it }
+            val id = result.result as ClientProtocolReferenceValue
+            val iouProtocol = client.getProtocolStateById(id.value, auth)
             val iouDetails = IouDetails(
                 id = iouProtocol.id,
                 payee = partyPerson(iouProtocol.parties, "payee"),
                 issuer = partyPerson(iouProtocol.parties, "issuer"),
-                amount = (iouProtocol.fields["forAmount"] as ClientNumberValue).value.toDouble()
+                amount = (iouProtocol.fields["forAmount"] as ClientNumberValue).value.toDouble(),
             )
             Response(Status.CREATED).with(createResponseLens of CreateResponse(iouDetails))
         }
@@ -177,8 +177,8 @@ class Raw(
                 action = "getAmountOwed",
                 arguments = listOf(),
                 authorizationProvider = authorizationProvider.forward(req),
-                caller = null
-            ).getOrHandle { throw it }.result as ClientNumberValue
+                caller = null,
+            ).result as ClientNumberValue
             Response(Status.OK).with(amountResponseLens of AmountResponse(result.value.toDouble()))
         }
     }
@@ -192,8 +192,8 @@ class Raw(
                 protocolId = iouProtocolId,
                 action = "pay",
                 arguments = listOf(ClientNumberValue(amountToPay)),
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }.result as ClientNumberValue
+                authorizationProvider = authorizationProvider.forward(req),
+            ).result as ClientNumberValue
             Response(Status.OK).with(amountResponseLens of AmountResponse(result.value.toDouble()))
         }
     }
@@ -206,8 +206,8 @@ class Raw(
                 protocolId = iouProtocolId,
                 action = "forgive",
                 arguments = listOf(),
-                authorizationProvider = authorizationProvider.forward(req)
-            ).getOrHandle { throw it }
+                authorizationProvider = authorizationProvider.forward(req),
+            )
 
             Response(Status.NO_CONTENT)
         }

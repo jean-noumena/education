@@ -1,12 +1,12 @@
 package engine
 
-import com.noumenadigital.dpl.lang.DateTimeValue
-import com.noumenadigital.dpl.lang.NumberValue
-import com.noumenadigital.dpl.lang.PartyValue
-import com.noumenadigital.dpl.lang.ProtocolState
-import com.nounmenadigital.platform.engine.testing.Configuration
-import com.nounmenadigital.platform.engine.testing.DBConfig
-import com.nounmenadigital.platform.engine.testing.EngineMigrationTester
+import com.noumenadigital.npl.lang.DateTimeValue
+import com.noumenadigital.npl.lang.NumberValue
+import com.noumenadigital.npl.lang.PartyValue
+import com.noumenadigital.npl.lang.ProtocolState
+import com.noumenadigital.platform.engine.testing.Configuration
+import com.noumenadigital.platform.engine.testing.DBConfig
+import com.noumenadigital.platform.engine.testing.EngineMigrationTester
 import io.kotest.core.spec.style.FunSpec
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import java.io.File
@@ -67,7 +67,7 @@ class EngineTest : FunSpec({
             assertNotNull(paymentDeadline)
             assertEquals(
                 ZonedDateTime.of(2020, 1, 1, 12, 0, 0, 0, ZoneId.systemDefault()),
-                (paymentDeadline as DateTimeValue).value
+                (paymentDeadline as DateTimeValue).value,
             )
 
             assertNotNull(lateFee)

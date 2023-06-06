@@ -7,7 +7,7 @@ domain: seed-dev.noumenadigital.com
 postgres_fqdn: seed-dev-postgresql-v2.postgres.database.azure.com
 log_level: info
 access_log_verbosity: MAX
-platform_version: 2023.2.61
+platform_version: 2023.2.63
 filebeat_version: 1.0.8
 postgres_version: 11.3-alpine
 keycloak_version: 19.0.0

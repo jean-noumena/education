@@ -51,7 +51,7 @@ services:
       ENGINE_DB_POSTGRAPHILE_PASSWORD: postgraphile
     healthcheck:
       # add basic port opened check since image doesn't provide any tools to do a better check
-      test: /bin/bash -c '/usr/bin/printf "GET / HTTP/1.1\r\nHost\:engine:12000\r\n\r\n" > /dev/tcp/127.0.0.1/12000'
+      test: "curl -s -f localhost:12000/actuator/health || exit 1"
       interval: 1s
       retries: 60
     depends_on:

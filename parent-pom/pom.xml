@@ -21,7 +21,7 @@
         <io-prometheus-version>0.16.0</io-prometheus-version>
         <http4k.version>4.13.0.0</http4k.version>
         <logback.version>1.2.11</logback.version>
-        <noumena.platform.version>2023.1.0</noumena.platform.version>
+        <noumena.platform.version>2023.2.63</noumena.platform.version>
         <kotest.version>5.4.0</kotest.version>
         <mockito.version>4.1.0</mockito.version>
         <junit-platform-commons-version>1.9.1</junit-platform-commons-version>
@@ -40,12 +40,12 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.datatype</groupId>
                 <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>2.12.5</version>
+                <version>2.15.2</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>2.12.6.1</version>
+                <version>2.15.2</version>
             </dependency>
 
             <!-- Metrics -->
@@ -123,12 +123,7 @@
             <!-- Noumena -->
             <dependency>
                 <groupId>com.noumenadigital.platform</groupId>
-                <artifactId>engine-client</artifactId>
-                <version>${noumena.platform.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.noumenadigital.platform</groupId>
-                <artifactId>read-streams-client</artifactId>
+                <artifactId>clients</artifactId>
                 <version>${noumena.platform.version}</version>
             </dependency>
 
@@ -142,6 +137,11 @@
                 <groupId>com.sun.mail</groupId>
                 <artifactId>javax.mail</artifactId>
                 <version>1.6.2</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.3.2</version>
             </dependency>
 
             <!-- Testing -->
@@ -166,7 +166,7 @@
             <dependency>
                 <groupId>com.atlassian.oai</groupId>
                 <artifactId>swagger-request-validator-core</artifactId>
-                <version>2.19.5</version>
+                <version>2.35.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -274,22 +274,17 @@
                     </configuration>
                 </plugin>
                 <plugin>
-                    <groupId>com.github.z3d1k</groupId>
+                    <groupId>com.github.gantsign.maven</groupId>
                     <artifactId>ktlint-maven-plugin</artifactId>
-                    <version>0.7.0</version>
+                    <version>1.16.0</version>
                     <executions>
                         <execution>
-                            <id>lint</id>
-                            <phase>test-compile</phase>
+                            <id>check</id>
                             <goals>
-                                <goal>lint</goal>
+                                <goal>check</goal>
                             </goals>
-                            <configuration>
-                                <excludes>src/**/npl/api/generated/**/*.kt</excludes>
-                            </configuration>
                         </execution>
                     </executions>
-                    <!-- to fix any linting errors run `mvn com.github.z3d1k:ktlint-maven-plugin:format` -->
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -330,7 +325,7 @@
             </plugin>
             <!-- KTLint -->
             <plugin>
-                <groupId>com.github.z3d1k</groupId>
+                <groupId>com.github.gantsign.maven</groupId>
                 <artifactId>ktlint-maven-plugin</artifactId>
             </plugin>
 
