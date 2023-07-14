@@ -14,6 +14,10 @@ protocol [voter, system] Vote(
 
     private var vp = optionalOf<VotingPossibility>();
 
+    init {
+        tally.registerVoter[system, voter]();
+    }
+
     @api
     permission [voter] castVote(vp: VotingPossibility) | unused {
         // guard(this.ballot.states.handing_out_votes == this.ballot.currentState, "Vote must still me open");

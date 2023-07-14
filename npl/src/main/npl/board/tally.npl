@@ -17,6 +17,18 @@ protocol [system] Tally() {
     private var none: Number = 0;
 
     var voteOutcome: Optional<VoteOutcome> = optionalOf<VoteOutcome>();
+    var votersEmail: Set<Text> = setOf<Text>();
+
+    permission[system & *voter] registerVoter() {
+        // guard(votersEmail.contains(voter.entity().getOrNone("email").getOrFail().toList().get(0)).not(), "Voter already exists");
+        var email = voter.entity().getOrNone("email").getOrFail().toList().get(0);
+        f(email);
+        this.votersEmail = this.votersEmail.with(email);
+    };
+
+    function f(email: Text) returns Unit -> {
+        guard(votersEmail.contains(email).not(), "Voter already exists");
+    };
 
     permission [system] castVote(vp: VotingPossibility) | receiving_votes {
         if (VotingPossibility.yay == vp) {
